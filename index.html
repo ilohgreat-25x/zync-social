@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZYNC — Where Minds Connect</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<style>
+:root{
+  --bg:#0a1a0f;--card:#0f2318;--deep:#060f09;
+  --green:#166534;--green2:#16a34a;--green3:#22c55e;
+  --cream:#fefce8;--cream2:#fef9c3;--creamdim:rgba(254,252,232,.08);
+  --white:#f0fdf4;--moon:#bbf7d0;--muted:#4b7a5a;
+  --border:rgba(22,163,74,.2);--borderhi:rgba(254,252,232,.3);
+  --cdim:rgba(22,163,74,.1);--cglow:rgba(34,197,94,.15);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--white);overflow:hidden}
+button,input,textarea,select{font-family:'DM Sans',sans-serif}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+
+/* ── AUTH ── */
+#auth-screen{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;background:var(--deep)}
+#auth-screen::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 60% at 50% -5%,rgba(22,163,74,.18),transparent);pointer-events:none}
+.auth-logo{font-family:'DM Serif Display',serif;font-size:56px;color:var(--cream);letter-spacing:-2px;margin-bottom:2px;line-height:1}
+.auth-logo span{color:var(--green3)}
+.auth-sub{font-size:11px;color:var(--muted);letter-spacing:4px;text-transform:uppercase;margin-bottom:32px;font-weight:500}
+.auth-box{width:100%;max-width:420px;background:var(--card);border:1px solid var(--border);border-radius:24px;padding:28px 30px;box-shadow:0 40px 100px rgba(0,0,0,.5)}
+.auth-tabs{display:flex;background:var(--deep);border-radius:14px;padding:4px;gap:4px;margin-bottom:24px}
+.auth-tab{flex:1;padding:9px;border:none;background:none;color:var(--muted);font-size:13px;font-weight:600;border-radius:11px;cursor:pointer;transition:all .25s;font-family:'DM Sans',sans-serif}
+.auth-tab.active{background:linear-gradient(135deg,var(--green),var(--green2));color:var(--cream)}
+.auth-panel{display:none}
+.auth-panel.active{display:block}
+.fg{margin-bottom:15px}
+.fg label{display:block;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:7px}
+.fi{width:100%;padding:11px 14px;background:var(--deep);border:1px solid var(--border);border-radius:12px;color:var(--white);font-size:13px;outline:none;transition:border-color .2s;font-family:'DM Sans',sans-serif}
+.fi:focus{border-color:var(--green3)}
+.fi::placeholder{color:var(--muted)}
+.pw-wrap{position:relative;display:flex;align-items:center}
+.pw-wrap .fi{padding-right:42px}
+.eye-btn{position:absolute;right:12px;background:none;border:none;cursor:pointer;font-size:13px;color:var(--muted);padding:4px;line-height:1}
+.eye-btn:hover{color:var(--green3)}
+.btn-auth{width:100%;padding:13px;background:linear-gradient(135deg,var(--green),var(--green2));border:none;border-radius:13px;color:var(--cream);font-size:14px;font-weight:700;cursor:pointer;transition:opacity .2s;letter-spacing:.3px;margin-top:6px;font-family:'DM Sans',sans-serif}
+.btn-auth:hover{opacity:.88}
+.btn-auth:disabled{opacity:.45;cursor:not-allowed}
+.a-err{font-size:12px;color:#fca5a5;text-align:center;margin-top:10px;min-height:18px;line-height:1.5}
+
+/* ── APP ── */
+#app-screen{position:fixed;inset:0;display:none;flex-direction:column}
+
+/* ── TOPBAR ── */
+.topbar{height:54px;background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 14px;gap:10px;flex-shrink:0;position:relative;z-index:50}
+.tb-logo{font-family:'DM Serif Display',serif;font-size:24px;color:var(--cream);flex-shrink:0;margin-right:4px;letter-spacing:-1px}
+.tb-logo span{color:var(--green3)}
+.tb-sw{flex:1;max-width:260px;position:relative}
+.tb-sw input{width:100%;padding:7px 12px 7px 32px;background:var(--deep);border:1px solid var(--border);border-radius:20px;color:var(--white);font-size:12px;outline:none;transition:border-color .2s;font-family:'DM Sans',sans-serif}
+.tb-sw input::placeholder{color:var(--muted)}
+.tb-sw input:focus{border-color:var(--green3)}
+.tb-sw::before{content:'🔍';position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:11px;pointer-events:none}
+.tb-right{display:flex;align-items:center;gap:7px;margin-left:auto}
+.tb-pill{padding:6px 13px;background:var(--cdim);border:1px solid var(--border);border-radius:20px;color:var(--moon);font-size:11px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap}
+.tb-pill:hover{background:var(--green2);color:var(--cream);border-color:transparent}
+.ib{width:34px;height:34px;border-radius:10px;background:var(--cdim);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;transition:all .2s;flex-shrink:0;position:relative}
+.ib:hover{border-color:var(--borderhi)}
+.nd{position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:var(--green3);border:2px solid var(--card);display:none}
+.notif-drop{position:absolute;top:44px;right:0;width:300px;background:var(--card);border:1px solid var(--borderhi);border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.6);z-index:200;display:none;overflow:hidden}
+.notif-drop.open{display:block}
+.nh{padding:14px 16px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.nh span{font-size:13px;font-weight:700;color:var(--white);font-family:'DM Serif Display',serif}
+.nc{background:none;border:none;color:var(--green3);font-size:10px;font-weight:700;letter-spacing:1px;cursor:pointer;text-transform:uppercase}
+.n-empty{padding:24px;text-align:center;font-size:12px;color:var(--muted)}
+.n-item{display:flex;align-items:flex-start;gap:10px;padding:11px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
+.n-item:hover,.n-item.unread{background:var(--cdim)}
+.n-ico{font-size:17px;flex-shrink:0}
+.n-text{font-size:12px;color:var(--moon);line-height:1.5;flex:1}
+.n-time{font-size:10px;color:var(--muted);margin-top:2px}
+.tb-av{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,var(--green),var(--green2));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:var(--cream);cursor:pointer;flex-shrink:0}
+.tb-out{width:32px;height:32px;border-radius:10px;background:var(--cdim);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;transition:all .2s}
+.tb-out:hover{background:rgba(248,113,113,.12);border-color:rgba(248,113,113,.3)}
+
+/* ── LAYOUT ── */
+.app-body{flex:1;display:flex;overflow:hidden}
+
+/* ── LEFT SIDEBAR ── */
+.sidebar{width:204px;flex-shrink:0;background:var(--card);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:12px 10px;overflow-y:auto}
+.user-card{text-align:center;padding:14px 8px 14px;border-bottom:1px solid var(--border);margin-bottom:10px}
+.u-av{width:50px;height:50px;border-radius:14px;background:linear-gradient(135deg,var(--green),var(--green3));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px;color:var(--cream);margin:0 auto 10px}
+.u-name{font-family:'DM Serif Display',serif;font-size:14px;color:var(--white);margin-bottom:2px}
+.u-handle{font-size:11px;color:var(--muted);margin-bottom:11px}
+.u-stats{display:flex;justify-content:center;gap:16px}
+.u-sv{font-size:16px;font-weight:700;color:var(--green3)}
+.u-sl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:11px;border:none;background:none;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;width:100%;text-align:left;transition:all .2s;font-family:'DM Sans',sans-serif}
+.nav-item:hover{background:var(--cdim);color:var(--moon)}
+.nav-item.active{background:linear-gradient(135deg,rgba(22,101,52,.5),rgba(22,163,74,.2));color:var(--cream2);border:1px solid var(--border)}
+.nav-ic{font-size:15px;flex-shrink:0}
+.dm-badge{margin-left:auto;background:var(--green3);color:var(--deep);font-size:9px;font-weight:800;padding:2px 6px;border-radius:10px}
+
+/* ── FEED ── */
+.feed-col{flex:1;overflow-y:auto;padding:14px}
+
+/* ── STORIES ── */
+.stories-bar{display:flex;gap:10px;overflow-x:auto;padding-bottom:14px;scrollbar-width:none}
+.stories-bar::-webkit-scrollbar{display:none}
+.s-add{width:52px;height:52px;border-radius:50%;background:var(--cdim);border:2px dashed rgba(34,197,94,.35);display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;flex-shrink:0;transition:all .2s;color:var(--green3)}
+.s-add:hover{border-color:var(--green3)}
+.s-item{display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;flex-shrink:0}
+.s-ring{width:52px;height:52px;border-radius:50%;padding:2px;background:linear-gradient(135deg,var(--green2),var(--cream2))}
+.s-ring.seen{background:var(--muted)}
+.s-av{width:100%;height:100%;border-radius:50%;background:var(--card);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;color:var(--cream);border:2px solid var(--bg)}
+.s-name{font-size:9px;color:var(--muted);max-width:54px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ── COMPOSE ── */
+.compose-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;margin-bottom:12px}
+.c-top{display:flex;gap:10px;align-items:flex-start}
+.c-av{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--green),var(--green2));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:var(--cream);flex-shrink:0}
+.c-ta{flex:1;background:transparent;border:none;color:var(--white);font-size:13px;resize:none;outline:none;min-height:46px;line-height:1.7;padding-top:3px;font-family:'DM Sans',sans-serif}
+.c-ta::placeholder{color:var(--muted)}
+.c-bot{display:flex;align-items:center;gap:7px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);flex-wrap:wrap}
+.f-pill{padding:5px 11px;background:var(--cdim);border:1px solid var(--border);border-radius:20px;color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap;font-family:'DM Sans',sans-serif}
+.f-pill:hover,.f-pill.active{background:var(--green2);color:var(--cream);border-color:transparent}
+.media-btn{width:30px;height:30px;border-radius:8px;background:var(--cdim);border:1px solid var(--border);color:var(--muted);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+.media-btn:hover{border-color:var(--borderhi);color:var(--green3)}
+.cc{font-size:11px;color:var(--muted);margin-left:auto}
+.btn-spark{padding:8px 18px;background:linear-gradient(135deg,var(--green),var(--green2));border:none;border-radius:20px;color:var(--cream);font-size:12px;font-weight:700;cursor:pointer;transition:opacity .2s;white-space:nowrap;flex-shrink:0;font-family:'DM Sans',sans-serif}
+.btn-spark:hover{opacity:.88}
+.media-prev{display:none;margin-top:10px;position:relative}
+.media-prev img,.media-prev video{max-height:180px;border-radius:10px;border:1px solid var(--border);width:100%;object-fit:cover}
+.media-rm{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.7);border:none;border-radius:50%;width:22px;height:22px;color:white;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+
+/* ── FILTER BAR ── */
+.filter-bar{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.filter-bar::-webkit-scrollbar{display:none}
+
+/* ── SPARK CARD ── */
+.spark-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:10px;transition:border-color .2s}
+.spark-card:hover{border-color:rgba(34,197,94,.3)}
+.sk-head{display:flex;align-items:center;gap:9px;margin-bottom:9px}
+.sk-av{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:var(--cream);flex-shrink:0}
+.sk-name{font-size:13px;font-weight:700;color:var(--white)}
+.sk-handle{font-size:10px;color:var(--muted)}
+.sk-time{font-size:10px;color:var(--muted);margin-left:auto}
+.sk-cat{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:20px;background:var(--cdim);color:var(--green3);border:1px solid var(--border);margin-left:5px}
+.sk-body{font-size:13px;color:var(--moon);line-height:1.75;margin-bottom:11px;word-break:break-word}
+.sk-media{width:100%;max-height:300px;border-radius:10px;object-fit:cover;margin-bottom:11px;border:1px solid var(--border)}
+.sk-actions{display:flex;gap:5px;flex-wrap:wrap}
+.s-btn{display:flex;align-items:center;gap:4px;padding:5px 11px;background:var(--deep);border:1px solid var(--border);border-radius:20px;color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif}
+.s-btn:hover{border-color:rgba(34,197,94,.3);color:var(--moon)}
+.s-btn.liked{background:rgba(34,197,94,.1);border-color:var(--green3);color:var(--green3)}
+.s-btn.saved{background:rgba(254,252,232,.08);border-color:var(--cream2);color:var(--cream2)}
+.feed-empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.feed-empty .fi{font-size:44px;margin-bottom:14px;opacity:.5}
+.feed-empty h3{font-family:'DM Serif Display',serif;font-size:19px;color:var(--moon);margin-bottom:6px}
+.feed-empty p{font-size:13px}
+
+/* ── RIGHT SIDEBAR ── */
+.right-sidebar{width:240px;flex-shrink:0;background:var(--card);border-left:1px solid var(--border);padding:12px;overflow-y:auto}
+.widget{background:var(--deep);border:1px solid var(--border);border-radius:14px;padding:13px;margin-bottom:12px}
+.wt{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:11px}
+.prem-w{background:linear-gradient(135deg,rgba(22,101,52,.4),rgba(254,252,232,.06));border-color:rgba(34,197,94,.25)}
+.pw-icon{font-size:26px;margin-bottom:7px}
+.pw-title{font-family:'DM Serif Display',serif;font-size:15px;color:var(--white);margin-bottom:4px}
+.pw-sub{font-size:11px;color:var(--muted);line-height:1.6;margin-bottom:11px}
+.btn-upg{width:100%;padding:9px;background:linear-gradient(135deg,var(--green),var(--green2));border:none;border-radius:10px;color:var(--cream);font-size:12px;font-weight:700;cursor:pointer;transition:opacity .2s;font-family:'DM Sans',sans-serif}
+.btn-upg:hover{opacity:.88}
+.trend-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.trend-row:last-child{border:none}
+.tr-rank{font-size:10px;font-weight:700;color:var(--muted);width:14px}
+.tr-tag{font-size:12px;font-weight:600;color:var(--moon);flex:1}
+.tr-cnt{font-size:10px;color:var(--muted)}
+.sugg-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)}
+.sugg-row:last-child{border:none}
+.sg-av{width:31px;height:31px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;color:var(--cream);flex-shrink:0}
+.sg-name{font-size:12px;font-weight:600;color:var(--white)}
+.sg-handle{font-size:10px;color:var(--muted)}
+.btn-fol{padding:4px 11px;background:var(--cdim);border:1px solid var(--border);border-radius:20px;color:var(--green3);font-size:10px;font-weight:700;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif}
+.btn-fol:hover{background:var(--green2);color:var(--cream);border-color:transparent}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:linear-gradient(135deg,var(--green),var(--green2));color:var(--cream);padding:10px 22px;border-radius:20px;font-size:13px;font-weight:600;opacity:0;transition:all .3s;pointer-events:none;z-index:9999;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── MODALS ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:500;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+.modal-overlay.open{display:flex}
+.modal-box{background:var(--card);border:1px solid var(--borderhi);border-radius:20px;width:100%;max-width:460px;max-height:88vh;overflow:hidden;display:flex;flex-direction:column}
+.m-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px 14px;border-bottom:1px solid var(--border)}
+.m-title{font-family:'DM Serif Display',serif;font-size:17px;color:var(--white)}
+.m-close{width:28px;height:28px;border-radius:8px;background:var(--deep);border:1px solid var(--border);color:var(--muted);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:color .2s}
+.m-close:hover{color:var(--white)}
+.m-body{padding:20px 22px;overflow-y:auto;flex:1}
+.m-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;display:block}
+.m-input{width:100%;padding:10px 13px;background:var(--deep);border:1px solid var(--border);border-radius:10px;color:var(--white);font-size:13px;outline:none;margin-bottom:14px;transition:border-color .2s;font-family:'DM Sans',sans-serif}
+.m-input::placeholder{color:var(--muted)}
+.m-input:focus{border-color:var(--green3)}
+.m-err{font-size:12px;color:#fca5a5;margin-bottom:10px;min-height:16px;line-height:1.5}
+.btn-pay{width:100%;padding:13px;background:linear-gradient(135deg,var(--green),var(--green2));border:none;border-radius:12px;color:var(--cream);font-size:14px;font-weight:700;cursor:pointer;transition:opacity .2s;font-family:'DM Sans',sans-serif}
+.btn-pay:hover{opacity:.88}
+.plan-card{background:var(--deep);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:9px;cursor:pointer;transition:all .2s}
+.plan-card:hover,.plan-card.sel{border-color:var(--green3);background:rgba(34,197,94,.06)}
+.pl-name{font-size:13px;font-weight:700;color:var(--white)}
+.pl-price{font-family:'DM Serif Display',serif;font-size:24px;color:var(--green3)}
+.pl-price span{font-family:'DM Sans',sans-serif;font-size:11px;font-weight:400;color:var(--muted)}
+.pl-perks{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.6}
+.tab-row{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.e-panel{display:none}
+.e-panel.active{display:block}
+.earn-stat{background:var(--deep);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:9px}
+.es-val{font-family:'DM Serif Display',serif;font-size:28px;color:var(--green3)}
+.es-lbl{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* ── STORY VIEWER ── */
+.sv-overlay{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:5000;display:none;flex-direction:column;align-items:center;justify-content:center}
+.sv-overlay.open{display:flex}
+.sv-bars{display:flex;gap:4px;width:100%;max-width:380px;padding:0 16px;margin-bottom:14px}
+.sv-bar{flex:1;height:3px;background:rgba(255,255,255,.2);border-radius:3px;overflow:hidden}
+.sv-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--green2),var(--cream2))}
+.sv-card{width:100%;max-width:380px;background:var(--card);border:1px solid var(--borderhi);border-radius:20px;padding:20px;position:relative}
+.sv-hd{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.sv-av{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:var(--cream);flex-shrink:0}
+.sv-nm{font-size:13px;font-weight:700;color:var(--white)}
+.sv-tm{font-size:11px;color:var(--muted)}
+.sv-text{font-size:15px;color:var(--moon);line-height:1.75;font-family:'DM Serif Display',serif;font-style:italic}
+.sv-x{position:absolute;top:14px;right:14px;background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer}
+
+/* ── DM ── */
+.dm-wrap{max-width:700px;height:80vh;display:flex;flex-direction:row;padding:0;overflow:hidden}
+.dm-left{width:235px;flex-shrink:0;border-right:1px solid var(--border);display:flex;flex-direction:column}
+.dm-lh{padding:14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.dm-search{width:calc(100% - 28px);margin:10px 14px;padding:7px 11px;background:var(--deep);border:1px solid var(--border);border-radius:20px;color:var(--white);font-size:12px;outline:none;display:block;font-family:'DM Sans',sans-serif}
+.dm-search::placeholder{color:var(--muted)}
+.dm-search:focus{border-color:var(--green3)}
+.dm-list{flex:1;overflow-y:auto}
+.dm-row{display:flex;align-items:center;gap:9px;padding:10px 14px;cursor:pointer;transition:background .15s}
+.dm-row:hover,.dm-row.act{background:var(--cdim)}
+.dm-av{width:36px;height:36px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:var(--cream)}
+.dm-nm{font-size:12px;font-weight:600;color:var(--white)}
+.dm-pv{font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:110px}
+.dm-ud{width:7px;height:7px;border-radius:50%;background:var(--green3);flex-shrink:0}
+.dm-right{flex:1;display:flex;flex-direction:column}
+.dm-es{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--muted);gap:10px}
+.chat-hd{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:9px}
+.chat-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px}
+.msg{display:flex;gap:7px;max-width:80%}
+.msg.mine{align-self:flex-end;flex-direction:row-reverse}
+.msg-av{width:26px;height:26px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--cream)}
+.msg-bub{padding:8px 12px;border-radius:12px;font-size:12px;line-height:1.5}
+.msg:not(.mine) .msg-bub{background:var(--deep);border:1px solid var(--border);color:var(--moon);border-top-left-radius:3px}
+.msg.mine .msg-bub{background:linear-gradient(135deg,var(--green),var(--green2));color:var(--cream);border-top-right-radius:3px}
+.msg-t{font-size:9px;color:var(--muted);margin-top:2px;text-align:right}
+.chat-bar{padding:10px 14px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:flex-end}
+.chat-inp{flex:1;background:var(--deep);border:1px solid var(--border);border-radius:18px;padding:8px 13px;color:var(--white);font-size:12px;outline:none;resize:none;max-height:90px;transition:border-color .2s;font-family:'DM Sans',sans-serif}
+.chat-inp::placeholder{color:var(--muted)}
+.chat-inp:focus{border-color:var(--green3)}
+.chat-send{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--green2));border:none;color:var(--cream);font-size:15px;cursor:pointer;flex-shrink:0}
+
+/* ── COMMENTS ── */
+.cmt-item{display:flex;gap:9px;padding:10px 0;border-bottom:1px solid var(--border)}
+.cmt-av{width:30px;height:30px;border-radius:9px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--cream)}
+.cmt-nm{font-size:12px;font-weight:700;color:var(--white)}
+.cmt-hdl{font-size:10px;color:var(--muted);margin-left:6px}
+.cmt-txt{font-size:12px;color:var(--moon);line-height:1.6;margin-top:3px}
+.cmt-tm{font-size:10px;color:var(--muted);margin-top:3px}
+
+/* ── DATA/AIRTIME ── */
+.pkg-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.pkg-card{background:var(--deep);border:1px solid var(--border);border-radius:12px;padding:12px 10px;cursor:pointer;text-align:center;transition:all .2s}
+.pkg-card:hover,.pkg-card.sel{border-color:var(--green3);background:rgba(34,197,94,.07)}
+.pkg-size{font-family:'DM Serif Display',serif;font-size:20px;color:var(--green3)}
+.pkg-dur{font-size:10px;color:var(--muted);margin-top:2px}
+.pkg-price{font-size:13px;font-weight:700;color:var(--white);margin-top:5px}
+.ntabs{display:flex;gap:5px;margin-bottom:14px}
+.ntab{flex:1;padding:7px 4px;background:var(--deep);border:1px solid var(--border);border-radius:9px;color:var(--muted);font-size:11px;font-weight:700;cursor:pointer;transition:all .2s;text-align:center;font-family:'DM Sans',sans-serif}
+.ntab.active{background:var(--green2);color:var(--cream);border-color:transparent}
+
+/* ── LIGHT MODE ── */
+body.light{
+  --bg:#f5fbf0;--card:#ffffff;--deep:#e8f5e0;
+  --green:#166534;--green2:#16a34a;--green3:#15803d;
+  --cream:#fefce8;--cream2:#fef9c3;
+  --white:#0f2318;--moon:#14532d;--muted:#4b7a5a;
+  --border:rgba(22,163,74,.15);--borderhi:rgba(22,163,74,.4);
+  --cdim:rgba(22,163,74,.07);
+}
+body.light .c-ta{color:#0f2318!important}
+body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{background:#e8f5e0!important;color:#0f2318!important}
+</style>
+</head>
+<body>
+
+<!-- AUTH -->
+<div id="auth-screen">
+  <div class="auth-logo">ZY<span>NC</span></div>
+  <div class="auth-sub">Where Minds Connect</div>
+  <div class="auth-box">
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-login" onclick="showAuthTab('login')">Sign In</button>
+      <button class="auth-tab" id="tab-reg" onclick="showAuthTab('reg')">Join ZYNC</button>
+    </div>
+    <div class="auth-panel active" id="panel-login">
+      <div class="fg"><label>Email</label><input class="fi" id="li-email" type="email" placeholder="you@example.com" autocomplete="email"></div>
+      <div class="fg"><label>Password</label>
+        <div class="pw-wrap"><input class="fi" id="li-pass" type="password" placeholder="••••••••" autocomplete="current-password"><button class="eye-btn" type="button" onclick="toggleEye('li-pass','e0')"><span id="e0">👁</span></button></div>
+      </div>
+      <div class="a-err" id="li-err"></div>
+      <button class="btn-auth" id="btn-login">Enter ZYNC →</button>
+    </div>
+    <div class="auth-panel" id="panel-reg">
+      <div class="fg"><label>Full Name</label><input class="fi" id="r-name" type="text" placeholder="Your name" autocomplete="name"></div>
+      <div class="fg"><label>Username</label><input class="fi" id="r-handle" type="text" placeholder="@username"></div>
+      <div class="fg"><label>Email</label><input class="fi" id="r-email" type="email" placeholder="you@example.com" autocomplete="email"></div>
+      <div class="fg"><label>Password</label>
+        <div class="pw-wrap"><input class="fi" id="r-pass" type="password" placeholder="Min. 6 characters" autocomplete="new-password"><button class="eye-btn" type="button" onclick="toggleEye('r-pass','e1')"><span id="e1">👁</span></button></div>
+      </div>
+      <div class="fg"><label>Confirm Password</label>
+        <div class="pw-wrap"><input class="fi" id="r-confirm" type="password" placeholder="Re-enter password"><button class="eye-btn" type="button" onclick="toggleEye('r-confirm','e2')"><span id="e2">👁</span></button></div>
+      </div>
+      <div class="a-err" id="r-err"></div>
+      <button class="btn-auth" id="btn-reg">Create Account →</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app-screen">
+  <div class="topbar">
+    <div class="tb-logo">ZY<span>NC</span></div>
+    <div class="tb-sw"><input id="search-inp" type="text" placeholder="Search sparks…"></div>
+    <div class="tb-right">
+      <button class="tb-pill" onclick="openModal('modal-topup')">📱 Data & Airtime</button>
+      <button class="tb-pill" onclick="openModal('modal-earn')">💰 Earn</button>
+      <button class="tb-pill" onclick="openModal('modal-prem')">💎 Premium</button>
+      <button class="ib" id="theme-btn" title="Toggle theme">🌙</button>
+      <div style="position:relative">
+        <button class="ib" id="notif-btn">🔔<span class="nd" id="nd"></span></button>
+        <div class="notif-drop" id="notif-drop">
+          <div class="nh"><span>Notifications</span><button class="nc" id="nc-btn">CLEAR ALL</button></div>
+          <div id="notif-list"><div class="n-empty">No notifications yet</div></div>
+        </div>
+      </div>
+      <div class="tb-av" id="tb-av">?</div>
+      <button class="tb-out" id="btn-out" title="Sign out">⏻</button>
+    </div>
+  </div>
+
+  <div class="app-body">
+    <aside class="sidebar">
+      <div class="user-card">
+        <div class="u-av" id="sb-av">?</div>
+        <div class="u-name" id="sb-name">—</div>
+        <div class="u-handle" id="sb-handle">@—</div>
+        <div class="u-stats">
+          <div><div class="u-sv" id="st-sparks">0</div><div class="u-sl">Sparks</div></div>
+          <div><div class="u-sv" id="st-fans">0</div><div class="u-sl">Fans</div></div>
+        </div>
+      </div>
+      <nav class="nav">
+        <button class="nav-item active" id="nav-feed"><span class="nav-ic">🌿</span> Feed</button>
+        <button class="nav-item" id="nav-disc"><span class="nav-ic">🔭</span> Discover</button>
+        <button class="nav-item" id="nav-saved"><span class="nav-ic">🔖</span> Saved</button>
+        <button class="nav-item" id="nav-dm"><span class="nav-ic">💬</span> Messages<span class="dm-badge" id="dm-badge" style="display:none">0</span></button>
+        <button class="nav-item" id="nav-topup"><span class="nav-ic">📱</span> Data & Airtime</button>
+        <button class="nav-item" id="nav-earn"><span class="nav-ic">💰</span> Earn</button>
+        <button class="nav-item" id="nav-prem"><span class="nav-ic">💎</span> Premium</button>
+      </nav>
+    </aside>
+
+    <main class="feed-col" id="feed-col">
+      <div class="stories-bar" id="stories-bar"><div class="s-add" id="story-add">＋</div></div>
+      <div class="compose-box" id="compose-box">
+        <div class="c-top">
+          <div class="c-av" id="comp-av">?</div>
+          <textarea class="c-ta" id="comp-ta" placeholder="What's sparking in your mind?" maxlength="280" rows="2"></textarea>
+        </div>
+        <div class="media-prev" id="media-prev">
+          <img id="prev-img" style="display:none">
+          <video id="prev-vid" style="display:none" controls></video>
+          <button class="media-rm" id="media-rm">✕</button>
+        </div>
+        <div class="c-bot">
+          <button class="f-pill active" data-cat="all">✦ All</button>
+          <button class="f-pill" data-cat="education">🧠 Learn</button>
+          <button class="f-pill" data-cat="fun">🎉 Fun</button>
+          <button class="f-pill" data-cat="thoughts">💭 Thoughts</button>
+          <button class="f-pill" data-cat="news">🌍 News</button>
+          <button class="media-btn" id="btn-media" title="Attach media">📎</button>
+          <span class="cc" id="cc">280</span>
+          <button class="btn-spark" id="btn-post">✦ Spark</button>
+        </div>
+      </div>
+      <div class="filter-bar" id="filter-bar">
+        <button class="f-pill active" data-filter="all">✦ All</button>
+        <button class="f-pill" data-filter="education">🧠 Education</button>
+        <button class="f-pill" data-filter="fun">🎉 Fun</button>
+        <button class="f-pill" data-filter="thoughts">💭 Thoughts</button>
+        <button class="f-pill" data-filter="news">🌍 News</button>
+      </div>
+      <div id="feed-cont"><div class="feed-empty"><div class="fi">🌿</div><h3>Loading sparks…</h3></div></div>
+    </main>
+
+    <aside class="right-sidebar">
+      <div class="widget prem-w" id="prem-widget">
+        <div class="pw-icon">💎</div>
+        <div class="pw-title">Go Premium</div>
+        <div class="pw-sub">Ad-free · Longer posts · Verified badge · Revenue share</div>
+        <button class="btn-upg" onclick="openModal('modal-prem')">Upgrade Now →</button>
+      </div>
+      <div class="widget">
+        <div class="wt">Trending</div>
+        <div class="trend-row"><span class="tr-rank">1</span><span class="tr-tag">#AIRevolution</span><span class="tr-cnt">2.4k</span></div>
+        <div class="trend-row"><span class="tr-rank">2</span><span class="tr-tag">#ZYNCLife</span><span class="tr-cnt">1.8k</span></div>
+        <div class="trend-row"><span class="tr-rank">3</span><span class="tr-tag">#TechTips</span><span class="tr-cnt">1.2k</span></div>
+        <div class="trend-row"><span class="tr-rank">4</span><span class="tr-tag">#MindSpark</span><span class="tr-cnt">980</span></div>
+        <div class="trend-row"><span class="tr-rank">5</span><span class="tr-tag">#LearnDaily</span><span class="tr-cnt">754</span></div>
+      </div>
+      <div class="widget">
+        <div class="wt">Suggested ZYNCs</div>
+        <div class="sugg-row"><div class="sg-av" style="background:linear-gradient(135deg,#166534,#16a34a)">A</div><div style="flex:1"><div class="sg-name">Aria Chen</div><div class="sg-handle">@aria_c</div></div><button class="btn-fol">Follow</button></div>
+        <div class="sugg-row"><div class="sg-av" style="background:linear-gradient(135deg,#0f766e,#14b8a6)">K</div><div style="flex:1"><div class="sg-name">Kofi M.</div><div class="sg-handle">@kofi_m</div></div><button class="btn-fol">Follow</button></div>
+        <div class="sugg-row"><div class="sg-av" style="background:linear-gradient(135deg,#854d0e,#ca8a04)">L</div><div style="flex:1"><div class="sg-name">Lila Santos</div><div class="sg-handle">@lila_s</div></div><button class="btn-fol">Follow</button></div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<!-- STORY VIEWER -->
+<div class="sv-overlay" id="sv-overlay">
+  <div class="sv-bars"><div class="sv-bar"><div class="sv-fill" id="sv-fill"></div></div></div>
+  <div class="sv-card">
+    <div class="sv-hd"><div class="sv-av" id="sv-av">?</div><div><div class="sv-nm" id="sv-nm">—</div><div class="sv-tm" id="sv-tm"></div></div></div>
+    <div class="sv-text" id="sv-text"></div>
+    <button class="sv-x" id="sv-x">✕</button>
+  </div>
+</div>
+
+<!-- COMMENTS MODAL -->
+<div class="modal-overlay" id="modal-comments">
+  <div class="modal-box">
+    <div class="m-head"><div class="m-title">Comments</div><button class="m-close" onclick="closeModal('modal-comments')">✕</button></div>
+    <div class="m-body" style="padding:0">
+      <div id="cmt-list" style="max-height:310px;overflow-y:auto;padding:12px 20px"></div>
+      <div style="padding:14px 20px;border-top:1px solid var(--border)">
+        <div style="display:flex;gap:9px;align-items:flex-start">
+          <div class="c-av" id="cmt-av" style="flex-shrink:0">?</div>
+          <div style="flex:1">
+            <textarea id="cmt-inp" placeholder="Write a comment…" maxlength="200" style="width:100%;background:var(--deep);border:1px solid var(--border);border-radius:10px;padding:8px 12px;color:var(--white);font-size:12px;resize:none;outline:none;min-height:50px;font-family:'DM Sans',sans-serif"></textarea>
+            <div style="display:flex;justify-content:flex-end;margin-top:6px"><button class="btn-spark" id="btn-cmt" style="padding:7px 16px;font-size:11px">Post</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TIP MODAL -->
+<div class="modal-overlay" id="modal-tip">
+  <div class="modal-box">
+    <div class="m-head"><div class="m-title">Send a Tip 💝</div><button class="m-close" onclick="closeModal('modal-tip')">✕</button></div>
+    <div class="m-body">
+      <div style="text-align:center;margin-bottom:16px"><div id="tip-name" style="font-family:'DM Serif Display',serif;font-size:16px;color:var(--white)"></div><div style="font-size:11px;color:var(--muted)">Show your appreciation</div></div>
+      <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px">
+        <button class="f-pill" onclick="setTip(200)">₦200</button>
+        <button class="f-pill" onclick="setTip(500)">₦500</button>
+        <button class="f-pill" onclick="setTip(1000)">₦1,000</button>
+        <button class="f-pill" onclick="setTip(2000)">₦2,000</button>
+        <button class="f-pill" onclick="setTip(5000)">₦5,000</button>
+      </div>
+      <label class="m-label">Or enter amount (₦)</label>
+      <input class="m-input" id="tip-amt" type="number" placeholder="500" min="100">
+      <div class="m-err" id="tip-err"></div>
+      <button class="btn-pay" id="btn-tip">💝 Send Tip via Paystack</button>
+    </div>
+  </div>
+</div>
+
+<!-- PREMIUM MODAL -->
+<div class="modal-overlay" id="modal-prem">
+  <div class="modal-box">
+    <div class="m-head"><div class="m-title">ZYNC Premium 💎</div><button class="m-close" onclick="closeModal('modal-prem')">✕</button></div>
+    <div class="m-body">
+      <div class="plan-card sel" id="pc-basic" onclick="selPlan('basic',2000,'ZYNC Basic')">
+        <div class="pl-name">ZYNC Basic</div>
+        <div class="pl-price">₦2,000<span>/month</span></div>
+        <div class="pl-perks">✓ Ad-free &nbsp;✓ Verified badge &nbsp;✓ 500-char posts</div>
+      </div>
+      <div class="plan-card" id="pc-pro" onclick="selPlan('pro',5000,'ZYNC Pro')">
+        <div class="pl-name">ZYNC Pro ⭐</div>
+        <div class="pl-price">₦5,000<span>/month</span></div>
+        <div class="pl-perks">✓ All Basic &nbsp;✓ Revenue share &nbsp;✓ Priority support</div>
+      </div>
+      <div class="plan-card" id="pc-creator" onclick="selPlan('creator',10000,'ZYNC Creator')">
+        <div class="pl-name">ZYNC Creator 🎯</div>
+        <div class="pl-price">₦10,000<span>/month</span></div>
+        <div class="pl-perks">✓ All Pro &nbsp;✓ Analytics &nbsp;✓ Creator fund</div>
+      </div>
+      <div style="background:var(--deep);border:1px solid var(--borderhi);border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div><div id="co-name" style="font-size:13px;font-weight:700;color:var(--white)">ZYNC Basic</div><div style="font-size:11px;color:var(--muted)">Billed monthly</div></div>
+        <div id="co-price" style="font-family:'DM Serif Display',serif;font-size:24px;color:var(--green3)">₦2,000</div>
+      </div>
+      <div class="m-err" id="pay-err"></div>
+      <button class="btn-pay" id="btn-pay">🔒 Pay with Paystack →</button>
+    </div>
+  </div>
+</div>
+
+<!-- EARN MODAL -->
+<div class="modal-overlay" id="modal-earn">
+  <div class="modal-box">
+    <div class="m-head"><div class="m-title">Earn on ZYNC 💰</div><button class="m-close" onclick="closeModal('modal-earn')">✕</button></div>
+    <div class="m-body">
+      <div class="tab-row">
+        <button class="f-pill active" onclick="switchTab('earn','overview',this)">Overview</button>
+        <button class="f-pill" onclick="switchTab('earn','withdraw',this)">Withdraw</button>
+        <button class="f-pill" onclick="switchTab('earn','referral',this)">Referral</button>
+      </div>
+      <div class="e-panel active" id="earn-overview">
+        <div class="earn-stat"><div class="es-val" id="e-bal">₦0.00</div><div class="es-lbl">Available Balance</div></div>
+        <div class="earn-stat"><div class="es-val" id="e-tips">₦0.00</div><div class="es-lbl">Tips Received</div></div>
+        <div class="earn-stat"><div class="es-val" id="e-rev">₦0.00</div><div class="es-lbl">Revenue Share</div></div>
+      </div>
+      <div class="e-panel" id="earn-withdraw">
+        <label class="m-label">Account Number</label><input class="m-input" id="wd-acc" placeholder="0000000000">
+        <label class="m-label">Bank Name</label><input class="m-input" id="wd-bank" placeholder="First Bank">
+        <label class="m-label">Amount (₦)</label><input class="m-input" id="wd-amt" type="number" placeholder="1000">
+        <div class="m-err" id="wd-err"></div>
+        <button class="btn-pay" id="btn-wd">Request Withdrawal</button>
+      </div>
+      <div class="e-panel" id="earn-referral">
+        <div style="background:var(--deep);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:12px;font-size:12px;color:var(--muted);line-height:1.7">Share your link and earn ₦500 per signup!</div>
+        <label class="m-label">Your Referral Link</label>
+        <div style="display:flex;gap:8px"><input class="m-input" id="ref-link" readonly style="margin:0;flex:1"><button class="btn-spark" onclick="copyRef()">Copy</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DATA & AIRTIME MODAL -->
+<div class="modal-overlay" id="modal-topup">
+  <div class="modal-box">
+    <div class="m-head"><div class="m-title">Data & Airtime 📱</div><button class="m-close" onclick="closeModal('modal-topup')">✕</button></div>
+    <div class="m-body">
+      <div class="tab-row">
+        <button class="f-pill active" onclick="switchTab('tu','airtime',this)">Airtime</button>
+        <button class="f-pill" onclick="switchTab('tu','data',this)">Data Bundle</button>
+      </div>
+      <div class="e-panel active" id="tu-airtime">
+        <div class="ntabs">
+          <button class="ntab active" onclick="setNetwork(this,'MTN')">MTN</button>
+          <button class="ntab" onclick="setNetwork(this,'Airtel')">Airtel</button>
+          <button class="ntab" onclick="setNetwork(this,'Glo')">Glo</button>
+          <button class="ntab" onclick="setNetwork(this,'9mobile')">9mobile</button>
+        </div>
+        <label class="m-label">Phone Number</label>
+        <input class="m-input" id="air-phone" type="tel" placeholder="08012345678" maxlength="11">
+        <label class="m-label">Amount (₦)</label>
+        <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px">
+          <button class="f-pill" onclick="setAmt('air-amt',50)">₦50</button>
+          <button class="f-pill" onclick="setAmt('air-amt',100)">₦100</button>
+          <button class="f-pill" onclick="setAmt('air-amt',200)">₦200</button>
+          <button class="f-pill" onclick="setAmt('air-amt',500)">₦500</button>
+          <button class="f-pill" onclick="setAmt('air-amt',1000)">₦1,000</button>
+        </div>
+        <input class="m-input" id="air-amt" type="number" placeholder="Enter amount">
+        <div class="m-err" id="air-err"></div>
+        <button class="btn-pay" id="btn-airtime">📱 Buy Airtime →</button>
+      </div>
+      <div class="e-panel" id="tu-data">
+        <div class="ntabs">
+          <button class="ntab active" onclick="setNetwork(this,'MTN')">MTN</button>
+          <button class="ntab" onclick="setNetwork(this,'Airtel')">Airtel</button>
+          <button class="ntab" onclick="setNetwork(this,'Glo')">Glo</button>
+          <button class="ntab" onclick="setNetwork(this,'9mobile')">9mobile</button>
+        </div>
+        <label class="m-label">Phone Number</label>
+        <input class="m-input" id="data-phone" type="tel" placeholder="08012345678" maxlength="11">
+        <label class="m-label">Select Data Bundle</label>
+        <div class="pkg-grid">
+          <div class="pkg-card sel" data-size="500MB" data-dur="1 Day" data-price="150" onclick="selPkg(this)"><div class="pkg-size">500MB</div><div class="pkg-dur">1 Day</div><div class="pkg-price">₦150</div></div>
+          <div class="pkg-card" data-size="1GB" data-dur="1 Day" data-price="300" onclick="selPkg(this)"><div class="pkg-size">1GB</div><div class="pkg-dur">1 Day</div><div class="pkg-price">₦300</div></div>
+          <div class="pkg-card" data-size="2GB" data-dur="7 Days" data-price="500" onclick="selPkg(this)"><div class="pkg-size">2GB</div><div class="pkg-dur">7 Days</div><div class="pkg-price">₦500</div></div>
+          <div class="pkg-card" data-size="5GB" data-dur="30 Days" data-price="1000" onclick="selPkg(this)"><div class="pkg-size">5GB</div><div class="pkg-dur">30 Days</div><div class="pkg-price">₦1,000</div></div>
+          <div class="pkg-card" data-size="10GB" data-dur="30 Days" data-price="2000" onclick="selPkg(this)"><div class="pkg-size">10GB</div><div class="pkg-dur">30 Days</div><div class="pkg-price">₦2,000</div></div>
+          <div class="pkg-card" data-size="20GB" data-dur="30 Days" data-price="3500" onclick="selPkg(this)"><div class="pkg-size">20GB</div><div class="pkg-dur">30 Days</div><div class="pkg-price">₦3,500</div></div>
+          <div class="pkg-card" data-size="50GB" data-dur="30 Days" data-price="7000" onclick="selPkg(this)"><div class="pkg-size">50GB</div><div class="pkg-dur">30 Days</div><div class="pkg-price">₦7,000</div></div>
+          <div class="pkg-card" data-size="Unlimited" data-dur="30 Days" data-price="15000" onclick="selPkg(this)"><div class="pkg-size" style="font-size:14px">Unlim.</div><div class="pkg-dur">30 Days</div><div class="pkg-price">₦15,000</div></div>
+        </div>
+        <div class="m-err" id="data-err"></div>
+        <button class="btn-pay" id="btn-data">📶 Buy Data Bundle →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DM MODAL -->
+<div class="modal-overlay" id="modal-dm">
+  <div class="modal-box dm-wrap">
+    <div class="dm-left">
+      <div class="dm-lh"><span style="font-family:'DM Serif Display',serif;font-size:15px;color:var(--white)">Messages</span><button class="m-close" onclick="closeModal('modal-dm')">✕</button></div>
+      <input class="dm-search" id="dm-search" placeholder="Search users…" type="text">
+      <div class="dm-list" id="dm-list"></div>
+    </div>
+    <div class="dm-right" id="dm-right">
+      <div class="dm-es"><div style="font-size:36px">💬</div><div style="font-family:'DM Serif Display',serif;font-size:15px;color:var(--moon)">Select a conversation</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+
+firebase.initializeApp({
+  apiKey:            'AIzaSyDdTgIqJuOYJhRAhEF9vMuMA8oZViRPlts',
+  authDomain:        'zync-social.firebaseapp.com',
+  projectId:         'zync-social',
+  storageBucket:     'zync-social.firebasestorage.app',
+  messagingSenderId: '720726547858',
+  appId:             '1:720726547858:web:3175ba8d0b7c987e31754b'
+});
+var auth = firebase.auth();
+var db   = firebase.firestore();
+
+var COLORS = ['#166534','#16a34a','#0f766e','#854d0e','#1d4ed8','#7e22ce','#be123c'];
+var PAYSTACK_KEY = 'pk_live_1a3a25c1a562f8a054e34167c4ae1be59b1e4da0';
+var CLOUD_NAME   = 'dk4svvssf';
+var state = { user:null,profile:null,sparks:[],filter:'all',plan:{id:'basic',amount:2000,name:'ZYNC Basic'},tipTarget:null,network:'MTN',selectedPkg:{size:'500MB',dur:'1 Day',price:150},currentSparkId:null,sparksUnsub:null,notifsUnsub:null };
+
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function timeAgo(ts){ if(!ts) return ''; var d=ts.toDate?ts.toDate():new Date(ts),s=Math.floor((Date.now()-d)/1000); if(s<60) return s+'s'; if(s<3600) return Math.floor(s/60)+'m'; if(s<86400) return Math.floor(s/3600)+'h'; return Math.floor(s/86400)+'d'; }
+function showToast(msg){ var t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(function(){ t.classList.remove('show'); },2600); }
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+function setNav(el){ document.querySelectorAll('.nav-item').forEach(function(b){ b.classList.remove('active'); }); el.classList.add('active'); }
+function toggleEye(inp,ico){ var i=document.getElementById(inp),ic=document.getElementById(ico); if(!i) return; i.type=i.type==='password'?'text':'password'; if(ic) ic.textContent=i.type==='password'?'👁':'🙈'; }
+function authErr(code){ var m={'auth/user-not-found':'No account with that email.','auth/wrong-password':'Wrong password. Try again.','auth/invalid-credential':'Wrong email or password.','auth/email-already-in-use':'Email already registered.','auth/invalid-email':'Invalid email address.','auth/weak-password':'Password needs at least 6 characters.','auth/too-many-requests':'Too many attempts. Wait a moment.','auth/network-request-failed':'Network blocked. Try a different WiFi, mobile hotspot, or disable any VPN/firewall.'}; return m[code]||'Something went wrong ('+code+'). Try again.'; }
+
+function showAuthTab(tab){ document.querySelectorAll('.auth-tab').forEach(function(t){ t.classList.remove('active'); }); document.querySelectorAll('.auth-panel').forEach(function(p){ p.classList.remove('active'); }); document.getElementById('tab-'+tab).classList.add('active'); document.getElementById('panel-'+tab).classList.add('active'); }
+
+function doLogin(){
+  var email=document.getElementById('li-email').value.trim().toLowerCase();
+  var pass=document.getElementById('li-pass').value;
+  var err=document.getElementById('li-err');
+  var btn=document.getElementById('btn-login');
+  err.textContent='';
+  if(!email||!pass){ err.textContent='Please fill in both fields.'; return; }
+  btn.disabled=true; btn.textContent='Signing in…';
+  function attempt(tries){
+    auth.signInWithEmailAndPassword(email,pass)
+      .catch(function(e){
+        if(e.code==='auth/network-request-failed'&&tries>0){
+          err.textContent='Retrying… ('+tries+' left)';
+          setTimeout(function(){ attempt(tries-1); },2000);
+        } else {
+          err.textContent=authErr(e.code);
+          btn.disabled=false;
+          btn.textContent='Enter ZYNC →';
+        }
+      });
+  }
+  attempt(3);
+}
+document.getElementById('btn-login').addEventListener('click',doLogin);
+document.getElementById('li-pass').addEventListener('keydown',function(e){ if(e.key==='Enter') doLogin(); });
+
+function doRegister(){
+  var name=document.getElementById('r-name').value.trim();
+  var handle=document.getElementById('r-handle').value.trim().toLowerCase().replace(/[^a-z0-9_]/g,'');
+  var email=document.getElementById('r-email').value.trim().toLowerCase();
+  var pass=document.getElementById('r-pass').value;
+  var confirm=document.getElementById('r-confirm').value;
+  var err=document.getElementById('r-err');
+  var btn=document.getElementById('btn-reg');
+  err.textContent='';
+  if(!name||!handle||!email||!pass){ err.textContent='Please fill in all fields.'; return; }
+  if(handle.length<3){ err.textContent='Username must be at least 3 characters.'; return; }
+  if(pass.length<6){ err.textContent='Password must be at least 6 characters.'; return; }
+  if(pass!==confirm){ err.textContent='Passwords do not match.'; return; }
+  btn.disabled=true; btn.textContent='Creating account…';
+  auth.createUserWithEmailAndPassword(email,pass)
+    .then(function(cred){
+      var color=COLORS[Math.floor(Math.random()*COLORS.length)];
+      return db.collection('users').doc(cred.user.uid).set({ id:cred.user.uid,name:name,handle:handle,email:email,color:color,plan:'free',isPremium:false,sparksCount:0,followers:0,earnings:0,tips:0,joinDate:firebase.firestore.FieldValue.serverTimestamp() });
+    })
+    .then(function(){ return auth.currentUser.updateProfile({displayName:document.getElementById('r-name').value.trim()}); })
+    .catch(function(e){ err.textContent=authErr(e.code); btn.disabled=false; btn.textContent='Create Account →'; });
+}
+document.getElementById('btn-reg').addEventListener('click',doRegister);
+document.getElementById('r-confirm').addEventListener('keydown',function(e){ if(e.key==='Enter') doRegister(); });
+
+auth.onAuthStateChanged(function(user){
+  if(user){
+    state.user=user;
+    db.collection('users').doc(user.uid).get().then(function(snap){
+      if(snap.exists){
+        state.profile=snap.data();
+      } else {
+        var color=COLORS[Math.floor(Math.random()*COLORS.length)];
+        state.profile={id:user.uid,name:user.displayName||user.email.split('@')[0],handle:(user.displayName||'user').toLowerCase().replace(/\s+/g,'_'),email:user.email,color:color,plan:'free',isPremium:false,sparksCount:0,followers:0,earnings:0,tips:0};
+        db.collection('users').doc(user.uid).set(state.profile);
+        showToast('Welcome to ZYNC! 🌿');
+      }
+      mountApp();
+    }).catch(function(){ state.profile={name:user.displayName||user.email,handle:user.email.split('@')[0],color:COLORS[0],plan:'free'}; mountApp(); });
+  } else {
+    state.user=null; state.profile=null;
+    document.getElementById('app-screen').style.display='none';
+    document.getElementById('auth-screen').style.display='flex';
+    if(state.sparksUnsub){ state.sparksUnsub(); state.sparksUnsub=null; }
+    if(state.notifsUnsub){ state.notifsUnsub(); state.notifsUnsub=null; }
+  }
+});
+
+function mountApp(){
+  var p=state.profile,color=p.color||COLORS[0],init=(p.name||'Z').charAt(0).toUpperCase();
+  var grad='linear-gradient(135deg,'+color+','+COLORS[1]+')';
+  ['tb-av','sb-av','comp-av','cmt-av'].forEach(function(id){ var el=document.getElementById(id); if(el){ el.textContent=init; el.style.background=grad; } });
+  document.getElementById('sb-name').textContent=p.name||'ZYNCer';
+  document.getElementById('sb-handle').textContent='@'+(p.handle||'user');
+  document.getElementById('ref-link').value='https://zync.vercel.app/ref/'+state.user.uid.slice(0,8);
+  if(p.isPremium) document.getElementById('prem-widget').style.display='none';
+  document.getElementById('auth-screen').style.display='none';
+  document.getElementById('app-screen').style.display='flex';
+  updateStats(); loadSparks(); listenNotifs(); loadStories(); loadConversations();
+}
+
+document.getElementById('btn-out').addEventListener('click',function(){ if(state.sparksUnsub) state.sparksUnsub(); auth.signOut(); });
+
+var isLight=false;
+try{ isLight=localStorage.getItem('zync_theme')==='light'; if(isLight){ document.body.classList.add('light'); document.getElementById('theme-btn').textContent='☀️'; } }catch(e){}
+document.getElementById('theme-btn').addEventListener('click',function(){ isLight=!isLight; document.body.classList.toggle('light',isLight); this.textContent=isLight?'☀️':'🌙'; try{ localStorage.setItem('zync_theme',isLight?'light':'dark'); }catch(e){} showToast(isLight?'☀️ Light mode':'🌙 Dark mode'); });
+
+function updateStats(){
+  if(!state.profile) return;
+  document.getElementById('st-sparks').textContent=state.profile.sparksCount||0;
+  document.getElementById('st-fans').textContent=state.profile.followers||0;
+  document.getElementById('e-bal').textContent='₦'+(((state.profile.earnings||0)+(state.profile.tips||0)).toFixed(2));
+  document.getElementById('e-tips').textContent='₦'+((state.profile.tips||0).toFixed(2));
+  document.getElementById('e-rev').textContent='₦'+((state.profile.earnings||0).toFixed(2));
+}
+
+function loadSparks(){ if(state.sparksUnsub) state.sparksUnsub(); state.sparksUnsub=db.collection('sparks').orderBy('createdAt','desc').limit(50).onSnapshot(function(snap){ state.sparks=snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); }); renderFeed(); },function(){ showToast('Error loading feed'); }); }
+function renderFeed(){ var sparks=state.sparks; if(state.filter!=='all') sparks=sparks.filter(function(s){ return s.category===state.filter; }); var q=document.getElementById('search-inp').value.trim().toLowerCase(); if(q) sparks=sparks.filter(function(s){ return (s.text||'').toLowerCase().includes(q)||(s.authorName||'').toLowerCase().includes(q); }); var fc=document.getElementById('feed-cont'); if(!sparks.length){ fc.innerHTML='<div class="feed-empty"><div class="fi">🌿</div><h3>No sparks yet</h3><p>Be the first to post!</p></div>'; return; } fc.innerHTML=sparks.map(buildSparkHTML).join(''); }
+function buildSparkHTML(s){ var liked=state.user&&(s.likes||[]).indexOf(state.user.uid)>-1,saved=state.user&&(s.saved||[]).indexOf(state.user.uid)>-1,isOwn=state.user&&s.authorId===state.user.uid; var media=''; if(s.mediaUrl&&s.mediaType==='image') media='<img class="sk-media" src="'+esc(s.mediaUrl)+'" loading="lazy">'; if(s.mediaUrl&&s.mediaType==='video') media='<video class="sk-media" src="'+esc(s.mediaUrl)+'" controls></video>'; return '<div class="spark-card"><div class="sk-head"><div class="sk-av" style="background:'+esc(s.authorColor||COLORS[0])+'">'+esc((s.authorName||'Z').charAt(0).toUpperCase())+'</div><div><div class="sk-name">'+esc(s.authorName||'ZYNCer')+'<span class="sk-cat">'+esc(s.category||'all')+'</span></div><div class="sk-handle">@'+esc(s.authorHandle||'user')+'</div></div><span class="sk-time">'+timeAgo(s.createdAt)+'</span></div>'+media+'<div class="sk-body">'+esc(s.text||'')+'</div><div class="sk-actions"><button class="s-btn'+(liked?' liked':'')+'" onclick="toggleLike(\''+s.id+'\')">'+(liked?'❤️':'🤍')+' '+(s.likes||[]).length+'</button><button class="s-btn" onclick="openComments(\''+s.id+'\')">💬 '+(s.commentCount||0)+'</button><button class="s-btn'+(saved?' saved':'')+'" onclick="toggleSave(\''+s.id+'\')">🔖</button>'+(isOwn?'':'<button class="s-btn" onclick="openTip(\''+esc(s.authorId)+'\',\''+esc(s.authorName||'Creator')+'\')">💝 Tip</button>')+'<button class="s-btn" onclick="shareSpark(\''+s.id+'\')">↗</button>'+(isOwn?'<button class="s-btn" onclick="delSpark(\''+s.id+'\')" style="color:#fca5a5;margin-left:auto">🗑</button>':'')+'</div></div>'; }
+
+var compCat='all',pendingMedia=null;
+document.querySelectorAll('.c-bot .f-pill').forEach(function(b){ b.addEventListener('click',function(){ document.querySelectorAll('.c-bot .f-pill').forEach(function(x){ x.classList.remove('active'); }); this.classList.add('active'); compCat=this.dataset.cat||'all'; }); });
+document.getElementById('comp-ta').addEventListener('input',function(){ document.getElementById('cc').textContent=280-this.value.length; });
+document.getElementById('btn-post').addEventListener('click',function(){ var text=document.getElementById('comp-ta').value.trim(); if(!text&&!pendingMedia){ showToast('Write something first!'); return; } if(!state.user||!state.profile){ showToast('Please sign in first'); return; } var btn=this; btn.disabled=true; btn.textContent='Posting…'; db.collection('sparks').add({text:text,authorId:state.user.uid,authorName:state.profile.name||'ZYNCer',authorHandle:state.profile.handle||'user',authorColor:state.profile.color||COLORS[0],category:compCat,likes:[],saved:[],commentCount:0,mediaUrl:pendingMedia?pendingMedia.url:null,mediaType:pendingMedia?pendingMedia.type:null,createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(function(){ document.getElementById('comp-ta').value=''; document.getElementById('cc').textContent='280'; pendingMedia=null; document.getElementById('media-prev').style.display='none'; document.getElementById('prev-img').style.display='none'; document.getElementById('prev-vid').style.display='none'; btn.disabled=false; btn.textContent='✦ Spark'; db.collection('users').doc(state.user.uid).update({sparksCount:firebase.firestore.FieldValue.increment(1)}); showToast('Spark launched! 🌿'); }).catch(function(e){ showToast('Failed: '+e.message); btn.disabled=false; btn.textContent='✦ Spark'; }); });
+
+document.getElementById('btn-media').addEventListener('click',function(){ if(typeof cloudinary==='undefined'){ showToast('Upload widget loading, try again.'); return; } cloudinary.createUploadWidget({cloudName:CLOUD_NAME,uploadPreset:'ml_default',sources:['local','camera'],multiple:false,maxFileSize:104857600,resourceType:'auto',clientAllowedFormats:['jpg','jpeg','png','gif','webp','mp4','mov','avi','webm'],styles:{palette:{window:'#0f2318',windowBorder:'#16a34a',tabIcon:'#22c55e',menuIcons:'#22c55e',textDark:'#f0fdf4',textLight:'#0a1a0f',link:'#22c55e',action:'#166534',inactiveTabIcon:'#4b7a5a',error:'#fca5a5',inProgress:'#16a34a',complete:'#22c55e',sourceBg:'#0a1a0f'}}},function(err,result){ if(result&&result.event==='success'){ var r=result.info; pendingMedia={url:r.secure_url,type:r.resource_type==='video'?'video':'image'}; if(pendingMedia.type==='image'){ document.getElementById('prev-img').src=r.secure_url; document.getElementById('prev-img').style.display='block'; document.getElementById('prev-vid').style.display='none'; } else { document.getElementById('prev-vid').src=r.secure_url; document.getElementById('prev-vid').style.display='block'; document.getElementById('prev-img').style.display='none'; } document.getElementById('media-prev').style.display='block'; showToast('Media attached ✓'); } }).open(); });
+document.getElementById('media-rm').addEventListener('click',function(){ pendingMedia=null; document.getElementById('media-prev').style.display='none'; document.getElementById('prev-img').style.display='none'; document.getElementById('prev-vid').style.display='none'; });
+
+document.querySelectorAll('#filter-bar .f-pill').forEach(function(b){ b.addEventListener('click',function(){ document.querySelectorAll('#filter-bar .f-pill').forEach(function(x){ x.classList.remove('active'); }); this.classList.add('active'); state.filter=this.dataset.filter||'all'; renderFeed(); }); });
+document.getElementById('search-inp').addEventListener('input',renderFeed);
+
+function toggleLike(id){ if(!state.user) return; var s=state.sparks.find(function(x){ return x.id===id; }); if(!s) return; var likes=s.likes||[],uid=state.user.uid,nw=likes.indexOf(uid)>-1?likes.filter(function(x){ return x!==uid; }):likes.concat([uid]); db.collection('sparks').doc(id).update({likes:nw}); if(nw.length>likes.length&&s.authorId!==uid) db.collection('notifications').add({toUid:s.authorId,fromName:state.profile.name,type:'like',text:state.profile.name+' liked your spark',read:false,createdAt:firebase.firestore.FieldValue.serverTimestamp()}); }
+function toggleSave(id){ if(!state.user) return; var s=state.sparks.find(function(x){ return x.id===id; }); if(!s) return; var saved=s.saved||[],uid=state.user.uid,nw=saved.indexOf(uid)>-1?saved.filter(function(x){ return x!==uid; }):saved.concat([uid]); db.collection('sparks').doc(id).update({saved:nw}); showToast(nw.length>saved.length?'Spark saved 🔖':'Removed from saved'); }
+function delSpark(id){ if(!state.user||!confirm('Delete this spark?')) return; db.collection('sparks').doc(id).delete().then(function(){ db.collection('users').doc(state.user.uid).update({sparksCount:firebase.firestore.FieldValue.increment(-1)}); showToast('Spark deleted'); }); }
+function shareSpark(id){ var url=window.location.origin+'/spark/'+id; if(navigator.clipboard){ navigator.clipboard.writeText(url); showToast('Link copied!'); } else showToast('Link: '+url); }
+
+document.getElementById('nav-feed').addEventListener('click',function(){ setNav(this); state.filter='all'; document.getElementById('compose-box').style.display='block'; loadSparks(); });
+document.getElementById('nav-disc').addEventListener('click',function(){ setNav(this); document.getElementById('compose-box').style.display='none'; var d=state.sparks.slice().sort(function(a,b){ return (b.likes||[]).length-(a.likes||[]).length; }); document.getElementById('feed-cont').innerHTML=d.length?d.map(buildSparkHTML).join(''):'<div class="feed-empty"><div class="fi">🔭</div><h3>Nothing to discover yet</h3></div>'; });
+document.getElementById('nav-saved').addEventListener('click',function(){ setNav(this); document.getElementById('compose-box').style.display='none'; var sv=state.sparks.filter(function(s){ return state.user&&(s.saved||[]).indexOf(state.user.uid)>-1; }); document.getElementById('feed-cont').innerHTML=sv.length?sv.map(buildSparkHTML).join(''):'<div class="feed-empty"><div class="fi">🔖</div><h3>Nothing saved yet</h3><p>Bookmark sparks to save them here.</p></div>'; });
+document.getElementById('nav-dm').addEventListener('click',function(){ setNav(this); openModal('modal-dm'); });
+document.getElementById('nav-topup').addEventListener('click',function(){ setNav(this); openModal('modal-topup'); });
+document.getElementById('nav-earn').addEventListener('click',function(){ setNav(this); openModal('modal-earn'); });
+document.getElementById('nav-prem').addEventListener('click',function(){ setNav(this); openModal('modal-prem'); });
+
+document.getElementById('notif-btn').addEventListener('click',function(e){ e.stopPropagation(); document.getElementById('notif-drop').classList.toggle('open'); });
+document.addEventListener('click',function(){ document.getElementById('notif-drop').classList.remove('open'); });
+document.getElementById('nc-btn').addEventListener('click',function(){ if(!state.user) return; db.collection('notifications').where('toUid','==',state.user.uid).get().then(function(snap){ snap.docs.forEach(function(d){ d.ref.delete(); }); }); document.getElementById('notif-list').innerHTML='<div class="n-empty">No notifications yet</div>'; document.getElementById('nd').style.display='none'; });
+function listenNotifs(){ if(!state.user) return; if(state.notifsUnsub) state.notifsUnsub(); state.notifsUnsub=db.collection('notifications').where('toUid','==',state.user.uid).orderBy('createdAt','desc').limit(20).onSnapshot(function(snap){ var items=snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); }); document.getElementById('nd').style.display=items.filter(function(x){ return !x.read; }).length?'block':'none'; document.getElementById('notif-list').innerHTML=items.length?items.map(function(n){ return '<div class="n-item'+(n.read?'':' unread')+'" onclick="markRead(\''+n.id+'\')"><span class="n-ico">'+(n.type==='like'?'❤️':n.type==='comment'?'💬':n.type==='tip'?'💝':'🔔')+'</span><div><div class="n-text">'+esc(n.text||'')+'</div><div class="n-time">'+timeAgo(n.createdAt)+'</div></div></div>'; }).join(''):'<div class="n-empty">No notifications yet</div>'; }); }
+function markRead(id){ db.collection('notifications').doc(id).update({read:true}); }
+
+function openComments(sparkId){ state.currentSparkId=sparkId; document.getElementById('cmt-list').innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Loading…</div>'; document.getElementById('cmt-inp').value=''; openModal('modal-comments'); db.collection('sparks').doc(sparkId).collection('comments').orderBy('createdAt','asc').limit(50).get().then(function(snap){ var cmts=snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); }); document.getElementById('cmt-list').innerHTML=cmts.length?cmts.map(function(c){ return '<div class="cmt-item"><div class="cmt-av" style="background:'+(c.authorColor||COLORS[0])+'">'+esc((c.authorName||'Z').charAt(0))+'</div><div><div><span class="cmt-nm">'+esc(c.authorName||'ZYNCer')+'</span><span class="cmt-hdl">@'+esc(c.authorHandle||'user')+'</span></div><div class="cmt-txt">'+esc(c.text||'')+'</div><div class="cmt-tm">'+timeAgo(c.createdAt)+'</div></div></div>'; }).join(''):'<div style="text-align:center;padding:24px;color:var(--muted)">No comments yet. Be first!</div>'; }); }
+document.getElementById('btn-cmt').addEventListener('click',function(){ var text=document.getElementById('cmt-inp').value.trim(); if(!text||!state.user||!state.currentSparkId) return; var btn=this; btn.disabled=true; db.collection('sparks').doc(state.currentSparkId).collection('comments').add({text:text,authorId:state.user.uid,authorName:state.profile.name,authorHandle:state.profile.handle,authorColor:state.profile.color,createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(function(){ db.collection('sparks').doc(state.currentSparkId).update({commentCount:firebase.firestore.FieldValue.increment(1)}); document.getElementById('cmt-inp').value=''; btn.disabled=false; openComments(state.currentSparkId); showToast('Comment posted!'); }).catch(function(){ btn.disabled=false; showToast('Failed to post comment'); }); });
+
+function loadStories(){ var cutoff=Date.now()-48*60*60*1000; db.collection('stories').where('expiresAt','>',new Date(cutoff)).orderBy('expiresAt','desc').limit(20).get().then(function(snap){ var bar=document.getElementById('stories-bar'); bar.innerHTML='<div class="s-add" id="story-add">＋</div>'; snap.docs.forEach(function(d){ var s=d.data(),seen=state.user&&(s.seenBy||[]).indexOf(state.user.uid)>-1; var el=document.createElement('div'); el.className='s-item'; el.innerHTML='<div class="s-ring'+(seen?' seen':'')+'"><div class="s-av">'+esc((s.authorName||'Z').charAt(0).toUpperCase())+'</div></div><div class="s-name">'+esc(s.authorName||'')+'</div>'; el.addEventListener('click',function(){ viewStory(d.id,s); }); bar.appendChild(el); }); document.getElementById('story-add').addEventListener('click',postStory); }); }
+function postStory(){ var text=prompt('Share a story (disappears in 48h):'); if(!text||!text.trim()||!state.user) return; db.collection('stories').add({text:text.trim(),authorId:state.user.uid,authorName:state.profile.name,authorHandle:state.profile.handle,authorColor:state.profile.color,seenBy:[],createdAt:firebase.firestore.FieldValue.serverTimestamp(),expiresAt:new Date(Date.now()+48*60*60*1000)}).then(function(){ showToast('Story posted! 48h ⏱'); loadStories(); }); }
+function viewStory(id,s){ document.getElementById('sv-av').textContent=(s.authorName||'Z').charAt(0).toUpperCase(); document.getElementById('sv-av').style.background=s.authorColor||COLORS[0]; document.getElementById('sv-nm').textContent=s.authorName||'ZYNCer'; document.getElementById('sv-tm').textContent=timeAgo(s.createdAt); document.getElementById('sv-text').textContent=s.text||''; document.getElementById('sv-overlay').classList.add('open'); var fill=document.getElementById('sv-fill'); fill.style.transition='none'; fill.style.width='0%'; setTimeout(function(){ fill.style.transition='width 5s linear'; fill.style.width='100%'; },50); setTimeout(function(){ document.getElementById('sv-overlay').classList.remove('open'); },5100); if(state.user) db.collection('stories').doc(id).update({seenBy:firebase.firestore.FieldValue.arrayUnion(state.user.uid)}); }
+document.getElementById('sv-x').addEventListener('click',function(){ document.getElementById('sv-overlay').classList.remove('open'); });
+
+function loadConversations(){ if(!state.user) return; db.collection('dms').where('members','array-contains',state.user.uid).orderBy('lastAt','desc').limit(20).get().then(function(snap){ var list=document.getElementById('dm-list'); list.innerHTML=''; if(!snap.docs.length){ list.innerHTML='<div style="padding:20px;text-align:center;font-size:12px;color:var(--muted)">No conversations yet</div>'; return; } snap.docs.forEach(function(d){ var dm=d.data(),oid=dm.members.find(function(m){ return m!==state.user.uid; }),oname=dm.names?dm.names[oid]:'User',ocolor=dm.colors?dm.colors[oid]:COLORS[0]; var row=document.createElement('div'); row.className='dm-row'; row.innerHTML='<div class="dm-av" style="background:'+ocolor+'">'+esc(oname.charAt(0).toUpperCase())+'</div><div style="flex:1;min-width:0"><div class="dm-nm">'+esc(oname)+'</div><div class="dm-pv">'+esc(dm.lastMsg||'')+'</div></div>'+(dm.unread?'<div class="dm-ud"></div>':''); row.addEventListener('click',function(){ openChat(d.id,oid,oname,ocolor); }); list.appendChild(row); }); }); }
+var dmTimer; document.getElementById('dm-search').addEventListener('input',function(){ clearTimeout(dmTimer); var q=this.value.trim().toLowerCase(); if(!q){ loadConversations(); return; } dmTimer=setTimeout(function(){ db.collection('users').orderBy('name').startAt(q).endAt(q+'\uf8ff').limit(10).get().then(function(snap){ var list=document.getElementById('dm-list'); list.innerHTML=''; snap.docs.forEach(function(d){ var u=d.data(); if(u.id===state.user.uid) return; var row=document.createElement('div'); row.className='dm-row'; row.innerHTML='<div class="dm-av" style="background:'+(u.color||COLORS[0])+'">'+esc((u.name||'U').charAt(0))+'</div><div><div class="dm-nm">'+esc(u.name||'User')+'</div><div class="dm-pv">@'+esc(u.handle||'')+'</div></div>'; row.addEventListener('click',function(){ openChat([state.user.uid,u.id].sort().join('_'),u.id,u.name,u.color); }); list.appendChild(row); }); if(!snap.docs.length) list.innerHTML='<div style="padding:16px;text-align:center;font-size:12px;color:var(--muted)">No users found</div>'; }); },400); });
+function openChat(dmId,otherId,otherName,otherColor){ var right=document.getElementById('dm-right'); right.innerHTML='<div class="chat-hd"><div class="dm-av" style="background:'+(otherColor||COLORS[0])+';width:32px;height:32px">'+esc((otherName||'U').charAt(0))+'</div><div style="font-size:13px;font-weight:700;color:var(--white)">'+esc(otherName)+'</div></div><div class="chat-msgs" id="cm-'+dmId+'"></div><div class="chat-bar"><textarea class="chat-inp" id="ci-'+dmId+'" placeholder="Message…" rows="1"></textarea><button class="chat-send" onclick="sendMsg(\''+dmId+'\',\''+otherId+'\',\''+esc(otherName)+'\',\''+esc(otherColor||COLORS[0])+'\')">➤</button></div>'; db.collection('dms').doc(dmId).collection('messages').orderBy('createdAt','asc').limit(50).get().then(function(snap){ var box=document.getElementById('cm-'+dmId); if(!box) return; box.innerHTML=snap.docs.map(function(d){ var m=d.data(),mine=m.fromId===state.user.uid,col=mine?(state.profile.color||COLORS[0]):(otherColor||COLORS[0]); return '<div class="msg'+(mine?' mine':'')+'"><div class="msg-av" style="background:'+col+'">'+(mine?(state.profile.name||'U').charAt(0):(otherName||'U').charAt(0))+'</div><div><div class="msg-bub">'+esc(m.text||'')+'</div><div class="msg-t">'+timeAgo(m.createdAt)+'</div></div></div>'; }).join('')||'<div style="text-align:center;padding:20px;font-size:12px;color:var(--muted)">No messages yet</div>'; box.scrollTop=box.scrollHeight; }); document.getElementById('ci-'+dmId).addEventListener('keydown',function(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendMsg(dmId,otherId,otherName,otherColor||COLORS[0]); } }); }
+function sendMsg(dmId,otherId,otherName,otherColor){ var inp=document.getElementById('ci-'+dmId); if(!inp) return; var text=inp.value.trim(); if(!text||!state.user) return; inp.value=''; var batch=db.batch(),dmRef=db.collection('dms').doc(dmId),msgRef=dmRef.collection('messages').doc(),names={},colors={}; names[state.user.uid]=state.profile.name||'User'; names[otherId]=otherName; colors[state.user.uid]=state.profile.color||COLORS[0]; colors[otherId]=otherColor||COLORS[0]; batch.set(dmRef,{members:[state.user.uid,otherId],names:names,colors:colors,lastMsg:text,lastAt:firebase.firestore.FieldValue.serverTimestamp(),unread:true},{merge:true}); batch.set(msgRef,{text:text,fromId:state.user.uid,fromName:state.profile.name,createdAt:firebase.firestore.FieldValue.serverTimestamp()}); batch.commit().then(function(){ openChat(dmId,otherId,otherName,otherColor||COLORS[0]); db.collection('notifications').add({toUid:otherId,fromName:state.profile.name,type:'dm',text:state.profile.name+' sent you a message',read:false,createdAt:firebase.firestore.FieldValue.serverTimestamp()}); }); }
+
+function selPlan(id,amount,name){ state.plan={id:id,amount:amount,name:name}; document.querySelectorAll('.plan-card').forEach(function(c){ c.classList.remove('sel'); }); document.getElementById('pc-'+id).classList.add('sel'); document.getElementById('co-name').textContent=name; document.getElementById('co-price').textContent='₦'+amount.toLocaleString(); }
+document.getElementById('btn-pay').addEventListener('click',function(){ if(!state.user) return; if(typeof PaystackPop==='undefined'){ showToast('Payment loading, try again.'); return; } PaystackPop.setup({key:PAYSTACK_KEY,email:state.user.email,amount:state.plan.amount*100,currency:'NGN',ref:'ZP-'+Date.now(),callback:function(){ db.collection('users').doc(state.user.uid).update({isPremium:true,plan:state.plan.id}); state.profile.isPremium=true; closeModal('modal-prem'); document.getElementById('prem-widget').style.display='none'; showToast('Welcome to '+state.plan.name+'! 💎'); },onClose:function(){ showToast('Payment cancelled'); }}).openIframe(); });
+
+function openTip(authorId,authorName){ state.tipTarget={id:authorId,name:authorName}; document.getElementById('tip-name').textContent=authorName; document.getElementById('tip-amt').value=''; document.getElementById('tip-err').textContent=''; openModal('modal-tip'); }
+function setTip(amount){ document.getElementById('tip-amt').value=amount; }
+document.getElementById('btn-tip').addEventListener('click',function(){ var amount=parseInt(document.getElementById('tip-amt').value)||0; if(amount<100){ document.getElementById('tip-err').textContent='Minimum tip is ₦100'; return; } if(!state.user||!state.tipTarget) return; if(typeof PaystackPop==='undefined'){ showToast('Payment loading, try again.'); return; } PaystackPop.setup({key:PAYSTACK_KEY,email:state.user.email,amount:amount*100,currency:'NGN',ref:'ZT-'+Date.now(),callback:function(){ db.collection('users').doc(state.tipTarget.id).update({tips:firebase.firestore.FieldValue.increment(amount)}); db.collection('notifications').add({toUid:state.tipTarget.id,fromName:state.profile.name,type:'tip',text:state.profile.name+' tipped you ₦'+amount.toLocaleString(),read:false,createdAt:firebase.firestore.FieldValue.serverTimestamp()}); closeModal('modal-tip'); showToast('Tip sent! 💝'); },onClose:function(){ showToast('Tip cancelled'); }}).openIframe(); });
+
+function switchTab(group,tab,btn){ document.querySelectorAll('#modal-'+group+' .tab-row .f-pill').forEach(function(b){ b.classList.remove('active'); }); btn.classList.add('active'); document.querySelectorAll('#modal-'+group+' .e-panel').forEach(function(p){ p.classList.remove('active'); }); document.getElementById(group+'-'+tab).classList.add('active'); }
+document.getElementById('btn-wd').addEventListener('click',function(){ var acc=document.getElementById('wd-acc').value.trim(),bank=document.getElementById('wd-bank').value.trim(),amt=parseFloat(document.getElementById('wd-amt').value)||0,err=document.getElementById('wd-err'); if(!acc||!bank){ err.textContent='Fill in all fields'; return; } if(amt<1000){ err.textContent='Minimum withdrawal is ₦1,000'; return; } db.collection('withdrawals').add({uid:state.user.uid,name:state.profile.name,account:acc,bank:bank,amount:amt,status:'pending',requestedAt:firebase.firestore.FieldValue.serverTimestamp()}); err.textContent=''; showToast('Withdrawal request submitted! ✓'); closeModal('modal-earn'); });
+function copyRef(){ var link=document.getElementById('ref-link').value; if(navigator.clipboard){ navigator.clipboard.writeText(link); showToast('Referral link copied!'); } }
+
+function setNetwork(btn,network){ state.network=network; btn.closest('.ntabs').querySelectorAll('.ntab').forEach(function(b){ b.classList.remove('active'); }); btn.classList.add('active'); }
+function setAmt(id,amount){ document.getElementById(id).value=amount; }
+function selPkg(card){ document.querySelectorAll('.pkg-card').forEach(function(c){ c.classList.remove('sel'); }); card.classList.add('sel'); state.selectedPkg={size:card.dataset.size,dur:card.dataset.dur,price:parseInt(card.dataset.price)}; }
+document.getElementById('btn-airtime').addEventListener('click',function(){ var phone=document.getElementById('air-phone').value.trim(),amt=parseInt(document.getElementById('air-amt').value)||0,err=document.getElementById('air-err'); err.textContent=''; if(!phone||phone.length<11){ err.textContent='Enter a valid 11-digit phone number'; return; } if(amt<50){ err.textContent='Minimum airtime is ₦50'; return; } if(!state.user) return; if(typeof PaystackPop==='undefined'){ showToast('Payment loading, try again.'); return; } PaystackPop.setup({key:PAYSTACK_KEY,email:state.user.email,amount:amt*100,currency:'NGN',ref:'ZA-'+Date.now(),metadata:{type:'airtime',network:state.network,phone:phone,amount:amt},callback:function(r){ db.collection('topups').add({uid:state.user.uid,type:'airtime',network:state.network,phone:phone,amount:amt,ref:r.reference,status:'pending',createdAt:firebase.firestore.FieldValue.serverTimestamp()}); closeModal('modal-topup'); showToast('₦'+amt+' airtime for '+phone+' processing! 📱'); },onClose:function(){ showToast('Cancelled'); }}).openIframe(); });
+document.getElementById('btn-data').addEventListener('click',function(){ var phone=document.getElementById('data-phone').value.trim(),err=document.getElementById('data-err'); err.textContent=''; if(!phone||phone.length<11){ err.textContent='Enter a valid 11-digit phone number'; return; } if(!state.selectedPkg){ err.textContent='Select a data bundle'; return; } if(!state.user) return; if(typeof PaystackPop==='undefined'){ showToast('Payment loading, try again.'); return; } var pkg=state.selectedPkg; PaystackPop.setup({key:PAYSTACK_KEY,email:state.user.email,amount:pkg.price*100,currency:'NGN',ref:'ZD-'+Date.now(),metadata:{type:'data',network:state.network,phone:phone,bundle:pkg.size,duration:pkg.dur,price:pkg.price},callback:function(r){ db.collection('topups').add({uid:state.user.uid,type:'data',network:state.network,phone:phone,bundle:pkg.size,duration:pkg.dur,amount:pkg.price,ref:r.reference,status:'pending',createdAt:firebase.firestore.FieldValue.serverTimestamp()}); closeModal('modal-topup'); showToast(pkg.size+' data for '+phone+' processing! 📶'); },onClose:function(){ showToast('Cancelled'); }}).openIframe(); });
+
+document.querySelectorAll('.modal-overlay').forEach(function(o){ o.addEventListener('click',function(e){ if(e.target===this) this.classList.remove('open'); }); });
+</script>
+<script src="https://js.paystack.co/v1/inline.js"></script>
+<script src="https://upload-widget.cloudinary.com/global/all.js"></script>
+</body>
+</html>
