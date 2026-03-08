@@ -200,6 +200,8 @@ button,input,textarea,select{font-family:'DM Sans',sans-serif}
 .m-input{width:100%;padding:10px 13px;background:var(--deep);border:1px solid var(--border);border-radius:10px;color:var(--white);font-size:13px;outline:none;margin-bottom:14px;transition:border-color .2s;font-family:'DM Sans',sans-serif}
 .m-input::placeholder{color:var(--muted)}
 .m-input:focus{border-color:var(--green3)}
+select.m-input option{background:var(--card);color:var(--white)}
+select.m-input optgroup{background:var(--deep);color:var(--muted);font-size:10px}
 .m-err{font-size:12px;color:#fca5a5;margin-bottom:10px;min-height:16px;line-height:1.5}
 .btn-pay{width:100%;padding:13px;background:linear-gradient(135deg,var(--green),var(--green2));border:none;border-radius:12px;color:var(--cream);font-size:14px;font-weight:700;cursor:pointer;transition:opacity .2s;font-family:'DM Sans',sans-serif}
 .btn-pay:hover{opacity:.88}
@@ -551,14 +553,172 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
         <button class="f-pill" onclick="switchTab('tu','data',this)">Data Bundle</button>
       </div>
       <div class="e-panel active" id="tu-airtime">
-        <div class="ntabs">
-          <button class="ntab active" onclick="setNetwork(this,'MTN')">MTN</button>
-          <button class="ntab" onclick="setNetwork(this,'Airtel')">Airtel</button>
-          <button class="ntab" onclick="setNetwork(this,'Glo')">Glo</button>
-          <button class="ntab" onclick="setNetwork(this,'9mobile')">9mobile</button>
-        </div>
+        <label class="m-label">Network Provider</label>
+        <select class="m-input" id="air-network" onchange="state.network=this.value" style="margin-bottom:14px">
+          <optgroup label="🇳🇬 Nigeria">
+            <option value="MTN Nigeria">MTN Nigeria</option>
+            <option value="Airtel Nigeria">Airtel Nigeria</option>
+            <option value="Glo Nigeria">Glo Nigeria</option>
+            <option value="9mobile Nigeria">9mobile Nigeria</option>
+          </optgroup>
+          <optgroup label="🇿🇦 South Africa">
+            <option value="Vodacom SA">Vodacom</option>
+            <option value="MTN SA">MTN South Africa</option>
+            <option value="Cell C">Cell C</option>
+            <option value="Telkom SA">Telkom Mobile</option>
+          </optgroup>
+          <optgroup label="🇬🇭 Ghana">
+            <option value="MTN Ghana">MTN Ghana</option>
+            <option value="Vodafone Ghana">Vodafone Ghana</option>
+            <option value="AirtelTigo Ghana">AirtelTigo Ghana</option>
+          </optgroup>
+          <optgroup label="🇰🇪 Kenya">
+            <option value="Safaricom">Safaricom</option>
+            <option value="Airtel Kenya">Airtel Kenya</option>
+            <option value="Telkom Kenya">Telkom Kenya</option>
+          </optgroup>
+          <optgroup label="🇹🇿 Tanzania">
+            <option value="Vodacom Tanzania">Vodacom Tanzania</option>
+            <option value="Tigo Tanzania">Tigo Tanzania</option>
+            <option value="Airtel Tanzania">Airtel Tanzania</option>
+            <option value="Halotel">Halotel</option>
+          </optgroup>
+          <optgroup label="🇺🇬 Uganda">
+            <option value="MTN Uganda">MTN Uganda</option>
+            <option value="Airtel Uganda">Airtel Uganda</option>
+            <option value="Africell Uganda">Africell Uganda</option>
+          </optgroup>
+          <optgroup label="🇷🇼 Rwanda">
+            <option value="MTN Rwanda">MTN Rwanda</option>
+            <option value="Airtel Rwanda">Airtel Rwanda</option>
+          </optgroup>
+          <optgroup label="🇨🇲 Cameroon">
+            <option value="MTN Cameroon">MTN Cameroon</option>
+            <option value="Orange Cameroon">Orange Cameroon</option>
+          </optgroup>
+          <optgroup label="🇸🇳 Senegal">
+            <option value="Orange Senegal">Orange Senegal</option>
+            <option value="Free Senegal">Free Senegal</option>
+            <option value="Expresso Senegal">Expresso Senegal</option>
+          </optgroup>
+          <optgroup label="🇨🇮 Côte d'Ivoire">
+            <option value="Orange CI">Orange CI</option>
+            <option value="MTN CI">MTN CI</option>
+            <option value="Moov CI">Moov CI</option>
+          </optgroup>
+          <optgroup label="🇪🇹 Ethiopia">
+            <option value="Ethio Telecom">Ethio Telecom</option>
+            <option value="Safaricom Ethiopia">Safaricom Ethiopia</option>
+          </optgroup>
+          <optgroup label="🇬🇧 United Kingdom">
+            <option value="EE UK">EE</option>
+            <option value="O2 UK">O2</option>
+            <option value="Vodafone UK">Vodafone UK</option>
+            <option value="Three UK">Three</option>
+            <option value="BT Mobile">BT Mobile</option>
+          </optgroup>
+          <optgroup label="🇺🇸 United States">
+            <option value="AT&T">AT&T</option>
+            <option value="Verizon">Verizon</option>
+            <option value="T-Mobile US">T-Mobile</option>
+            <option value="Sprint">Sprint</option>
+            <option value="Cricket Wireless">Cricket Wireless</option>
+            <option value="Boost Mobile">Boost Mobile</option>
+          </optgroup>
+          <optgroup label="🇨🇦 Canada">
+            <option value="Rogers">Rogers</option>
+            <option value="Bell Canada">Bell</option>
+            <option value="Telus">Telus</option>
+            <option value="Freedom Mobile">Freedom Mobile</option>
+          </optgroup>
+          <optgroup label="🇦🇺 Australia">
+            <option value="Telstra">Telstra</option>
+            <option value="Optus">Optus</option>
+            <option value="Vodafone AU">Vodafone AU</option>
+          </optgroup>
+          <optgroup label="🇮🇳 India">
+            <option value="Jio">Jio</option>
+            <option value="Airtel India">Airtel India</option>
+            <option value="Vi India">Vi (Vodafone Idea)</option>
+            <option value="BSNL">BSNL</option>
+          </optgroup>
+          <optgroup label="🇵🇰 Pakistan">
+            <option value="Jazz Pakistan">Jazz</option>
+            <option value="Zong Pakistan">Zong</option>
+            <option value="Telenor Pakistan">Telenor Pakistan</option>
+            <option value="Ufone">Ufone</option>
+          </optgroup>
+          <optgroup label="🇧🇩 Bangladesh">
+            <option value="Grameenphone">Grameenphone</option>
+            <option value="Robi Bangladesh">Robi</option>
+            <option value="Banglalink">Banglalink</option>
+          </optgroup>
+          <optgroup label="🇵🇭 Philippines">
+            <option value="Globe Philippines">Globe</option>
+            <option value="Smart Philippines">Smart</option>
+            <option value="DITO Philippines">DITO</option>
+          </optgroup>
+          <optgroup label="🇮🇩 Indonesia">
+            <option value="Telkomsel">Telkomsel</option>
+            <option value="Indosat Ooredoo">Indosat Ooredoo</option>
+            <option value="XL Axiata">XL Axiata</option>
+            <option value="Tri Indonesia">Tri</option>
+          </optgroup>
+          <optgroup label="🇲🇾 Malaysia">
+            <option value="Maxis">Maxis</option>
+            <option value="Celcom">Celcom</option>
+            <option value="Digi Malaysia">Digi</option>
+            <option value="U Mobile">U Mobile</option>
+          </optgroup>
+          <optgroup label="🇸🇬 Singapore">
+            <option value="Singtel">Singtel</option>
+            <option value="StarHub">StarHub</option>
+            <option value="M1 Singapore">M1</option>
+          </optgroup>
+          <optgroup label="🇦🇪 UAE">
+            <option value="Etisalat UAE">Etisalat (e&)</option>
+            <option value="du UAE">du</option>
+          </optgroup>
+          <optgroup label="🇸🇦 Saudi Arabia">
+            <option value="STC Saudi">STC</option>
+            <option value="Mobily">Mobily</option>
+            <option value="Zain Saudi">Zain Saudi</option>
+          </optgroup>
+          <optgroup label="🇩🇪 Germany">
+            <option value="Deutsche Telekom">Deutsche Telekom</option>
+            <option value="Vodafone DE">Vodafone DE</option>
+            <option value="O2 Germany">O2 Germany</option>
+          </optgroup>
+          <optgroup label="🇫🇷 France">
+            <option value="Orange France">Orange France</option>
+            <option value="SFR">SFR</option>
+            <option value="Bouygues Telecom">Bouygues Telecom</option>
+            <option value="Free Mobile">Free Mobile</option>
+          </optgroup>
+          <optgroup label="🇧🇷 Brazil">
+            <option value="Claro Brazil">Claro</option>
+            <option value="TIM Brazil">TIM</option>
+            <option value="Vivo Brazil">Vivo</option>
+            <option value="Oi Brazil">Oi</option>
+          </optgroup>
+          <optgroup label="🇲🇽 Mexico">
+            <option value="Telcel">Telcel</option>
+            <option value="Movistar Mexico">Movistar Mexico</option>
+            <option value="AT&T Mexico">AT&T Mexico</option>
+          </optgroup>
+          <optgroup label="🇿🇲 Zambia">
+            <option value="MTN Zambia">MTN Zambia</option>
+            <option value="Airtel Zambia">Airtel Zambia</option>
+            <option value="Zamtel">Zamtel</option>
+          </optgroup>
+          <optgroup label="🇿🇼 Zimbabwe">
+            <option value="Econet Zimbabwe">Econet</option>
+            <option value="NetOne Zimbabwe">NetOne</option>
+            <option value="Telecel Zimbabwe">Telecel</option>
+          </optgroup>
+        </select>
         <label class="m-label">Phone Number</label>
-        <input class="m-input" id="air-phone" type="tel" placeholder="08012345678" maxlength="11">
+        <input class="m-input" id="air-phone" type="tel" placeholder="Enter phone number">
         <label class="m-label">Amount ($)</label>
         <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px">
           <button class="f-pill" onclick="setAmt('air-amt',1)">$1</button>
@@ -572,14 +732,172 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
         <button class="btn-pay" id="btn-airtime">📱 Buy Airtime →</button>
       </div>
       <div class="e-panel" id="tu-data">
-        <div class="ntabs">
-          <button class="ntab active" onclick="setNetwork(this,'MTN')">MTN</button>
-          <button class="ntab" onclick="setNetwork(this,'Airtel')">Airtel</button>
-          <button class="ntab" onclick="setNetwork(this,'Glo')">Glo</button>
-          <button class="ntab" onclick="setNetwork(this,'9mobile')">9mobile</button>
-        </div>
+        <label class="m-label">Network Provider</label>
+        <select class="m-input" id="data-network" onchange="state.network=this.value" style="margin-bottom:14px">
+          <optgroup label="🇳🇬 Nigeria">
+            <option value="MTN Nigeria">MTN Nigeria</option>
+            <option value="Airtel Nigeria">Airtel Nigeria</option>
+            <option value="Glo Nigeria">Glo Nigeria</option>
+            <option value="9mobile Nigeria">9mobile Nigeria</option>
+          </optgroup>
+          <optgroup label="🇿🇦 South Africa">
+            <option value="Vodacom SA">Vodacom</option>
+            <option value="MTN SA">MTN South Africa</option>
+            <option value="Cell C">Cell C</option>
+            <option value="Telkom SA">Telkom Mobile</option>
+          </optgroup>
+          <optgroup label="🇬🇭 Ghana">
+            <option value="MTN Ghana">MTN Ghana</option>
+            <option value="Vodafone Ghana">Vodafone Ghana</option>
+            <option value="AirtelTigo Ghana">AirtelTigo Ghana</option>
+          </optgroup>
+          <optgroup label="🇰🇪 Kenya">
+            <option value="Safaricom">Safaricom</option>
+            <option value="Airtel Kenya">Airtel Kenya</option>
+            <option value="Telkom Kenya">Telkom Kenya</option>
+          </optgroup>
+          <optgroup label="🇹🇿 Tanzania">
+            <option value="Vodacom Tanzania">Vodacom Tanzania</option>
+            <option value="Tigo Tanzania">Tigo Tanzania</option>
+            <option value="Airtel Tanzania">Airtel Tanzania</option>
+            <option value="Halotel">Halotel</option>
+          </optgroup>
+          <optgroup label="🇺🇬 Uganda">
+            <option value="MTN Uganda">MTN Uganda</option>
+            <option value="Airtel Uganda">Airtel Uganda</option>
+            <option value="Africell Uganda">Africell Uganda</option>
+          </optgroup>
+          <optgroup label="🇷🇼 Rwanda">
+            <option value="MTN Rwanda">MTN Rwanda</option>
+            <option value="Airtel Rwanda">Airtel Rwanda</option>
+          </optgroup>
+          <optgroup label="🇨🇲 Cameroon">
+            <option value="MTN Cameroon">MTN Cameroon</option>
+            <option value="Orange Cameroon">Orange Cameroon</option>
+          </optgroup>
+          <optgroup label="🇸🇳 Senegal">
+            <option value="Orange Senegal">Orange Senegal</option>
+            <option value="Free Senegal">Free Senegal</option>
+            <option value="Expresso Senegal">Expresso Senegal</option>
+          </optgroup>
+          <optgroup label="🇨🇮 Côte d'Ivoire">
+            <option value="Orange CI">Orange CI</option>
+            <option value="MTN CI">MTN CI</option>
+            <option value="Moov CI">Moov CI</option>
+          </optgroup>
+          <optgroup label="🇪🇹 Ethiopia">
+            <option value="Ethio Telecom">Ethio Telecom</option>
+            <option value="Safaricom Ethiopia">Safaricom Ethiopia</option>
+          </optgroup>
+          <optgroup label="🇬🇧 United Kingdom">
+            <option value="EE UK">EE</option>
+            <option value="O2 UK">O2</option>
+            <option value="Vodafone UK">Vodafone UK</option>
+            <option value="Three UK">Three</option>
+            <option value="BT Mobile">BT Mobile</option>
+          </optgroup>
+          <optgroup label="🇺🇸 United States">
+            <option value="AT&T">AT&T</option>
+            <option value="Verizon">Verizon</option>
+            <option value="T-Mobile US">T-Mobile</option>
+            <option value="Sprint">Sprint</option>
+            <option value="Cricket Wireless">Cricket Wireless</option>
+            <option value="Boost Mobile">Boost Mobile</option>
+          </optgroup>
+          <optgroup label="🇨🇦 Canada">
+            <option value="Rogers">Rogers</option>
+            <option value="Bell Canada">Bell</option>
+            <option value="Telus">Telus</option>
+            <option value="Freedom Mobile">Freedom Mobile</option>
+          </optgroup>
+          <optgroup label="🇦🇺 Australia">
+            <option value="Telstra">Telstra</option>
+            <option value="Optus">Optus</option>
+            <option value="Vodafone AU">Vodafone AU</option>
+          </optgroup>
+          <optgroup label="🇮🇳 India">
+            <option value="Jio">Jio</option>
+            <option value="Airtel India">Airtel India</option>
+            <option value="Vi India">Vi (Vodafone Idea)</option>
+            <option value="BSNL">BSNL</option>
+          </optgroup>
+          <optgroup label="🇵🇰 Pakistan">
+            <option value="Jazz Pakistan">Jazz</option>
+            <option value="Zong Pakistan">Zong</option>
+            <option value="Telenor Pakistan">Telenor Pakistan</option>
+            <option value="Ufone">Ufone</option>
+          </optgroup>
+          <optgroup label="🇧🇩 Bangladesh">
+            <option value="Grameenphone">Grameenphone</option>
+            <option value="Robi Bangladesh">Robi</option>
+            <option value="Banglalink">Banglalink</option>
+          </optgroup>
+          <optgroup label="🇵🇭 Philippines">
+            <option value="Globe Philippines">Globe</option>
+            <option value="Smart Philippines">Smart</option>
+            <option value="DITO Philippines">DITO</option>
+          </optgroup>
+          <optgroup label="🇮🇩 Indonesia">
+            <option value="Telkomsel">Telkomsel</option>
+            <option value="Indosat Ooredoo">Indosat Ooredoo</option>
+            <option value="XL Axiata">XL Axiata</option>
+            <option value="Tri Indonesia">Tri</option>
+          </optgroup>
+          <optgroup label="🇲🇾 Malaysia">
+            <option value="Maxis">Maxis</option>
+            <option value="Celcom">Celcom</option>
+            <option value="Digi Malaysia">Digi</option>
+            <option value="U Mobile">U Mobile</option>
+          </optgroup>
+          <optgroup label="🇸🇬 Singapore">
+            <option value="Singtel">Singtel</option>
+            <option value="StarHub">StarHub</option>
+            <option value="M1 Singapore">M1</option>
+          </optgroup>
+          <optgroup label="🇦🇪 UAE">
+            <option value="Etisalat UAE">Etisalat (e&)</option>
+            <option value="du UAE">du</option>
+          </optgroup>
+          <optgroup label="🇸🇦 Saudi Arabia">
+            <option value="STC Saudi">STC</option>
+            <option value="Mobily">Mobily</option>
+            <option value="Zain Saudi">Zain Saudi</option>
+          </optgroup>
+          <optgroup label="🇩🇪 Germany">
+            <option value="Deutsche Telekom">Deutsche Telekom</option>
+            <option value="Vodafone DE">Vodafone DE</option>
+            <option value="O2 Germany">O2 Germany</option>
+          </optgroup>
+          <optgroup label="🇫🇷 France">
+            <option value="Orange France">Orange France</option>
+            <option value="SFR">SFR</option>
+            <option value="Bouygues Telecom">Bouygues Telecom</option>
+            <option value="Free Mobile">Free Mobile</option>
+          </optgroup>
+          <optgroup label="🇧🇷 Brazil">
+            <option value="Claro Brazil">Claro</option>
+            <option value="TIM Brazil">TIM</option>
+            <option value="Vivo Brazil">Vivo</option>
+            <option value="Oi Brazil">Oi</option>
+          </optgroup>
+          <optgroup label="🇲🇽 Mexico">
+            <option value="Telcel">Telcel</option>
+            <option value="Movistar Mexico">Movistar Mexico</option>
+            <option value="AT&T Mexico">AT&T Mexico</option>
+          </optgroup>
+          <optgroup label="🇿🇲 Zambia">
+            <option value="MTN Zambia">MTN Zambia</option>
+            <option value="Airtel Zambia">Airtel Zambia</option>
+            <option value="Zamtel">Zamtel</option>
+          </optgroup>
+          <optgroup label="🇿🇼 Zimbabwe">
+            <option value="Econet Zimbabwe">Econet</option>
+            <option value="NetOne Zimbabwe">NetOne</option>
+            <option value="Telecel Zimbabwe">Telecel</option>
+          </optgroup>
+        </select>
         <label class="m-label">Phone Number</label>
-        <input class="m-input" id="data-phone" type="tel" placeholder="08012345678" maxlength="11">
+        <input class="m-input" id="data-phone" type="tel" placeholder="Enter phone number">
         <label class="m-label">Select Data Bundle</label>
         <div class="pkg-grid">
           <div class="pkg-card sel" data-size="500MB" data-dur="1 Day" data-price="0.10" onclick="selPkg(this)"><div class="pkg-size">500MB</div><div class="pkg-dur">1 Day</div><div class="pkg-price">$0.10</div></div>
@@ -827,8 +1145,8 @@ function copyRef(){ var link=document.getElementById('ref-link').value; if(navig
 function setNetwork(btn,network){ state.network=network; btn.closest('.ntabs').querySelectorAll('.ntab').forEach(function(b){ b.classList.remove('active'); }); btn.classList.add('active'); }
 function setAmt(id,amount){ document.getElementById(id).value=amount; }
 function selPkg(card){ document.querySelectorAll('.pkg-card').forEach(function(c){ c.classList.remove('sel'); }); card.classList.add('sel'); state.selectedPkg={size:card.dataset.size,dur:card.dataset.dur,price:parseInt(card.dataset.price)}; }
-document.getElementById('btn-airtime').addEventListener('click',function(){ var phone=document.getElementById('air-phone').value.trim(),amt=parseInt(document.getElementById('air-amt').value)||0,err=document.getElementById('air-err'); err.textContent=''; if(!phone||phone.length<11){ err.textContent='Enter a valid 11-digit phone number'; return; } if(amt<1){ err.textContent='Minimum airtime is $1'; return; } if(!state.user) return; if(typeof PaystackPop==='undefined'){ showToast('Payment loading, try again.'); return; } PaystackPop.setup({key:PAYSTACK_KEY,email:state.user.email,amount:amt*100,currency:'USD',ref:'ZA-'+Date.now(),metadata:{type:'airtime',network:state.network,phone:phone,amount:amt},callback:function(r){ db.collection('topups').add({uid:state.user.uid,name:state.profile.name,email:state.user.email,type:'airtime',network:state.network,phone:phone,amount:amt,ref:r.reference,status:'processing',createdAt:firebase.firestore.FieldValue.serverTimestamp()}); closeModal('modal-topup'); document.getElementById('air-phone').value=''; document.getElementById('air-amt').value=''; showToast('✅ $'+amt+' '+state.network+' airtime sent to '+phone+'!'); },onClose:function(){ showToast('Airtime purchase cancelled'); }}).openIframe(); });
-document.getElementById('btn-data').addEventListener('click',function(){ var phone=document.getElementById('data-phone').value.trim(),err=document.getElementById('data-err'); err.textContent=''; if(!phone||phone.length<11){ err.textContent='Enter a valid 11-digit phone number'; return; } if(!state.selectedPkg){ err.textContent='Select a data bundle'; return; } if(!state.user) return; if(typeof PaystackPop==='undefined'){ showToast('Payment loading, try again.'); return; } var pkg=state.selectedPkg; PaystackPop.setup({key:PAYSTACK_KEY,email:state.user.email,amount:pkg.price*100,currency:'USD',ref:'ZD-'+Date.now(),metadata:{type:'data',network:state.network,phone:phone,bundle:pkg.size,duration:pkg.dur,price:pkg.price},callback:function(r){ db.collection('topups').add({uid:state.user.uid,name:state.profile.name,email:state.user.email,type:'data',network:state.network,phone:phone,bundle:pkg.size,duration:pkg.dur,amount:pkg.price,ref:r.reference,status:'processing',createdAt:firebase.firestore.FieldValue.serverTimestamp()}); closeModal('modal-topup'); document.getElementById('data-phone').value=''; showToast('✅ '+pkg.size+' '+state.network+' data sent to '+phone+'!'); },onClose:function(){ showToast('Data purchase cancelled'); }}).openIframe(); });
+document.getElementById('btn-airtime').addEventListener('click',function(){ state.network=document.getElementById('air-network').value; var phone=document.getElementById('air-phone').value.trim(),amt=parseInt(document.getElementById('air-amt').value)||0,err=document.getElementById('air-err'); err.textContent=''; if(!phone||!phone.trim()||phone.length<6){ err.textContent='Enter a valid 11-digit phone number'; return; } if(amt<1){ err.textContent='Minimum airtime is $1'; return; } if(!state.user) return; if(typeof PaystackPop==='undefined'){ showToast('Payment loading, try again.'); return; } PaystackPop.setup({key:PAYSTACK_KEY,email:state.user.email,amount:amt*100,currency:'USD',ref:'ZA-'+Date.now(),metadata:{type:'airtime',network:state.network,phone:phone,amount:amt},callback:function(r){ db.collection('topups').add({uid:state.user.uid,name:state.profile.name,email:state.user.email,type:'airtime',network:state.network,phone:phone,amount:amt,ref:r.reference,status:'processing',createdAt:firebase.firestore.FieldValue.serverTimestamp()}); closeModal('modal-topup'); document.getElementById('air-phone').value=''; document.getElementById('air-amt').value=''; showToast('✅ $'+amt+' '+state.network+' airtime sent to '+phone+'!'); },onClose:function(){ showToast('Airtime purchase cancelled'); }}).openIframe(); });
+document.getElementById('btn-data').addEventListener('click',function(){ state.network=document.getElementById('data-network').value; var phone=document.getElementById('data-phone').value.trim(),err=document.getElementById('data-err'); err.textContent=''; if(!phone||!phone.trim()||phone.length<6){ err.textContent='Enter a valid 11-digit phone number'; return; } if(!state.selectedPkg){ err.textContent='Select a data bundle'; return; } if(!state.user) return; if(typeof PaystackPop==='undefined'){ showToast('Payment loading, try again.'); return; } var pkg=state.selectedPkg; PaystackPop.setup({key:PAYSTACK_KEY,email:state.user.email,amount:pkg.price*100,currency:'USD',ref:'ZD-'+Date.now(),metadata:{type:'data',network:state.network,phone:phone,bundle:pkg.size,duration:pkg.dur,price:pkg.price},callback:function(r){ db.collection('topups').add({uid:state.user.uid,name:state.profile.name,email:state.user.email,type:'data',network:state.network,phone:phone,bundle:pkg.size,duration:pkg.dur,amount:pkg.price,ref:r.reference,status:'processing',createdAt:firebase.firestore.FieldValue.serverTimestamp()}); closeModal('modal-topup'); document.getElementById('data-phone').value=''; showToast('✅ '+pkg.size+' '+state.network+' data sent to '+phone+'!'); },onClose:function(){ showToast('Data purchase cancelled'); }}).openIframe(); });
 
 document.querySelectorAll('.modal-overlay').forEach(function(o){ o.addEventListener('click',function(e){ if(e.target===this) this.classList.remove('open'); }); });
 </script>
