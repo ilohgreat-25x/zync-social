@@ -684,7 +684,7 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
         <button class="btn-pay" id="btn-wd">Request Withdrawal</button>
       </div>
       <div class="e-panel" id="earn-referral">
-        <div style="background:var(--deep);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:12px;font-size:12px;color:var(--muted);line-height:1.7">Share your link and earn $5 per signup!</div>
+        <div style="background:var(--deep);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:12px;font-size:12px;color:var(--muted);line-height:1.7">Share your link and earn $1 per signup!</div>
         <label class="m-label">Your Referral Link</label>
         <div style="display:flex;gap:8px"><input class="m-input" id="ref-link" readonly style="margin:0;flex:1"><button class="btn-spark" onclick="copyRef()">Copy</button></div>
       </div>
@@ -3262,7 +3262,34 @@ function doRegister(){
       var color=COLORS[Math.floor(Math.random()*COLORS.length)];
       return db.collection('users').doc(cred.user.uid).set({ id:cred.user.uid,name:name,handle:handle,email:email,color:color,plan:'free',isPremium:false,sparksCount:0,followers:0,earnings:0,tips:0,joinDate:firebase.firestore.FieldValue.serverTimestamp() });
     })
-    .then(function(){ return auth.currentUser.updateProfile({displayName:document.getElementById('r-name').value.trim()}); })
+    .then(function(){
+      // Check referral code in URL
+      var urlParams = new URLSearchParams(window.location.search);
+      var refCode = urlParams.get('ref');
+      if(refCode){
+        // Credit $1 to referrer
+        db.collection('users').doc(refCode).update({
+          earnings: firebase.firestore.FieldValue.increment(1)
+        }).then(function(){
+          // Notify referrer
+          db.collection('notifications').add({
+            to: refCode,
+            type: 'referral',
+            text: 'Someone signed up using your referral link! You earned $1.00 🎉',
+            read: false,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+          // Log referral
+          db.collection('referrals').add({
+            referrerId: refCode,
+            newUserId: auth.currentUser.uid,
+            amount: 1,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        }).catch(function(){});
+      }
+      return auth.currentUser.updateProfile({displayName:document.getElementById('r-name').value.trim()});
+    })
     .catch(function(e){ err.textContent=authErr(e.code); btn.disabled=false; btn.textContent='Create Account →'; });
 }
 document.getElementById('btn-reg').addEventListener('click',doRegister);
@@ -3299,7 +3326,7 @@ function mountApp(){
   ['tb-av','sb-av','comp-av','cmt-av'].forEach(function(id){ var el=document.getElementById(id); if(el){ el.textContent=init; el.style.background=grad; } });
   document.getElementById('sb-name').innerHTML=esc(p.name||'ZYNCer')+(p.isPremium?'<span class="sb-verified">✦ PRO</span>':'');
   document.getElementById('sb-handle').textContent='@'+(p.handle||'user');
-  document.getElementById('ref-link').value='https://zync.vercel.app/ref/'+state.user.uid.slice(0,8);
+  document.getElementById('ref-link').value='https://zync.vercel.app?ref='+state.user.uid;
   if(p.isPremium) document.getElementById('prem-widget').style.display='none';
   document.getElementById('auth-screen').style.display='none';
   document.getElementById('app-screen').style.display='flex';
