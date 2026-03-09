@@ -351,6 +351,80 @@ select.m-input optgroup{background:var(--deep);color:var(--muted);font-size:10px
 .aria-dot:nth-child(3){animation-delay:.4s}
 @keyframes adot{0%,80%,100%{opacity:.2;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}
 
+/* ── ADS SYSTEM ── */
+.ad-banner{background:linear-gradient(135deg,rgba(22,101,52,.3),rgba(254,252,232,.05));border:1px solid rgba(34,197,94,.25);border-radius:14px;padding:14px;margin-bottom:10px;position:relative;overflow:hidden}
+.ad-banner::before{content:'AD';position:absolute;top:8px;right:10px;font-size:8px;font-weight:800;letter-spacing:2px;color:var(--muted);background:var(--deep);padding:2px 7px;border-radius:10px;border:1px solid var(--border)}
+.ad-banner-img{width:100%;height:120px;object-fit:cover;border-radius:10px;margin-bottom:9px;background:linear-gradient(135deg,var(--green),var(--deep))}
+.ad-banner-ph{width:100%;height:120px;display:flex;align-items:center;justify-content:center;font-size:36px;background:linear-gradient(135deg,rgba(22,101,52,.3),rgba(22,163,74,.1));border-radius:10px;margin-bottom:9px}
+.ad-title{font-size:13px;font-weight:700;color:var(--white);margin-bottom:3px}
+.ad-desc{font-size:11px;color:var(--moon);line-height:1.6;margin-bottom:9px}
+.ad-cta{display:inline-block;padding:6px 16px;background:linear-gradient(135deg,var(--green),var(--green2));border-radius:20px;color:var(--cream);font-size:11px;font-weight:700;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:opacity .2s}
+.ad-cta:hover{opacity:.88}
+.ad-sponsor{font-size:10px;color:var(--muted);margin-top:6px}
+
+/* ── VIDEO AD OVERLAY ── */
+.video-ad-overlay{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:7000;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+.video-ad-overlay.open{display:flex}
+.va-skip{position:absolute;top:20px;right:20px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:7px 16px;color:white;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
+.va-skip:hover{background:rgba(255,255,255,.25)}
+.va-skip.disabled{opacity:.5;cursor:not-allowed;pointer-events:none}
+.va-countdown{font-size:10px;color:rgba(255,255,255,.6);margin-bottom:8px;letter-spacing:1px}
+.va-card{width:100%;max-width:480px;background:var(--card);border:1px solid var(--borderhi);border-radius:20px;overflow:hidden}
+.va-media{width:100%;height:200px;object-fit:cover;background:linear-gradient(135deg,var(--green),var(--deep))}
+.va-media-ph{width:100%;height:200px;display:flex;align-items:center;justify-content:center;font-size:52px;background:linear-gradient(135deg,rgba(22,101,52,.4),rgba(22,163,74,.15))}
+.va-info{padding:16px 20px}
+.va-badge{font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--green3);margin-bottom:6px}
+.va-title{font-family:'DM Serif Display',serif;font-size:18px;color:var(--white);margin-bottom:5px}
+.va-desc{font-size:12px;color:var(--moon);line-height:1.6;margin-bottom:12px}
+.va-btn{width:100%;padding:11px;background:linear-gradient(135deg,var(--green),var(--green2));border:none;border-radius:10px;color:var(--cream);font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif}
+
+/* ── ADS MANAGER ── */
+.adm-tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.ad-type-card{background:var(--deep);border:2px solid var(--border);border-radius:14px;padding:16px;cursor:pointer;transition:all .2s;margin-bottom:10px}
+.ad-type-card:hover,.ad-type-card.sel{border-color:var(--green3);background:rgba(34,197,94,.06)}
+.at-icon{font-size:28px;margin-bottom:8px}
+.at-name{font-size:14px;font-weight:700;color:var(--white);margin-bottom:3px}
+.at-desc{font-size:11px;color:var(--muted);line-height:1.6}
+.at-price{font-family:'DM Serif Display',serif;font-size:20px;color:var(--green3);margin-top:6px}
+.ad-form{display:none}
+.ad-form.active{display:block}
+.my-ad-row{background:var(--deep);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.mar-icon{font-size:22px;flex-shrink:0}
+.mar-name{font-size:12px;font-weight:700;color:var(--white)}
+.mar-status{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 9px;border-radius:20px}
+.mar-status.active{background:rgba(34,197,94,.15);color:var(--green3)}
+.mar-status.pending{background:rgba(254,196,9,.15);color:#fbbf24}
+.mar-status.free{background:rgba(96,165,250,.15);color:#60a5fa}
+.mar-views{font-size:10px;color:var(--muted);margin-left:auto}
+
+/* ── ADMIN PANEL ── */
+.admin-badge{display:inline-flex;align-items:center;gap:4px;background:linear-gradient(135deg,#854d0e,#ca8a04);color:#fef9c3;font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:2px 8px;border-radius:20px;margin-left:6px}
+.ad-review-card{background:var(--deep);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:12px}
+.arc-head{padding:14px 16px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.arc-info{flex:1}
+.arc-title{font-size:14px;font-weight:700;color:var(--white)}
+.arc-meta{font-size:10px;color:var(--muted);margin-top:3px}
+.arc-type{font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:3px 9px;border-radius:20px}
+.arc-type.free{background:rgba(96,165,250,.15);color:#60a5fa}
+.arc-type.paid{background:rgba(34,197,94,.15);color:var(--green3)}
+.arc-body{padding:14px 16px}
+.arc-field{margin-bottom:9px}
+.arc-label{font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+.arc-val{font-size:12px;color:var(--moon);line-height:1.6;word-break:break-all}
+.arc-val a{color:var(--green3);text-decoration:none}
+.arc-val a:hover{text-decoration:underline}
+.arc-actions{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--border)}
+.btn-approve{flex:1;padding:9px;background:linear-gradient(135deg,var(--green),var(--green2));border:none;border-radius:10px;color:var(--cream);font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:opacity .2s}
+.btn-approve:hover{opacity:.88}
+.btn-reject{flex:1;padding:9px;background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.3);border-radius:10px;color:#fca5a5;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
+.btn-reject:hover{background:rgba(248,113,113,.2)}
+.admin-tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.admin-stat{background:var(--deep);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center}
+.admin-stat-val{font-family:'DM Serif Display',serif;font-size:28px;color:var(--green3)}
+.admin-stat-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:3px}
+.pending-dot{width:8px;height:8px;border-radius:50%;background:#fbbf24;display:inline-block;margin-right:5px;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
 /* ── LIGHT MODE ── */
 body.light{
   --bg:#f5fbf0;--card:#ffffff;--deep:#e8f5e0;
@@ -444,6 +518,8 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
         <button class="nav-item" id="nav-market"><span class="nav-ic">🛒</span> Marketplace</button>
         <button class="nav-item" id="nav-analytics"><span class="nav-ic">📊</span> Analytics</button>
         <button class="nav-item" id="nav-aria"><span class="nav-ic">🤖</span> ARIA AI</button>
+        <button class="nav-item" id="nav-ads"><span class="nav-ic">📣</span> Advertise</button>
+        <button class="nav-item" id="nav-admin" style="display:none"><span class="nav-ic">👑</span> Admin<span class="admin-badge">OWNER</span></button>
       </nav>
     </aside>
 
@@ -2950,6 +3026,165 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
   </div>
 </div>
 
+<!-- VIDEO AD OVERLAY -->
+<div class="video-ad-overlay" id="video-ad-overlay">
+  <div class="va-countdown" id="va-countdown">AD · SKIP IN 5s</div>
+  <div class="va-card" id="va-card">
+    <div class="va-media-ph" id="va-media-ph">📣</div>
+    <div class="va-info">
+      <div class="va-badge">SPONSORED</div>
+      <div class="va-title" id="va-title">Ad Title</div>
+      <div class="va-desc" id="va-desc">Ad description goes here.</div>
+      <button class="va-btn" id="va-btn">Learn More →</button>
+    </div>
+  </div>
+  <button class="va-skip disabled" id="va-skip">Skip in 5s</button>
+</div>
+
+<!-- ADS MANAGER MODAL -->
+<div class="modal-overlay" id="modal-ads">
+  <div class="modal-box" style="max-width:560px">
+    <div class="m-head"><div class="m-title">📣 Advertise on ZYNC</div><button class="m-close" onclick="closeModal('modal-ads')">✕</button></div>
+    <div class="m-body">
+      <div class="adm-tabs">
+        <button class="f-pill active" onclick="switchAdTab('create',this)">Create Ad</button>
+        <button class="f-pill" onclick="switchAdTab('myads',this)">My Ads</button>
+        <button class="f-pill" onclick="switchAdTab('stats',this)">Stats</button>
+      </div>
+
+      <!-- CREATE AD -->
+      <div id="ads-create">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.7">Choose your ad type. Free ads appear in the feed for ZYNC users. Paid ads appear between posts AND before every video.</div>
+
+        <!-- AD TYPE SELECTION -->
+        <div id="ad-type-sel">
+          <div class="ad-type-card sel" id="at-free" onclick="selectAdType('free')">
+            <div class="at-icon">🆓</div>
+            <div class="at-name">Free Ad</div>
+            <div class="at-desc">Promote your post or product to ZYNC users. Shows in the feed between posts. Available to all ZYNC users. Limited to 1 active free ad per user.</div>
+            <div class="at-price">$0 <span style="font-family:'DM Sans',sans-serif;font-size:11px;color:var(--muted)">forever</span></div>
+          </div>
+          <div class="ad-type-card" id="at-paid" onclick="selectAdType('paid')">
+            <div class="at-icon">⚡</div>
+            <div class="at-name">Paid Ad</div>
+            <div class="at-desc">Maximum exposure. Shows between posts in feed AND as a popup before every video/reel plays. For ZYNC users and external businesses.</div>
+            <div class="at-price">From $5 <span style="font-family:'DM Sans',sans-serif;font-size:11px;color:var(--muted)">/campaign</span></div>
+          </div>
+        </div>
+
+        <!-- FREE AD FORM -->
+        <div class="ad-form active" id="form-free">
+          <div style="background:rgba(96,165,250,.08);border:1px solid rgba(96,165,250,.2);border-radius:10px;padding:11px 14px;margin-bottom:14px;font-size:11px;color:#93c5fd;line-height:1.7">🆓 Free ads appear between posts in the feed. Your ad will be reviewed and go live within 24 hours.</div>
+          <label class="m-label">Ad Title</label>
+          <input class="m-input" id="free-ad-title" placeholder="e.g. Check out my new product!">
+          <label class="m-label">Description</label>
+          <textarea class="m-input" id="free-ad-desc" rows="3" placeholder="Tell people what you're promoting..." style="resize:none"></textarea>
+          <label class="m-label">Call to Action Text</label>
+          <input class="m-input" id="free-ad-cta" placeholder="e.g. Shop Now, Learn More, Visit Us">
+          <label class="m-label">Link URL</label>
+          <input class="m-input" id="free-ad-url" placeholder="https://yourwebsite.com" type="url">
+          <label class="m-label">Emoji / Icon for your ad</label>
+          <input class="m-input" id="free-ad-emoji" placeholder="🛍️" maxlength="2">
+          <div class="m-err" id="free-ad-err"></div>
+          <button class="btn-pay" id="btn-submit-free">🆓 Submit Free Ad →</button>
+        </div>
+
+        <!-- PAID AD FORM -->
+        <div class="ad-form" id="form-paid">
+          <div style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:11px 14px;margin-bottom:14px;font-size:11px;color:var(--green3);line-height:1.7">⚡ Paid ads appear between posts AND before every video. Maximum reach across all ZYNC users globally.</div>
+          <label class="m-label">Ad Title</label>
+          <input class="m-input" id="paid-ad-title" placeholder="e.g. 50% Off Our New Collection!">
+          <label class="m-label">Description</label>
+          <textarea class="m-input" id="paid-ad-desc" rows="3" placeholder="Describe your product or service..." style="resize:none"></textarea>
+          <label class="m-label">Call to Action Text</label>
+          <input class="m-input" id="paid-ad-cta" placeholder="e.g. Shop Now, Sign Up, Get Deal">
+          <label class="m-label">Link URL</label>
+          <input class="m-input" id="paid-ad-url" placeholder="https://yourwebsite.com" type="url">
+          <label class="m-label">Emoji / Icon</label>
+          <input class="m-input" id="paid-ad-emoji" placeholder="⚡" maxlength="2">
+          <label class="m-label">Select Campaign Budget</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
+            <div class="pkg-card sel" data-budget="5" data-impressions="500" onclick="selBudget(this)"><div class="pkg-size" style="font-size:16px">$5</div><div class="pkg-dur">~500 views</div></div>
+            <div class="pkg-card" data-budget="10" data-impressions="1200" onclick="selBudget(this)"><div class="pkg-size" style="font-size:16px">$10</div><div class="pkg-dur">~1,200 views</div></div>
+            <div class="pkg-card" data-budget="25" data-impressions="3500" onclick="selBudget(this)"><div class="pkg-size" style="font-size:16px">$25</div><div class="pkg-dur">~3,500 views</div></div>
+            <div class="pkg-card" data-budget="50" data-impressions="8000" onclick="selBudget(this)"><div class="pkg-size" style="font-size:16px">$50</div><div class="pkg-dur">~8,000 views</div></div>
+            <div class="pkg-card" data-budget="100" data-impressions="20000" onclick="selBudget(this)"><div class="pkg-size" style="font-size:16px">$100</div><div class="pkg-dur">~20,000 views</div></div>
+            <div class="pkg-card" data-budget="250" data-impressions="60000" onclick="selBudget(this)"><div class="pkg-size" style="font-size:16px">$250</div><div class="pkg-dur">~60,000 views</div></div>
+          </div>
+          <div class="m-err" id="paid-ad-err"></div>
+          <button class="btn-pay" id="btn-submit-paid">⚡ Pay & Launch Ad →</button>
+        </div>
+      </div>
+
+      <!-- MY ADS -->
+      <div id="ads-myads" style="display:none">
+        <div id="my-ads-list"><div style="text-align:center;padding:30px;color:var(--muted)">Loading your ads…</div></div>
+      </div>
+
+      <!-- STATS -->
+      <div id="ads-stats" style="display:none">
+        <div class="analytics-grid">
+          <div class="an-card"><div class="an-val" id="ads-total">0</div><div class="an-lbl">Total Ads Run</div></div>
+          <div class="an-card"><div class="an-val" id="ads-views">0</div><div class="an-lbl">Total Views</div></div>
+          <div class="an-card"><div class="an-val" id="ads-clicks">0</div><div class="an-lbl">Total Clicks</div></div>
+          <div class="an-card"><div class="an-val" id="ads-spent">$0</div><div class="an-lbl">Total Spent</div></div>
+        </div>
+        <div style="text-align:center;padding:20px;font-size:12px;color:var(--muted)">Detailed analytics available after your first ad campaign.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN PANEL MODAL -->
+<div class="modal-overlay" id="modal-admin">
+  <div class="modal-box" style="max-width:600px">
+    <div class="m-head">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#854d0e,#ca8a04);display:flex;align-items:center;justify-content:center;font-size:18px">👑</div>
+        <div><div class="m-title">Admin Panel</div><div style="font-size:10px;color:var(--green3);font-weight:600;letter-spacing:1px">OWNER ACCESS ONLY</div></div>
+      </div>
+      <button class="m-close" onclick="closeModal('modal-admin')">✕</button>
+    </div>
+    <div class="m-body">
+      <div class="admin-tabs">
+        <button class="f-pill active" onclick="switchAdminTab('pending',this)"><span class="pending-dot"></span>Pending Ads</button>
+        <button class="f-pill" onclick="switchAdminTab('approved',this)">✅ Approved</button>
+        <button class="f-pill" onclick="switchAdminTab('rejected',this)">❌ Rejected</button>
+        <button class="f-pill" onclick="switchAdminTab('overview',this)">📊 Overview</button>
+      </div>
+
+      <!-- PENDING ADS -->
+      <div id="admin-pending">
+        <div id="pending-ads-list"><div style="text-align:center;padding:30px;color:var(--muted)">Loading pending ads…</div></div>
+      </div>
+
+      <!-- APPROVED ADS -->
+      <div id="admin-approved" style="display:none">
+        <div id="approved-ads-list"><div style="text-align:center;padding:30px;color:var(--muted)">Loading approved ads…</div></div>
+      </div>
+
+      <!-- REJECTED ADS -->
+      <div id="admin-rejected" style="display:none">
+        <div id="rejected-ads-list"><div style="text-align:center;padding:30px;color:var(--muted)">Loading rejected ads…</div></div>
+      </div>
+
+      <!-- OVERVIEW -->
+      <div id="admin-overview" style="display:none">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+          <div class="admin-stat"><div class="admin-stat-val" id="ov-pending">0</div><div class="admin-stat-lbl">Pending Review</div></div>
+          <div class="admin-stat"><div class="admin-stat-val" id="ov-approved">0</div><div class="admin-stat-lbl">Live Ads</div></div>
+          <div class="admin-stat"><div class="admin-stat-val" id="ov-revenue">$0</div><div class="admin-stat-lbl">Ad Revenue</div></div>
+          <div class="admin-stat"><div class="admin-stat-val" id="ov-views">0</div><div class="admin-stat-lbl">Total Ad Views</div></div>
+        </div>
+        <div style="background:var(--deep);border:1px solid var(--border);border-radius:12px;padding:14px">
+          <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">Recent Ad Activity</div>
+          <div id="ov-activity" style="font-size:12px;color:var(--moon);line-height:2"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -3042,6 +3277,8 @@ auth.onAuthStateChanged(function(user){
       } else {
         var color=COLORS[Math.floor(Math.random()*COLORS.length)];
         state.profile={id:user.uid,name:user.displayName||user.email.split('@')[0],handle:(user.displayName||'user').toLowerCase().replace(/\s+/g,'_'),email:user.email,color:color,plan:'free',isPremium:false,sparksCount:0,followers:0,earnings:0,tips:0};
+      checkAdminAccess();
+      checkPendingAds();
         db.collection('users').doc(user.uid).set(state.profile);
         showToast('Welcome to ZYNC! 🌿');
       }
@@ -3169,6 +3406,421 @@ document.getElementById('btn-airtime').addEventListener('click',function(){ stat
 document.getElementById('btn-data').addEventListener('click',function(){ state.network=document.getElementById('data-network').value; var phone=document.getElementById('data-phone').value.trim(),err=document.getElementById('data-err'); err.textContent=''; if(!phone||!phone.trim()||phone.length<6){ err.textContent='Enter a valid 11-digit phone number'; return; } if(!state.selectedPkg){ err.textContent='Select a data bundle'; return; } if(!state.user) return; if(typeof PaystackPop==='undefined'){ showToast('Payment loading, try again.'); return; } var pkg=state.selectedPkg; PaystackPop.setup({key:PAYSTACK_KEY,email:state.user.email,amount:pkg.price*100,currency:'USD',ref:'ZD-'+Date.now(),metadata:{type:'data',network:state.network,phone:phone,bundle:pkg.size,duration:pkg.dur,price:pkg.price},callback:function(r){ db.collection('topups').add({uid:state.user.uid,name:state.profile.name,email:state.user.email,type:'data',network:state.network,phone:phone,bundle:pkg.size,duration:pkg.dur,amount:pkg.price,ref:r.reference,status:'processing',createdAt:firebase.firestore.FieldValue.serverTimestamp()}); closeModal('modal-topup'); document.getElementById('data-phone').value=''; showToast('✅ '+pkg.size+' '+state.network+' data sent to '+phone+'!'); },onClose:function(){ showToast('Data purchase cancelled'); }}).openIframe(); });
 
 document.querySelectorAll('.modal-overlay').forEach(function(o){ o.addEventListener('click',function(e){ if(e.target===this) this.classList.remove('open'); }); });
+
+// ── ADS SYSTEM ──
+var adState = { type:'free', budget:5, impressions:500, videoAdTimer:null, videoAdSeconds:5, currentAds:[], adIndex:0, postCount:0 };
+
+document.getElementById('nav-ads').addEventListener('click',function(){ setNav(this); openModal('modal-ads'); });
+
+function selectAdType(type){
+  adState.type = type;
+  document.getElementById('at-free').classList.toggle('sel', type==='free');
+  document.getElementById('at-paid').classList.toggle('sel', type==='paid');
+  document.getElementById('form-free').classList.toggle('active', type==='free');
+  document.getElementById('form-paid').classList.toggle('active', type==='paid');
+}
+
+function selBudget(card){
+  document.querySelectorAll('#form-paid .pkg-card').forEach(function(c){ c.classList.remove('sel'); });
+  card.classList.add('sel');
+  adState.budget = parseInt(card.dataset.budget);
+  adState.impressions = parseInt(card.dataset.impressions);
+}
+
+function switchAdTab(tab, btn){
+  document.querySelectorAll('#modal-ads .adm-tabs .f-pill').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById('ads-create').style.display = tab==='create'?'block':'none';
+  document.getElementById('ads-myads').style.display = tab==='myads'?'block':'none';
+  document.getElementById('ads-stats').style.display = tab==='stats'?'block':'none';
+  if(tab==='myads') loadMyAds();
+  if(tab==='stats') loadAdStats();
+}
+
+// Submit FREE ad
+document.getElementById('btn-submit-free').addEventListener('click', function(){
+  var title = document.getElementById('free-ad-title').value.trim();
+  var desc = document.getElementById('free-ad-desc').value.trim();
+  var cta = document.getElementById('free-ad-cta').value.trim();
+  var url = document.getElementById('free-ad-url').value.trim();
+  var emoji = document.getElementById('free-ad-emoji').value.trim() || '📣';
+  var err = document.getElementById('free-ad-err');
+  err.textContent = '';
+  if(!title){ err.textContent='Enter ad title'; return; }
+  if(!desc){ err.textContent='Enter ad description'; return; }
+  if(!cta){ err.textContent='Enter call to action text'; return; }
+  if(!state.user) return;
+  var btn = this; btn.disabled=true; btn.textContent='Submitting…';
+  db.collection('ads').add({
+    type:'free', title:title, description:desc, cta:cta, url:url, emoji:emoji,
+    advertiserId:state.user.uid, advertiserName:state.profile.name,
+    advertiserHandle:state.profile.handle, status:'pending',
+    views:0, clicks:0, budget:0,
+    createdAt:firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function(){
+    btn.disabled=false; btn.textContent='🆓 Submit Free Ad →';
+    document.getElementById('free-ad-title').value='';
+    document.getElementById('free-ad-desc').value='';
+    document.getElementById('free-ad-cta').value='';
+    document.getElementById('free-ad-url').value='';
+    document.getElementById('free-ad-emoji').value='';
+    showToast('Free ad submitted! Goes live within 24h 🎉');
+    closeModal('modal-ads');
+    loadAds();
+  }).catch(function(e){ err.textContent='Failed: '+e.message; btn.disabled=false; btn.textContent='🆓 Submit Free Ad →'; });
+});
+
+// Submit PAID ad
+document.getElementById('btn-submit-paid').addEventListener('click', function(){
+  var title = document.getElementById('paid-ad-title').value.trim();
+  var desc = document.getElementById('paid-ad-desc').value.trim();
+  var cta = document.getElementById('paid-ad-cta').value.trim();
+  var url = document.getElementById('paid-ad-url').value.trim();
+  var emoji = document.getElementById('paid-ad-emoji').value.trim() || '⚡';
+  var err = document.getElementById('paid-ad-err');
+  err.textContent = '';
+  if(!title){ err.textContent='Enter ad title'; return; }
+  if(!desc){ err.textContent='Enter ad description'; return; }
+  if(!cta){ err.textContent='Enter call to action text'; return; }
+  if(!state.user) return;
+  if(typeof PaystackPop==='undefined'){ showToast('Payment loading, try again.'); return; }
+  PaystackPop.setup({
+    key:PAYSTACK_KEY, email:state.user.email,
+    amount:adState.budget*100, currency:'USD',
+    ref:'ZAD-'+Date.now(),
+    callback:function(r){
+      db.collection('ads').add({
+        type:'paid', title:title, description:desc, cta:cta, url:url, emoji:emoji,
+        advertiserId:state.user.uid, advertiserName:state.profile.name,
+        advertiserHandle:state.profile.handle, status:'pending',
+        views:0, clicks:0, budget:adState.budget, impressionsTarget:adState.impressions,
+        ref:r.reference, createdAt:firebase.firestore.FieldValue.serverTimestamp()
+      }).then(function(){
+        document.getElementById('paid-ad-title').value='';
+        document.getElementById('paid-ad-desc').value='';
+        document.getElementById('paid-ad-cta').value='';
+        document.getElementById('paid-ad-url').value='';
+        document.getElementById('paid-ad-emoji').value='';
+        showToast('Paid ad launched! $'+adState.budget+' · ~'+adState.impressions.toLocaleString()+' views 🚀');
+        closeModal('modal-ads');
+        loadAds();
+      });
+    },
+    onClose:function(){ showToast('Ad payment cancelled'); }
+  }).openIframe();
+});
+
+// Load ads from Firestore
+function loadAds(){
+  db.collection('ads').where('status','==','active').orderBy('createdAt','desc').limit(20).get().then(function(snap){
+    adState.currentAds = snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); });
+  }).catch(function(){});
+}
+
+// Load my ads
+function loadMyAds(){
+  if(!state.user) return;
+  var list = document.getElementById('my-ads-list');
+  db.collection('ads').where('advertiserId','==',state.user.uid).orderBy('createdAt','desc').get().then(function(snap){
+    if(snap.empty){ list.innerHTML='<div style="text-align:center;padding:30px;color:var(--muted)"><div style="font-size:36px;margin-bottom:10px">📣</div>You have no ads yet</div>'; return; }
+    list.innerHTML = snap.docs.map(function(d){
+      var ad=Object.assign({id:d.id},d.data());
+      return '<div class="my-ad-row"><div class="mar-icon">'+esc(ad.emoji||'📣')+'</div><div style="flex:1"><div class="mar-name">'+esc(ad.title||'Ad')+'</div><div style="font-size:10px;color:var(--muted);margin-top:2px">'+esc(ad.type==='paid'?'Paid · $'+ad.budget:'Free')+'</div></div><div class="mar-status '+(ad.type==='free'?'free':'active')+'">'+esc(ad.status||'active')+'</div><div class="mar-views">👁 '+(ad.views||0)+'</div></div>';
+    }).join('');
+  });
+}
+
+// Load ad stats
+function loadAdStats(){
+  if(!state.user) return;
+  db.collection('ads').where('advertiserId','==',state.user.uid).get().then(function(snap){
+    var total=snap.docs.length, views=0, clicks=0, spent=0;
+    snap.docs.forEach(function(d){ var a=d.data(); views+=a.views||0; clicks+=a.clicks||0; spent+=a.budget||0; });
+    document.getElementById('ads-total').textContent=total;
+    document.getElementById('ads-views').textContent=views.toLocaleString();
+    document.getElementById('ads-clicks').textContent=clicks.toLocaleString();
+    document.getElementById('ads-spent').textContent='$'+spent;
+  });
+}
+
+// ── INJECT ADS INTO FEED ──
+var origRenderFeed = renderFeed;
+renderFeed = function(){
+  origRenderFeed();
+  if(!adState.currentAds.length) return;
+  var fc = document.getElementById('feed-cont');
+  var cards = fc.querySelectorAll('.spark-card');
+  if(cards.length < 3) return;
+  // Insert ad after every 3rd post
+  var adsToShow = adState.currentAds.filter(function(a){ return a.type==='free'||a.type==='paid'; });
+  if(!adsToShow.length) return;
+  var adIdx = 0;
+  for(var i=2; i<cards.length; i+=4){
+    if(adIdx >= adsToShow.length) adIdx=0;
+    var ad = adsToShow[adIdx++];
+    var adEl = document.createElement('div');
+    adEl.className='ad-banner';
+    adEl.innerHTML='<div class="ad-banner-ph">'+esc(ad.emoji||'📣')+'</div><div class="ad-title">'+esc(ad.title||'')+'</div><div class="ad-desc">'+esc(ad.description||'')+'</div><button class="ad-cta" data-ad-id="'+esc(ad.id)+'" data-ad-url="'+esc(ad.url||'#')+'">'+esc(ad.cta||'Learn More')+' →</button><div class="ad-sponsor">Sponsored by '+esc(ad.advertiserName||'ZYNC User')+'</div>';
+    adEl.querySelector('.ad-cta').addEventListener('click',function(){ trackAdClick(this.dataset.adId, this.dataset.adUrl); });
+    if(cards[i] && cards[i].parentNode) cards[i].parentNode.insertBefore(adEl, cards[i].nextSibling);
+    // Track view
+    db.collection('ads').doc(ad.id).update({views:firebase.firestore.FieldValue.increment(1)}).catch(function(){});
+  }
+};
+
+function trackAdClick(adId, url){
+  db.collection('ads').doc(adId).update({clicks:firebase.firestore.FieldValue.increment(1)}).catch(function(){});
+  if(url && url!=='#') window.open(url,'_blank');
+}
+
+// ── VIDEO AD BEFORE REELS ──
+var origOpenReel = openReel;
+openReel = function(id, url, author, text, likes){
+  var paidAds = adState.currentAds.filter(function(a){ return a.type==='paid'; });
+  if(paidAds.length && adState.postCount % 2 === 0){
+    var ad = paidAds[Math.floor(Math.random()*paidAds.length)];
+    showVideoAd(ad, function(){ origOpenReel(id,url,author,text,likes); });
+  } else {
+    origOpenReel(id,url,author,text,likes);
+  }
+  adState.postCount++;
+};
+
+function showVideoAd(ad, callback){
+  document.getElementById('va-title').textContent = ad.title||'';
+  document.getElementById('va-desc').textContent = ad.description||'';
+  document.getElementById('va-media-ph').textContent = ad.emoji||'📣';
+  document.getElementById('va-btn').textContent = (ad.cta||'Learn More')+' →';
+  document.getElementById('va-btn').onclick = function(){ trackAdClick(ad.id, ad.url||'#'); };
+  var skipBtn = document.getElementById('va-skip');
+  var countdown = document.getElementById('va-countdown');
+  skipBtn.className='va-skip disabled';
+  skipBtn.textContent='Skip in 5s';
+  skipBtn.onclick = null;
+  document.getElementById('video-ad-overlay').classList.add('open');
+  // Track view
+  db.collection('ads').doc(ad.id).update({views:firebase.firestore.FieldValue.increment(1)}).catch(function(){});
+  var secs = 5;
+  adState.videoAdTimer = setInterval(function(){
+    secs--;
+    countdown.textContent='AD · SKIP IN '+secs+'s';
+    skipBtn.textContent='Skip in '+secs+'s';
+    if(secs<=0){
+      clearInterval(adState.videoAdTimer);
+      skipBtn.className='va-skip';
+      skipBtn.textContent='Skip Ad →';
+      skipBtn.onclick=function(){ closeVideoAd(callback); };
+      countdown.textContent='AD · You can now skip';
+    }
+  }, 1000);
+}
+
+function closeVideoAd(callback){
+  clearInterval(adState.videoAdTimer);
+  document.getElementById('video-ad-overlay').classList.remove('open');
+  if(callback) callback();
+}
+
+// Load ads on mount
+setTimeout(loadAds, 2000);
+
+// ── ADMIN SYSTEM ──
+var ADMIN_EMAIL = 'ilohgreat25@gmail.com';
+
+function isAdmin(){ return state.user && state.user.email === ADMIN_EMAIL; }
+
+// Show admin nav only for owner
+function checkAdminAccess(){
+  var adminNav = document.getElementById('nav-admin');
+  if(adminNav) adminNav.style.display = isAdmin() ? 'flex' : 'none';
+}
+
+// Admin nav click
+document.getElementById('nav-admin').addEventListener('click', function(){
+  setNav(this);
+  openModal('modal-admin');
+  loadAdminTab('pending');
+});
+
+// Switch admin tabs
+function switchAdminTab(tab, btn){
+  document.querySelectorAll('#modal-admin .admin-tabs .f-pill').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  ['pending','approved','rejected','overview'].forEach(function(t){
+    document.getElementById('admin-'+t).style.display = t===tab ? 'block' : 'none';
+  });
+  loadAdminTab(tab);
+}
+
+function loadAdminTab(tab){
+  if(tab==='pending') loadAdminAds('pending','pending-ads-list');
+  else if(tab==='approved') loadAdminAds('active','approved-ads-list');
+  else if(tab==='rejected') loadAdminAds('rejected','rejected-ads-list');
+  else if(tab==='overview') loadAdminOverview();
+}
+
+function loadAdminAds(status, listId){
+  if(!isAdmin()) return;
+  var list = document.getElementById(listId);
+  if(!list) return;
+  list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Loading…</div>';
+  db.collection('ads').where('status','==',status).orderBy('createdAt','desc').get().then(function(snap){
+    if(snap.empty){
+      var label = status==='pending'?'pending ads to review':status==='active'?'approved ads':'rejected ads';
+      list.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)"><div style="font-size:36px;margin-bottom:10px">'+(status==='pending'?'🎉':status==='active'?'✅':'❌')+'</div>No '+label+'</div>';
+      return;
+    }
+    list.innerHTML = snap.docs.map(function(d){
+      var ad = Object.assign({id:d.id}, d.data());
+      var createdAt = ad.createdAt ? new Date(ad.createdAt.seconds*1000).toLocaleDateString() : 'Unknown';
+      var actions = '';
+      if(status==='pending'){
+        actions = '<div class="arc-actions"><button class="btn-approve" data-adid="'+esc(ad.id)+'" data-action="approve">✅ Approve — Go Live</button><button class="btn-reject" data-adid="'+esc(ad.id)+'" data-action="reject">❌ Reject</button></div>';
+      } else if(status==='active'){
+        actions = '<div class="arc-actions"><button class="btn-reject" data-adid="'+esc(ad.id)+'" data-action="reject">❌ Take Down</button></div>';
+      } else {
+        actions = '<div class="arc-actions"><button class="btn-approve" data-adid="'+esc(ad.id)+'" data-action="approve">✅ Re-approve</button></div>';
+      }
+      return '<div class="ad-review-card">'+
+        '<div class="arc-head">'+
+          '<div class="arc-info">'+
+            '<div class="arc-title">'+esc(ad.title||'Untitled Ad')+'</div>'+
+            '<div class="arc-meta">By '+esc(ad.advertiserName||'Unknown')+' (@'+esc(ad.advertiserHandle||'?')+') · '+createdAt+'</div>'+
+          '</div>'+
+          '<div class="arc-type '+esc(ad.type||'free')+'">'+esc(ad.type==='paid'?'PAID · $'+ad.budget:'FREE')+'</div>'+
+        '</div>'+
+        '<div class="arc-body">'+
+          '<div class="arc-field"><div class="arc-label">Description</div><div class="arc-val">'+esc(ad.description||'—')+'</div></div>'+
+          '<div class="arc-field"><div class="arc-label">Call to Action</div><div class="arc-val">'+esc(ad.cta||'—')+'</div></div>'+
+          '<div class="arc-field"><div class="arc-label">Link URL — Click to verify</div><div class="arc-val"><a href="'+esc(ad.url||'#')+'" target="_blank" rel="noopener">'+esc(ad.url||'No link provided')+'</a></div></div>'+
+          '<div class="arc-field"><div class="arc-label">Performance</div><div class="arc-val">👁 '+( ad.views||0)+' views · 👆 '+(ad.clicks||0)+' clicks</div></div>'+
+        '</div>'+
+        actions+
+      '</div>';
+    }).join('');
+  }).catch(function(e){
+    if(list) list.innerHTML = '<div style="color:#fca5a5;padding:14px">Error: '+esc(e.message)+'</div>';
+  });
+  // event delegation for approve/reject buttons
+  if(list && !list.dataset.delegated){
+    list.dataset.delegated='1';
+    list.addEventListener('click',function(e){
+      var btn=e.target.closest('[data-adid]');
+      if(!btn) return;
+      var adId=btn.dataset.adid, action=btn.dataset.action;
+      if(action==='approve') adminApproveAd(adId);
+      else if(action==='reject') adminRejectAd(adId);
+    });
+  }
+}
+
+function adminApproveAd(adId){
+  if(!isAdmin()) return;
+  db.collection('ads').doc(adId).update({
+    status:'active',
+    approvedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    approvedBy: ADMIN_EMAIL
+  }).then(function(){
+    showToast('✅ Ad approved and now live!');
+    loadAdminTab('pending');
+    loadAds();
+    // notify advertiser
+    db.collection('ads').doc(adId).get().then(function(d){
+      if(d.exists && d.data().advertiserId){
+        db.collection('notifications').add({
+          to: d.data().advertiserId,
+          type:'ad_approved',
+          text:'Your ad "'+d.data().title+'" has been approved and is now live on ZYNC! 🎉',
+          read:false,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      }
+    });
+  }).catch(function(e){ showToast('Error: '+e.message); });
+}
+
+function adminRejectAd(adId){
+  if(!isAdmin()) return;
+  var reason = prompt('Reason for rejection (shown to advertiser):');
+  if(reason===null) return;
+  db.collection('ads').doc(adId).update({
+    status:'rejected',
+    rejectedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    rejectedBy: ADMIN_EMAIL,
+    rejectionReason: reason||'Did not meet ZYNC advertising guidelines'
+  }).then(function(){
+    showToast('❌ Ad rejected');
+    loadAdminTab('pending');
+    loadAds();
+    // notify advertiser
+    db.collection('ads').doc(adId).get().then(function(d){
+      if(d.exists && d.data().advertiserId){
+        db.collection('notifications').add({
+          to: d.data().advertiserId,
+          type:'ad_rejected',
+          text:'Your ad "'+d.data().title+'" was not approved. Reason: '+(reason||'Did not meet guidelines')+'. Please revise and resubmit.',
+          read:false,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      }
+    });
+  }).catch(function(e){ showToast('Error: '+e.message); });
+}
+
+function loadAdminOverview(){
+  if(!isAdmin()) return;
+  db.collection('ads').get().then(function(snap){
+    var pending=0, approved=0, revenue=0, views=0, activity=[];
+    snap.docs.forEach(function(d){
+      var a=d.data();
+      if(a.status==='pending') pending++;
+      if(a.status==='active') approved++;
+      if(a.type==='paid') revenue+=a.budget||0;
+      views+=a.views||0;
+      var date = a.createdAt ? new Date(a.createdAt.seconds*1000).toLocaleDateString() : '';
+      activity.push({
+        text: (a.status==='active'?'✅':a.status==='pending'?'⏳':'❌')+' <b>'+esc(a.title||'Ad')+'</b> by '+esc(a.advertiserName||'User')+' · '+date,
+        time: a.createdAt ? a.createdAt.seconds : 0
+      });
+    });
+    document.getElementById('ov-pending').textContent=pending;
+    document.getElementById('ov-approved').textContent=approved;
+    document.getElementById('ov-revenue').textContent='$'+revenue;
+    document.getElementById('ov-views').textContent=views.toLocaleString();
+    activity.sort(function(a,b){return b.time-a.time;});
+    document.getElementById('ov-activity').innerHTML = activity.slice(0,10).map(function(a){return '<div>'+a.text+'</div>';}).join('') || '<div style="color:var(--muted)">No activity yet</div>';
+  });
+}
+
+// Check pending ads count for notification badge
+function checkPendingAds(){
+  if(!isAdmin()) return;
+  db.collection('ads').where('status','==','pending').get().then(function(snap){
+    var count = snap.docs.length;
+    var navAdmin = document.getElementById('nav-admin');
+    if(navAdmin && count > 0){
+      var existing = navAdmin.querySelector('.pending-count');
+      if(!existing){
+        var badge = document.createElement('span');
+        badge.className='pending-count';
+        badge.style.cssText='background:#ef4444;color:white;font-size:9px;font-weight:800;padding:1px 6px;border-radius:20px;margin-left:4px';
+        badge.textContent=count;
+        navAdmin.appendChild(badge);
+      } else {
+        existing.textContent=count;
+      }
+    }
+  });
+}
+
+// Hook into free ad submission to set status as pending
+var origFreeSubmit = document.getElementById('btn-submit-free').onclick;
+document.getElementById('btn-submit-free').addEventListener('click', function(){
+  // Free ads also go to pending for admin review
+}, true);
+
+// Override free ad firestore write to use pending status
+var origLoadAds2 = loadAds;
 
 // ── NAV: NEW FEATURES ──
 document.getElementById('nav-reels').addEventListener('click',function(){ setNav(this); openModal('modal-reels'); loadReels(); });
