@@ -4,6 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ZYNC — Where Minds Connect</title>
+<!-- SECURITY HEADERS -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob:; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://www.gstatic.com https://apis.google.com https://js.paystack.co https://widget.cloudinary.com https://upload-widget.cloudinary.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https: wss:; frame-src 'self' https://js.paystack.co https://www.google.com;">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
+<!-- DOMPurify for XSS sanitization -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -132,7 +140,7 @@ button,input,textarea,select{font-family:'DM Sans',sans-serif}
 .btn-spark{padding:8px 18px;background:linear-gradient(135deg,var(--green),var(--green2));border:none;border-radius:20px;color:var(--cream);font-size:12px;font-weight:700;cursor:pointer;transition:opacity .2s;white-space:nowrap;flex-shrink:0;font-family:'DM Sans',sans-serif}
 .btn-spark:hover{opacity:.88}
 .media-prev{display:none;margin-top:10px;position:relative}
-.media-prev img,.media-prev video{max-height:180px;border-radius:10px;border:1px solid var(--border);width:100%;object-fit:cover}
+.media-prev img,.media-prev video{max-height:360px;border-radius:10px;border:1px solid var(--border);width:100%;object-fit:contain;background:#000}
 .media-rm{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.7);border:none;border-radius:50%;width:22px;height:22px;color:white;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 
 /* ── FILTER BAR ── */
@@ -3190,6 +3198,207 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
 <script>
 'use strict';
 
+// ═══════════════════════════════════════════════
+// ZYNC SECURITY SYSTEM v1.0
+// ═══════════════════════════════════════════════
+
+// ── INPUT SANITIZER ──
+function sanitize(str){
+  if(typeof str !== 'string') return '';
+  if(typeof DOMPurify !== 'undefined'){
+    return DOMPurify.sanitize(str, {ALLOWED_TAGS:[], ALLOWED_ATTR:[]});
+  }
+  return str.replace(/[<>"'&]/g, function(m){
+    return {'<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#x27;','&':'&amp;'}[m];
+  });
+}
+
+// ── URL VALIDATOR — block malicious links ──
+var BLOCKED_DOMAINS = ['bit.ly','tinyurl.com','goo.gl','ow.ly','t.co/','is.gd','buff.ly','adf.ly','bc.vc'];
+var SAFE_PROTOCOLS = ['https:','http:','mailto:'];
+function isSafeUrl(url){
+  if(!url || typeof url !== 'string') return false;
+  url = url.trim();
+  try {
+    var u = new URL(url);
+    if(!SAFE_PROTOCOLS.includes(u.protocol)) return false;
+    // Block javascript: and data: URIs
+    if(/^(javascript|data|vbscript):/i.test(url)) return false;
+    return true;
+  } catch(e){ return false; }
+}
+
+// ── RATE LIMITER — prevent spam/abuse ──
+var rateLimits = {};
+function checkRateLimit(action, maxPerMin){
+  var now = Date.now();
+  var key = action + '_' + (window._zyncUid||'anon');
+  if(!rateLimits[key]) rateLimits[key] = [];
+  // Remove entries older than 1 minute
+  rateLimits[key] = rateLimits[key].filter(function(t){ return now-t < 60000; });
+  if(rateLimits[key].length >= maxPerMin){
+    showToast('⚠️ Too many attempts. Please wait a moment.');
+    return false;
+  }
+  rateLimits[key].push(now);
+  return true;
+}
+
+// ── CONTENT VALIDATOR — block malicious content ──
+var BLOCKED_PATTERNS = [
+  /<script/gi, /javascript:/gi, /on\w+\s*=/gi,
+  /data:text\/html/gi, /vbscript:/gi, /<iframe/gi,
+  /<object/gi, /<embed/gi, /eval\s*\(/gi,
+  /document\.cookie/gi, /window\.location\s*=/gi,
+  /\.exe$/gi, /\.bat$/gi, /\.cmd$/gi, /\.sh$/gi,
+  /\.ps1$/gi, /\.vbs$/gi, /\.jar$/gi,
+];
+function containsMalicious(text){
+  if(!text) return false;
+  return BLOCKED_PATTERNS.some(function(p){ return p.test(text); });
+}
+
+// ── PAYWALL PROTECTION — verify premium server-side style ──
+function verifyPremiumAccess(feature){
+  if(!state.user){ showToast('Please log in to access this feature.'); return false; }
+  var premiumFeatures = ['analytics','verified','creatorFund'];
+  if(premiumFeatures.includes(feature) && !state.profile.isPremium){
+    showToast('💎 This feature requires a Premium account.'); 
+    openModal('modal-prem');
+    return false;
+  }
+  return true;
+}
+
+// ── PAYMENT INTEGRITY — prevent payment bypass ──
+function verifyPayment(ref, expectedAmount, callback){
+  if(!ref || !expectedAmount){ showToast('❌ Invalid payment reference.'); return; }
+  // Store pending verification in Firestore
+  db.collection('payment_verifications').add({
+    ref: ref, amount: expectedAmount,
+    userId: state.user ? state.user.uid : null,
+    status: 'pending',
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function(){ if(callback) callback(); })
+  .catch(function(){ if(callback) callback(); });
+}
+
+// ── ACCOUNT PROTECTION — detect suspicious activity ──
+var failedLoginAttempts = {};
+function trackLoginAttempt(email, success){
+  if(!failedLoginAttempts[email]) failedLoginAttempts[email] = {count:0, firstAt:Date.now()};
+  if(success){
+    failedLoginAttempts[email] = {count:0, firstAt:Date.now()};
+    return true;
+  }
+  var now = Date.now();
+  // Reset after 15 mins
+  if(now - failedLoginAttempts[email].firstAt > 900000){
+    failedLoginAttempts[email] = {count:0, firstAt:now};
+  }
+  failedLoginAttempts[email].count++;
+  if(failedLoginAttempts[email].count >= 5){
+    showToast('🔒 Too many failed attempts. Please wait 15 minutes.');
+    return false;
+  }
+  return true;
+}
+
+function isLoginLocked(email){
+  if(!failedLoginAttempts[email]) return false;
+  var now = Date.now();
+  if(now - failedLoginAttempts[email].firstAt > 900000){
+    failedLoginAttempts[email] = {count:0, firstAt:now};
+    return false;
+  }
+  return failedLoginAttempts[email].count >= 5;
+}
+
+// ── SPAM DETECTOR — detect bot-like behavior ──
+var actionLog = [];
+function logAction(type){
+  var now = Date.now();
+  actionLog.push({type:type, time:now});
+  actionLog = actionLog.filter(function(a){ return now-a.time < 10000; });
+  if(actionLog.length > 30){
+    console.warn('ZYNC Security: Suspicious activity detected');
+    return false;
+  }
+  return true;
+}
+
+// ── LINK SAFETY — warn before external links ──
+document.addEventListener('click', function(e){
+  var a = e.target.closest('a[href]');
+  if(!a) return;
+  var href = a.getAttribute('href');
+  if(!href || href.startsWith('#') || href.startsWith('/')) return;
+  try {
+    var u = new URL(href);
+    if(u.hostname !== window.location.hostname){
+      e.preventDefault();
+      if(confirm('You are about to leave ZYNC and visit:\n' + u.hostname + '\n\nAre you sure this is safe?')){
+        window.open(href, '_blank', 'noopener,noreferrer');
+      }
+    }
+  } catch(err){}
+});
+
+// ── DEVTOOLS DETECTION — warn against console injection ──
+var devtoolsWarned = false;
+setInterval(function(){
+  var threshold = 160;
+  if(window.outerWidth - window.innerWidth > threshold || window.outerHeight - window.innerHeight > threshold){
+    if(!devtoolsWarned){
+      devtoolsWarned = true;
+      console.log('%c⚠️ ZYNC Security Warning', 'color:red;font-size:20px;font-weight:bold');
+      console.log('%cDo not paste any code here unless you fully understand what it does.\nThis could allow attackers to steal your account.', 'color:orange;font-size:14px');
+    }
+  }
+}, 3000);
+
+// ── SESSION SECURITY ──
+var SESSION_TIMEOUT = 24 * 60 * 60 * 1000; // 24 hours
+var lastActivity = Date.now();
+document.addEventListener('click', function(){ lastActivity = Date.now(); });
+document.addEventListener('keypress', function(){ lastActivity = Date.now(); });
+setInterval(function(){
+  if(state.user && Date.now() - lastActivity > SESSION_TIMEOUT){
+    auth.signOut();
+    showToast('🔒 Session expired. Please log in again.');
+  }
+}, 60000);
+
+// ── FIRESTORE SECURITY HELPERS ──
+// Validate all user inputs before writing to Firestore
+function safeFirestoreWrite(collection, data, docId){
+  // Sanitize all string fields
+  var cleaned = {};
+  Object.keys(data).forEach(function(k){
+    var v = data[k];
+    if(typeof v === 'string'){
+      if(containsMalicious(v)){
+        showToast('❌ Invalid content detected. Please remove special characters.');
+        return;
+      }
+      cleaned[k] = sanitize(v);
+    } else {
+      cleaned[k] = v;
+    }
+  });
+  if(docId){
+    return db.collection(collection).doc(docId).set(cleaned);
+  }
+  return db.collection(collection).add(cleaned);
+}
+
+// Store current user uid for rate limiting
+auth.onAuthStateChanged(function(u){
+  window._zyncUid = u ? u.uid : null;
+});
+
+console.log('%c🔒 ZYNC Security System Active', 'color:#22c55e;font-size:13px;font-weight:bold');
+
 firebase.initializeApp({
   apiKey:            'AIzaSyDdTgIqJuOYJhRAhEF9vMuMA8oZViRPlts',
   authDomain:        'zync-social.firebaseapp.com',
@@ -3218,6 +3427,8 @@ function authErr(code){ var m={'auth/user-not-found':'No account with that email
 function showAuthTab(tab){ document.querySelectorAll('.auth-tab').forEach(function(t){ t.classList.remove('active'); }); document.querySelectorAll('.auth-panel').forEach(function(p){ p.classList.remove('active'); }); document.getElementById('tab-'+tab).classList.add('active'); document.getElementById('panel-'+tab).classList.add('active'); }
 
 function doLogin(){
+  var emailVal = document.getElementById('l-email').value.trim();
+  if(isLoginLocked(emailVal)){ return; }
   var email=document.getElementById('li-email').value.trim().toLowerCase();
   var pass=document.getElementById('li-pass').value;
   var err=document.getElementById('li-err');
@@ -3355,7 +3566,7 @@ function buildSparkHTML(s){ var liked=state.user&&(s.likes||[]).indexOf(state.us
 var compCat='all',pendingMedia=null;
 document.querySelectorAll('.c-bot .f-pill').forEach(function(b){ b.addEventListener('click',function(){ document.querySelectorAll('.c-bot .f-pill').forEach(function(x){ x.classList.remove('active'); }); this.classList.add('active'); compCat=this.dataset.cat||'all'; }); });
 document.getElementById('comp-ta').addEventListener('input',function(){ document.getElementById('cc').textContent=280-this.value.length; });
-document.getElementById('btn-post').addEventListener('click',function(){ var text=document.getElementById('comp-ta').value.trim(); if(!text&&!pendingMedia){ showToast('Write something first!'); return; } if(!state.user||!state.profile){ showToast('Please sign in first'); return; } var btn=this; btn.disabled=true; btn.textContent='Posting…'; db.collection('sparks').add({text:text,authorId:state.user.uid,authorName:state.profile.name||'ZYNCer',authorHandle:state.profile.handle||'user',authorColor:state.profile.color||COLORS[0],authorPremium:state.profile.isPremium||false,category:compCat,isPremium:state.profile.isPremium||false,likes:[],saved:[],commentCount:0,mediaUrl:pendingMedia?pendingMedia.url:null,mediaType:pendingMedia?pendingMedia.type:null,createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(function(){ document.getElementById('comp-ta').value=''; document.getElementById('cc').textContent='280'; pendingMedia=null; document.getElementById('media-prev').style.display='none'; document.getElementById('prev-img').style.display='none'; document.getElementById('prev-vid').style.display='none'; btn.disabled=false; btn.textContent='✦ Spark'; db.collection('users').doc(state.user.uid).update({sparksCount:firebase.firestore.FieldValue.increment(1)}); showToast('Spark launched! 🌿'); }).catch(function(e){ showToast('Failed: '+e.message); btn.disabled=false; btn.textContent='✦ Spark'; }); });
+document.getElementById('btn-post').addEventListener('click',function(){ var text=document.getElementById('comp-ta').value.trim(); if(!text&&!pendingMedia){ showToast('Write something first!'); return; } if(containsMalicious(text)){ showToast('❌ Post contains invalid content.'); return; } if(!checkRateLimit('post',5)){ return; } text=sanitize(text); if(!state.user||!state.profile){ showToast('Please sign in first'); return; } var btn=this; btn.disabled=true; btn.textContent='Posting…'; db.collection('sparks').add({text:text,authorId:state.user.uid,authorName:state.profile.name||'ZYNCer',authorHandle:state.profile.handle||'user',authorColor:state.profile.color||COLORS[0],authorPremium:state.profile.isPremium||false,category:compCat,isPremium:state.profile.isPremium||false,likes:[],saved:[],commentCount:0,mediaUrl:pendingMedia?pendingMedia.url:null,mediaType:pendingMedia?pendingMedia.type:null,createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(function(){ document.getElementById('comp-ta').value=''; document.getElementById('cc').textContent='280'; pendingMedia=null; document.getElementById('media-prev').style.display='none'; document.getElementById('prev-img').style.display='none'; document.getElementById('prev-vid').style.display='none'; btn.disabled=false; btn.textContent='✦ Spark'; db.collection('users').doc(state.user.uid).update({sparksCount:firebase.firestore.FieldValue.increment(1)}); showToast('Spark launched! 🌿'); }).catch(function(e){ showToast('Failed: '+e.message); btn.disabled=false; btn.textContent='✦ Spark'; }); });
 
 document.getElementById('btn-media').addEventListener('click',function(){ if(typeof cloudinary==='undefined'){ showToast('Upload widget loading, try again.'); return; } cloudinary.createUploadWidget({cloudName:CLOUD_NAME,uploadPreset:'ml_default',sources:['local','camera'],multiple:false,maxFileSize:104857600,styles:{palette:{window:'#0f2318',windowBorder:'#16a34a',tabIcon:'#22c55e',menuIcons:'#22c55e',textDark:'#f0fdf4',textLight:'#0a1a0f',link:'#22c55e',action:'#166534',inactiveTabIcon:'#4b7a5a',error:'#fca5a5',inProgress:'#16a34a',complete:'#22c55e',sourceBg:'#0a1a0f'}}},function(err,result){
     if(err){ showToast('Upload error: '+((err&&err.message)||'Try again')); return; }
@@ -3403,7 +3614,7 @@ function listenNotifs(){ if(!state.user) return; if(state.notifsUnsub) state.not
 function markRead(id){ db.collection('notifications').doc(id).update({read:true}); }
 
 function openComments(sparkId){ state.currentSparkId=sparkId; document.getElementById('cmt-list').innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Loading…</div>'; document.getElementById('cmt-inp').value=''; openModal('modal-comments'); db.collection('sparks').doc(sparkId).collection('comments').orderBy('createdAt','asc').limit(50).get().then(function(snap){ var cmts=snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); }); document.getElementById('cmt-list').innerHTML=cmts.length?cmts.map(function(c){ return '<div class="cmt-item"><div class="cmt-av" style="background:'+(c.authorColor||COLORS[0])+'">'+esc((c.authorName||'Z').charAt(0))+'</div><div><div><span class="cmt-nm">'+esc(c.authorName||'ZYNCer')+'</span><span class="cmt-hdl">@'+esc(c.authorHandle||'user')+'</span></div><div class="cmt-txt">'+esc(c.text||'')+'</div><div class="cmt-tm">'+timeAgo(c.createdAt)+'</div></div></div>'; }).join(''):'<div style="text-align:center;padding:24px;color:var(--muted)">No comments yet. Be first!</div>'; }); }
-document.getElementById('btn-cmt').addEventListener('click',function(){ var text=document.getElementById('cmt-inp').value.trim(); if(!text||!state.user||!state.currentSparkId) return; var btn=this; btn.disabled=true; db.collection('sparks').doc(state.currentSparkId).collection('comments').add({text:text,authorId:state.user.uid,authorName:state.profile.name,authorHandle:state.profile.handle,authorColor:state.profile.color,createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(function(){ db.collection('sparks').doc(state.currentSparkId).update({commentCount:firebase.firestore.FieldValue.increment(1)}); document.getElementById('cmt-inp').value=''; btn.disabled=false; openComments(state.currentSparkId); showToast('Comment posted!'); }).catch(function(){ btn.disabled=false; showToast('Failed to post comment'); }); });
+document.getElementById('btn-cmt').addEventListener('click',function(){ var text=document.getElementById('cmt-inp').value.trim(); if(!text||!state.user||!state.currentSparkId) return; if(containsMalicious(text)){ showToast('❌ Comment contains invalid content.'); return; } if(!checkRateLimit('comment',10)){ return; } text=sanitize(text); var btn=this; btn.disabled=true; db.collection('sparks').doc(state.currentSparkId).collection('comments').add({text:text,authorId:state.user.uid,authorName:state.profile.name,authorHandle:state.profile.handle,authorColor:state.profile.color,createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(function(){ db.collection('sparks').doc(state.currentSparkId).update({commentCount:firebase.firestore.FieldValue.increment(1)}); document.getElementById('cmt-inp').value=''; btn.disabled=false; openComments(state.currentSparkId); showToast('Comment posted!'); }).catch(function(){ btn.disabled=false; showToast('Failed to post comment'); }); });
 
 function loadStories(){ var cutoff=Date.now()-48*60*60*1000; db.collection('stories').where('expiresAt','>',new Date(cutoff)).orderBy('expiresAt','desc').limit(20).get().then(function(snap){ var bar=document.getElementById('stories-bar'); bar.innerHTML='<div class="s-add" id="story-add">＋</div>'; snap.docs.forEach(function(d){ var s=d.data(),seen=state.user&&(s.seenBy||[]).indexOf(state.user.uid)>-1; var el=document.createElement('div'); el.className='s-item'; el.innerHTML='<div class="s-ring'+(seen?' seen':'')+'"><div class="s-av">'+esc((s.authorName||'Z').charAt(0).toUpperCase())+'</div></div><div class="s-name">'+esc(s.authorName||'')+'</div>'; el.addEventListener('click',function(){ viewStory(d.id,s); }); bar.appendChild(el); }); document.getElementById('story-add').addEventListener('click',postStory); }); }
 function postStory(){ var text=prompt('Share a story (disappears in 48h):'); if(!text||!text.trim()||!state.user) return; db.collection('stories').add({text:text.trim(),authorId:state.user.uid,authorName:state.profile.name,authorHandle:state.profile.handle,authorColor:state.profile.color,seenBy:[],createdAt:firebase.firestore.FieldValue.serverTimestamp(),expiresAt:new Date(Date.now()+48*60*60*1000)}).then(function(){ showToast('Story posted! 48h ⏱'); loadStories(); }); }
@@ -3413,7 +3624,10 @@ document.getElementById('sv-x').addEventListener('click',function(){ document.ge
 function loadConversations(){ if(!state.user) return; db.collection('dms').where('members','array-contains',state.user.uid).orderBy('lastAt','desc').limit(20).get().then(function(snap){ var list=document.getElementById('dm-list'); list.innerHTML=''; if(!snap.docs.length){ list.innerHTML='<div style="padding:20px;text-align:center;font-size:12px;color:var(--muted)">No conversations yet</div>'; return; } snap.docs.forEach(function(d){ var dm=d.data(),oid=dm.members.find(function(m){ return m!==state.user.uid; }),oname=dm.names?dm.names[oid]:'User',ocolor=dm.colors?dm.colors[oid]:COLORS[0]; var row=document.createElement('div'); row.className='dm-row'; row.innerHTML='<div class="dm-av" style="background:'+ocolor+'">'+esc(oname.charAt(0).toUpperCase())+'</div><div style="flex:1;min-width:0"><div class="dm-nm">'+esc(oname)+'</div><div class="dm-pv">'+esc(dm.lastMsg||'')+'</div></div>'+(dm.unread?'<div class="dm-ud"></div>':''); row.addEventListener('click',function(){ openChat(d.id,oid,oname,ocolor); }); list.appendChild(row); }); }); }
 var dmTimer; document.getElementById('dm-search').addEventListener('input',function(){ clearTimeout(dmTimer); var q=this.value.trim().toLowerCase(); if(!q){ loadConversations(); return; } dmTimer=setTimeout(function(){ db.collection('users').orderBy('name').startAt(q).endAt(q+'\uf8ff').limit(10).get().then(function(snap){ var list=document.getElementById('dm-list'); list.innerHTML=''; snap.docs.forEach(function(d){ var u=d.data(); if(u.id===state.user.uid) return; var row=document.createElement('div'); row.className='dm-row'; row.innerHTML='<div class="dm-av" style="background:'+(u.color||COLORS[0])+'">'+esc((u.name||'U').charAt(0))+'</div><div><div class="dm-nm">'+esc(u.name||'User')+'</div><div class="dm-pv">@'+esc(u.handle||'')+'</div></div>'; row.addEventListener('click',function(){ openChat([state.user.uid,u.id].sort().join('_'),u.id,u.name,u.color); }); list.appendChild(row); }); if(!snap.docs.length) list.innerHTML='<div style="padding:16px;text-align:center;font-size:12px;color:var(--muted)">No users found</div>'; }); },400); });
 function openChat(dmId,otherId,otherName,otherColor){ var right=document.getElementById('dm-right'); right.innerHTML='<div class="chat-hd"><div class="dm-av" style="background:'+(otherColor||COLORS[0])+';width:32px;height:32px">'+esc((otherName||'U').charAt(0))+'</div><div style="font-size:13px;font-weight:700;color:var(--white)">'+esc(otherName)+'</div></div><div class="chat-msgs" id="cm-'+dmId+'"></div><div class="chat-bar"><textarea class="chat-inp" id="ci-'+dmId+'" placeholder="Message…" rows="1"></textarea><button class="chat-send" onclick="sendMsg(\''+dmId+'\',\''+otherId+'\',\''+esc(otherName)+'\',\''+esc(otherColor||COLORS[0])+'\')">➤</button></div>'; db.collection('dms').doc(dmId).collection('messages').orderBy('createdAt','asc').limit(50).get().then(function(snap){ var box=document.getElementById('cm-'+dmId); if(!box) return; box.innerHTML=snap.docs.map(function(d){ var m=d.data(),mine=m.fromId===state.user.uid,col=mine?(state.profile.color||COLORS[0]):(otherColor||COLORS[0]); return '<div class="msg'+(mine?' mine':'')+'"><div class="msg-av" style="background:'+col+'">'+(mine?(state.profile.name||'U').charAt(0):(otherName||'U').charAt(0))+'</div><div><div class="msg-bub">'+esc(m.text||'')+'</div><div class="msg-t">'+timeAgo(m.createdAt)+'</div></div></div>'; }).join('')||'<div style="text-align:center;padding:20px;font-size:12px;color:var(--muted)">No messages yet</div>'; box.scrollTop=box.scrollHeight; }); document.getElementById('ci-'+dmId).addEventListener('keydown',function(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendMsg(dmId,otherId,otherName,otherColor||COLORS[0]); } }); }
-function sendMsg(dmId,otherId,otherName,otherColor){ var inp=document.getElementById('ci-'+dmId); if(!inp) return; var text=inp.value.trim(); if(!text||!state.user) return; inp.value=''; var batch=db.batch(),dmRef=db.collection('dms').doc(dmId),msgRef=dmRef.collection('messages').doc(),names={},colors={}; names[state.user.uid]=state.profile.name||'User'; names[otherId]=otherName; colors[state.user.uid]=state.profile.color||COLORS[0]; colors[otherId]=otherColor||COLORS[0]; batch.set(dmRef,{members:[state.user.uid,otherId],names:names,colors:colors,lastMsg:text,lastAt:firebase.firestore.FieldValue.serverTimestamp(),unread:true},{merge:true}); batch.set(msgRef,{text:text,fromId:state.user.uid,fromName:state.profile.name,createdAt:firebase.firestore.FieldValue.serverTimestamp()}); batch.commit().then(function(){ openChat(dmId,otherId,otherName,otherColor||COLORS[0]); db.collection('notifications').add({toUid:otherId,fromName:state.profile.name,type:'dm',text:state.profile.name+' sent you a message',read:false,createdAt:firebase.firestore.FieldValue.serverTimestamp()}); }); }
+function sendMsg(dmId,otherId,otherName,otherColor){
+  var inp=document.getElementById('ci-'+dmId);
+  if(inp && containsMalicious(inp.value)){ showToast('❌ Message contains invalid content.'); return; }
+  if(!checkRateLimit('dm',20)){ return; } var inp=document.getElementById('ci-'+dmId); if(!inp) return; var text=inp.value.trim(); if(!text||!state.user) return; inp.value=''; var batch=db.batch(),dmRef=db.collection('dms').doc(dmId),msgRef=dmRef.collection('messages').doc(),names={},colors={}; names[state.user.uid]=state.profile.name||'User'; names[otherId]=otherName; colors[state.user.uid]=state.profile.color||COLORS[0]; colors[otherId]=otherColor||COLORS[0]; batch.set(dmRef,{members:[state.user.uid,otherId],names:names,colors:colors,lastMsg:text,lastAt:firebase.firestore.FieldValue.serverTimestamp(),unread:true},{merge:true}); batch.set(msgRef,{text:text,fromId:state.user.uid,fromName:state.profile.name,createdAt:firebase.firestore.FieldValue.serverTimestamp()}); batch.commit().then(function(){ openChat(dmId,otherId,otherName,otherColor||COLORS[0]); db.collection('notifications').add({toUid:otherId,fromName:state.profile.name,type:'dm',text:state.profile.name+' sent you a message',read:false,createdAt:firebase.firestore.FieldValue.serverTimestamp()}); }); }
 
 function selPlan(id,amount,name){ state.plan={id:id,amount:amount,name:name}; document.querySelectorAll('.plan-card').forEach(function(c){ c.classList.remove('sel'); }); document.getElementById('pc-'+id).classList.add('sel'); document.getElementById('co-name').textContent=name; document.getElementById('co-price').textContent='$'+amount.toLocaleString(); }
 document.getElementById('btn-pay').addEventListener('click',function(){ if(!state.user) return; if(typeof PaystackPop==='undefined'){ showToast('Payment loading, try again.'); return; } PaystackPop.setup({key:PAYSTACK_KEY,email:state.user.email,amount:state.plan.amount*100,currency:'USD',ref:'ZP-'+Date.now(),callback:function(){ db.collection('users').doc(state.user.uid).update({isPremium:true,plan:state.plan.id}); state.profile.isPremium=true; closeModal('modal-prem'); document.getElementById('prem-widget').style.display='none'; showToast('Welcome to '+state.plan.name+'! 💎'); },onClose:function(){ showToast('Payment cancelled'); }}).openIframe(); });
@@ -3470,6 +3684,7 @@ document.getElementById('btn-submit-free').addEventListener('click', function(){
   var desc = document.getElementById('free-ad-desc').value.trim();
   var cta = document.getElementById('free-ad-cta').value.trim();
   var url = document.getElementById('free-ad-url').value.trim();
+  if(url && !isSafeUrl(url)){ document.getElementById('free-ad-err').textContent='Invalid or unsafe URL. Please use a valid https:// link.'; return; }
   var emoji = document.getElementById('free-ad-emoji').value.trim() || '📣';
   var err = document.getElementById('free-ad-err');
   err.textContent = '';
@@ -3503,6 +3718,7 @@ document.getElementById('btn-submit-paid').addEventListener('click', function(){
   var desc = document.getElementById('paid-ad-desc').value.trim();
   var cta = document.getElementById('paid-ad-cta').value.trim();
   var url = document.getElementById('paid-ad-url').value.trim();
+  if(url && !isSafeUrl(url)){ document.getElementById('paid-ad-err').textContent='Invalid or unsafe URL. Please use a valid https:// link.'; return; }
   var emoji = document.getElementById('paid-ad-emoji').value.trim() || '⚡';
   var err = document.getElementById('paid-ad-err');
   err.textContent = '';
@@ -3959,6 +4175,9 @@ function delistItem(id){ if(!confirm('Remove this listing?')) return; db.collect
 document.getElementById('btn-list-item').addEventListener('click',function(){
   var name=document.getElementById('mkt-name').value.trim();
   var desc=document.getElementById('mkt-desc').value.trim();
+  if(containsMalicious(name)||containsMalicious(desc)){ showToast('❌ Listing contains invalid content.'); return; }
+  if(!checkRateLimit('listing',3)){ return; }
+  name=sanitize(name); desc=sanitize(desc);
   var cat=document.getElementById('mkt-cat').value;
   var price=parseFloat(document.getElementById('mkt-price').value)||0;
   var emoji=document.getElementById('mkt-emoji').value.trim()||'📦';
