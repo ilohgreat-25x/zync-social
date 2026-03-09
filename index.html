@@ -3327,7 +3327,7 @@ function logAction(type){
   return true;
 }
 
-// ── LINK SAFETY — warn before external links ──
+// ── LINK SAFETY — silently open all external links safely ──
 document.addEventListener('click', function(e){
   var a = e.target.closest('a[href]');
   if(!a) return;
@@ -3337,9 +3337,8 @@ document.addEventListener('click', function(e){
     var u = new URL(href);
     if(u.hostname !== window.location.hostname){
       e.preventDefault();
-      if(confirm('You are about to leave ZYNC and visit:\n' + u.hostname + '\n\nAre you sure this is safe?')){
-        window.open(href, '_blank', 'noopener,noreferrer');
-      }
+      // Silently open safely — no popup, no interruption
+      window.open(href, '_blank', 'noopener,noreferrer');
     }
   } catch(err){}
 });
