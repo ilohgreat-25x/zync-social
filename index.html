@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ZYNC — Where Minds Connect</title>
 <!-- SECURITY HEADERS -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob:; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://www.gstatic.com https://apis.google.com https://js.paystack.co https://widget.cloudinary.com https://upload-widget.cloudinary.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https: wss:; frame-src 'self' https://js.paystack.co https://www.google.com;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob:; frame-src 'self' https://checkout.paystack.com https://www.google.com https://js.paystack.co; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://paystack.com https://js.paystack.co; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:;">
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
 <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
 <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
@@ -3402,7 +3402,8 @@ var securityAlerts = {
 
 // Send security alert to owner via Firestore notification + email
 function sendSecurityAlert(type, details){
-  if(!db) return;
+  if(!db || !type) return;
+  try {
   
   // Cooldown — don't spam same alert type (max 1 per 5 mins)
   var now = Date.now();
@@ -3451,10 +3452,11 @@ function sendSecurityAlert(type, details){
 
   // Log to console with red styling
   console.log('%c' + message, 'color:red;font-weight:bold;font-size:13px');
+  } catch(e) { /* silent fail */ }
 }
 
 // ── BRUTE FORCE DETECTION ──
-var originalTrackLogin = trackLoginAttempt;
+var originalTrackLogin = typeof trackLoginAttempt === 'function' ? trackLoginAttempt : function(){};
 trackLoginAttempt = function(email, success){
   if(!success){
     if(!securityAlerts.loginFailures[email]) securityAlerts.loginFailures[email] = 0;
@@ -3472,8 +3474,8 @@ trackLoginAttempt = function(email, success){
 // ── ADMIN PANEL PROBE DETECTION ──
 var originalOpenModal = openModal;
 openModal = function(id){
-  if(id === 'modal-admin' && !isAdmin()){
-    sendSecurityAlert('admin_probe', 'Non-admin user attempted to access admin panel. User: ' + (state.user ? state.user.email : 'unknown'));
+  if(id === 'modal-admin' && !isAdmin() && state && state.user){
+    sendSecurityAlert('admin_probe', 'Non-admin user attempted to access admin panel. User: ' + state.user.email);
   }
   return originalOpenModal(id);
 };
@@ -3482,8 +3484,8 @@ openModal = function(id){
 var originalContainsMalicious = containsMalicious;
 containsMalicious = function(text){
   var result = originalContainsMalicious(text);
-  if(result){
-    sendSecurityAlert('malicious_content', 'User: ' + (state.user ? state.user.email : 'unknown') + ' attempted to post: ' + (text||'').substring(0,50));
+  if(result && state && state.user){
+    sendSecurityAlert('malicious_content', 'User: ' + state.user.email + ' attempted to post: ' + (text||'').substring(0,50));
   }
   return result;
 };
@@ -3492,11 +3494,11 @@ containsMalicious = function(text){
 var originalCheckRateLimit = checkRateLimit;
 checkRateLimit = function(action, maxPerMin){
   var result = originalCheckRateLimit(action, maxPerMin);
-  if(!result){
+  if(!result && state && state.user){
     if(action === 'dm'){
-      sendSecurityAlert('mass_dm', 'User: ' + (state.user ? state.user.email : 'unknown') + ' exceeded DM rate limit.');
+      sendSecurityAlert('mass_dm', 'User: ' + state.user.email + ' exceeded DM rate limit.');
     } else {
-      sendSecurityAlert('rate_limit_exceeded', 'Action: ' + action + ' · User: ' + (state.user ? state.user.email : 'unknown'));
+      sendSecurityAlert('rate_limit_exceeded', 'Action: ' + action + ' · User: ' + state.user.email);
     }
   }
   return result;
@@ -3515,11 +3517,11 @@ function checkPaymentSuspicion(amount, email){
 }
 
 // ── INVALID AD URL ALERT ──
-var originalIsSafeUrl = isSafeUrl;
+var originalIsSafeUrl = typeof isSafeUrl === 'function' ? isSafeUrl : function(){ return true; };
 isSafeUrl = function(url){
   var result = originalIsSafeUrl(url);
   if(!result && url && url.length > 0){
-    sendSecurityAlert('invalid_ad_url', 'Suspicious URL submitted: ' + (url||'').substring(0,80) + ' by ' + (state.user ? state.user.email : 'unknown'));
+    sendSecurityAlert('invalid_ad_url', 'Suspicious URL submitted: ' + (url||'').substring(0,80) + ' by ' + (state && state.user ? state.user.email : 'unknown'));
   }
   return result;
 };
@@ -4540,12 +4542,12 @@ setTimeout(loadAds, 2000);
 // ── ADMIN SYSTEM ──
 var ADMIN_EMAIL = 'ilohgreat25@gmail.com';
 
-function isAdmin(){ return state.user && state.user.email === ADMIN_EMAIL; }
+function isAdmin(){ return state && state.user && state.user.email === ADMIN_EMAIL; }
 
 // Show admin nav only for owner
 function checkAdminAccess(){
   var adminNav = document.getElementById('nav-admin');
-  if(adminNav) adminNav.style.display = isAdmin() ? 'flex' : 'none';
+  if(adminNav) adminNav.style.display = (state && state.user && isAdmin()) ? 'flex' : 'none';
 }
 
 // Admin nav click
