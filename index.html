@@ -10,6 +10,10 @@
 <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
 <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
+<!-- EmailJS for security alert emails -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<!-- EmailJS for security alerts -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 <!-- DOMPurify for XSS sanitization -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -404,6 +408,20 @@ select.m-input optgroup{background:var(--deep);color:var(--muted);font-size:10px
 .mar-status.pending{background:rgba(254,196,9,.15);color:#fbbf24}
 .mar-status.free{background:rgba(96,165,250,.15);color:#60a5fa}
 .mar-views{font-size:10px;color:var(--muted);margin-left:auto}
+
+/* ── SECURITY ALERTS ── */
+.sec-alert-banner{position:fixed;top:70px;right:16px;z-index:8000;display:flex;flex-direction:column;gap:8px;max-width:320px;pointer-events:none}
+.sec-alert{background:linear-gradient(135deg,rgba(239,68,68,.15),rgba(239,68,68,.05));border:1px solid rgba(239,68,68,.4);border-radius:12px;padding:12px 16px;display:flex;align-items:flex-start;gap:10px;pointer-events:all;animation:slideInRight .3s ease}
+.sec-alert.warn{background:linear-gradient(135deg,rgba(251,191,36,.15),rgba(251,191,36,.05));border-color:rgba(251,191,36,.4)}
+.sec-alert.info{background:linear-gradient(135deg,rgba(96,165,250,.15),rgba(96,165,250,.05));border-color:rgba(96,165,250,.4)}
+.sa-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.sa-content{}
+.sa-title{font-size:12px;font-weight:700;color:#fca5a5;margin-bottom:2px}
+.sa-title.warn{color:#fcd34d}
+.sa-title.info{color:#93c5fd}
+.sa-msg{font-size:11px;color:var(--moon);line-height:1.5}
+.sa-time{font-size:9px;color:var(--muted);margin-top:4px}
+@keyframes slideInRight{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}
 
 /* ── ADMIN PANEL ── */
 .admin-badge{display:inline-flex;align-items:center;gap:4px;background:linear-gradient(135deg,#854d0e,#ca8a04);color:#fef9c3;font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:2px 8px;border-radius:20px;margin-left:6px}
@@ -3156,9 +3174,11 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
     <div class="m-body">
       <div class="admin-tabs">
         <button class="f-pill active" onclick="switchAdminTab('pending',this)"><span class="pending-dot"></span>Pending Ads</button>
+        <button class="f-pill" onclick="switchAdminTab('security',this)">🔴 Security</button>
         <button class="f-pill" onclick="switchAdminTab('approved',this)">✅ Approved</button>
         <button class="f-pill" onclick="switchAdminTab('rejected',this)">❌ Rejected</button>
         <button class="f-pill" onclick="switchAdminTab('overview',this)">📊 Overview</button>
+        <button class="f-pill" onclick="switchAdminTab('security',this)">🔴 Security</button>
       </div>
 
       <!-- PENDING ADS -->
@@ -3176,7 +3196,20 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
         <div id="rejected-ads-list"><div style="text-align:center;padding:30px;color:var(--muted)">Loading rejected ads…</div></div>
       </div>
 
+      <!-- SECURITY ALERTS -->
+      <div id="admin-security" style="display:none">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <div style="font-size:12px;color:var(--muted)">Real-time security alerts from ZYNC</div>
+          <button class="f-pill active" onclick="markAllAlertsResolved()">✅ Mark All Resolved</button>
+        </div>
+        <div id="security-alerts-list"><div style="text-align:center;padding:30px;color:var(--muted)">Loading alerts…</div></div>
+      </div>
+
       <!-- OVERVIEW -->
+      <div id="admin-security" style="display:none">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.7">Real-time security alerts from ZYNC. High severity alerts also appear in your notification bell.</div>
+        <div id="security-alerts-list"><div style="text-align:center;padding:20px;color:var(--muted)">Loading alerts…</div></div>
+      </div>
       <div id="admin-overview" style="display:none">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
           <div class="admin-stat"><div class="admin-stat-val" id="ov-pending">0</div><div class="admin-stat-lbl">Pending Review</div></div>
@@ -3192,6 +3225,9 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
     </div>
   </div>
 </div>
+
+<!-- SECURITY ALERT BANNER -->
+<div class="sec-alert-banner" id="sec-alert-banner"></div>
 
 <div class="toast" id="toast"></div>
 
@@ -3356,6 +3392,162 @@ setInterval(function(){
   }
 }, 3000);
 
+// ── SECURITY ALERT SYSTEM ──
+var OWNER_EMAIL = 'zyncofficial06@gmail.com';
+var securityAlerts = {
+  loginFailures: {},
+  suspiciousIPs: {},
+  alertCooldowns: {}
+};
+
+// Send security alert to owner via Firestore notification + email
+function sendSecurityAlert(type, details){
+  if(!db) return;
+  
+  // Cooldown — don't spam same alert type (max 1 per 5 mins)
+  var now = Date.now();
+  var cooldownKey = type;
+  if(securityAlerts.alertCooldowns[cooldownKey] && 
+     now - securityAlerts.alertCooldowns[cooldownKey] < 300000) return;
+  securityAlerts.alertCooldowns[cooldownKey] = now;
+
+  var alertMessages = {
+    'brute_force': '🔴 SECURITY ALERT: Someone tried to break into an account by failing login 5+ times. IP activity logged.',
+    'admin_probe': '🔴 SECURITY ALERT: Someone attempted unauthorized access to your Admin Panel.',
+    'suspicious_payment': '🔴 SECURITY ALERT: Unusual payment activity detected on ZYNC.',
+    'rate_limit_exceeded': '🟡 WARNING: Suspicious rapid activity detected — possible bot attack.',
+    'malicious_content': '🔴 SECURITY ALERT: Someone tried to post malicious content on ZYNC.',
+    'mass_dm': '🟡 WARNING: Someone is sending an unusual number of messages — possible spam bot.',
+    'invalid_ad_url': '🟡 WARNING: Someone tried to submit an ad with a suspicious/malicious URL.',
+    'session_hijack': '🔴 SECURITY ALERT: Suspicious session activity detected — possible account hijack attempt.'
+  };
+
+  var message = alertMessages[type] || '🔴 SECURITY ALERT: Suspicious activity detected on ZYNC. Type: ' + type;
+  if(details) message += ' Details: ' + details;
+
+  // Save to Firestore security_alerts collection
+  db.collection('security_alerts').add({
+    type: type,
+    message: message,
+    details: details || '',
+    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+    resolved: false
+  }).catch(function(){});
+
+  // Send notification to owner's ZYNC account
+  db.collection('users').where('email','==',ADMIN_EMAIL).limit(1).get().then(function(snap){
+    if(!snap.empty){
+      var ownerId = snap.docs[0].id;
+      db.collection('notifications').add({
+        to: ownerId,
+        type: 'security_alert',
+        text: message,
+        read: false,
+        priority: 'high',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }
+  }).catch(function(){});
+
+  // Log to console with red styling
+  console.log('%c' + message, 'color:red;font-weight:bold;font-size:13px');
+}
+
+// ── BRUTE FORCE DETECTION ──
+var originalTrackLogin = trackLoginAttempt;
+trackLoginAttempt = function(email, success){
+  if(!success){
+    if(!securityAlerts.loginFailures[email]) securityAlerts.loginFailures[email] = 0;
+    securityAlerts.loginFailures[email]++;
+    if(securityAlerts.loginFailures[email] >= 5){
+      sendSecurityAlert('brute_force', 'Target email: ' + email);
+      securityAlerts.loginFailures[email] = 0;
+    }
+  } else {
+    securityAlerts.loginFailures[email] = 0;
+  }
+  return originalTrackLogin(email, success);
+};
+
+// ── ADMIN PANEL PROBE DETECTION ──
+var originalOpenModal = openModal;
+openModal = function(id){
+  if(id === 'modal-admin' && !isAdmin()){
+    sendSecurityAlert('admin_probe', 'Non-admin user attempted to access admin panel. User: ' + (state.user ? state.user.email : 'unknown'));
+  }
+  return originalOpenModal(id);
+};
+
+// ── MALICIOUS CONTENT DETECTION ──
+var originalContainsMalicious = containsMalicious;
+containsMalicious = function(text){
+  var result = originalContainsMalicious(text);
+  if(result){
+    sendSecurityAlert('malicious_content', 'User: ' + (state.user ? state.user.email : 'unknown') + ' attempted to post: ' + (text||'').substring(0,50));
+  }
+  return result;
+};
+
+// ── RATE LIMIT ALERT ──
+var originalCheckRateLimit = checkRateLimit;
+checkRateLimit = function(action, maxPerMin){
+  var result = originalCheckRateLimit(action, maxPerMin);
+  if(!result){
+    if(action === 'dm'){
+      sendSecurityAlert('mass_dm', 'User: ' + (state.user ? state.user.email : 'unknown') + ' exceeded DM rate limit.');
+    } else {
+      sendSecurityAlert('rate_limit_exceeded', 'Action: ' + action + ' · User: ' + (state.user ? state.user.email : 'unknown'));
+    }
+  }
+  return result;
+};
+
+// ── SUSPICIOUS PAYMENT DETECTION ──
+function checkPaymentSuspicion(amount, email){
+  // Alert if single payment exceeds $500
+  if(amount > 500){
+    sendSecurityAlert('suspicious_payment', 'Large payment detected: $' + amount + ' from ' + email);
+  }
+  // Alert if payment amount is 0 or negative
+  if(amount <= 0){
+    sendSecurityAlert('suspicious_payment', 'Invalid payment amount: $' + amount + ' from ' + email);
+  }
+}
+
+// ── INVALID AD URL ALERT ──
+var originalIsSafeUrl = isSafeUrl;
+isSafeUrl = function(url){
+  var result = originalIsSafeUrl(url);
+  if(!result && url && url.length > 0){
+    sendSecurityAlert('invalid_ad_url', 'Suspicious URL submitted: ' + (url||'').substring(0,80) + ' by ' + (state.user ? state.user.email : 'unknown'));
+  }
+  return result;
+};
+
+// ── SECURITY DASHBOARD — view all alerts ──
+function loadSecurityAlerts(){
+  if(!isAdmin()) return;
+  db.collection('security_alerts').orderBy('timestamp','desc').limit(50).get().then(function(snap){
+    var unresolvedCount = snap.docs.filter(function(d){ return !d.data().resolved; }).length;
+    // Update admin nav badge if there are unresolved alerts
+    var adminNav = document.getElementById('nav-admin');
+    if(adminNav && unresolvedCount > 0){
+      var existing = adminNav.querySelector('.security-alert-dot');
+      if(!existing){
+        var dot = document.createElement('span');
+        dot.className = 'security-alert-dot';
+        dot.style.cssText = 'width:8px;height:8px;border-radius:50%;background:#ef4444;display:inline-block;margin-left:4px;animation:pulse 1s infinite';
+        adminNav.appendChild(dot);
+      }
+    }
+  }).catch(function(){});
+}
+
+// Check security alerts every 2 minutes when admin is logged in
+setInterval(function(){
+  if(isAdmin()) loadSecurityAlerts();
+}, 120000);
+
 // ── SESSION SECURITY ──
 var SESSION_TIMEOUT = 24 * 60 * 60 * 1000; // 24 hours
 var lastActivity = Date.now();
@@ -3397,6 +3589,485 @@ auth.onAuthStateChanged(function(u){
 });
 
 console.log('%c🔒 ZYNC Security System Active', 'color:#22c55e;font-size:13px;font-weight:bold');
+
+// ═══════════════════════════════════════════════
+// ZYNC SECURITY ALERT SYSTEM
+// ═══════════════════════════════════════════════
+
+var OWNER_EMAIL = 'zyncofficial06@gmail.com';
+var securityLog = [];
+
+// ── SHOW SECURITY ALERT BANNER ──
+function showSecAlert(title, message, type){
+  type = type || 'danger';
+  var banner = document.getElementById('sec-alert-banner');
+  if(!banner) return;
+  var alert = document.createElement('div');
+  alert.className = 'sec-alert ' + (type==='warn'?'warn':type==='info'?'info':'');
+  var icon = type==='danger'?'🚨':type==='warn'?'⚠️':'ℹ️';
+  var now = new Date().toLocaleTimeString();
+  alert.innerHTML = '<div class="sa-icon">'+icon+'</div><div class="sa-content"><div class="sa-title '+(type==='warn'?'warn':type==='info'?'info':'')+'">'+title+'</div><div class="sa-msg">'+message+'</div><div class="sa-time">'+now+'</div></div>';
+  banner.appendChild(alert);
+  // Auto remove after 8 seconds
+  setTimeout(function(){ 
+    alert.style.opacity='0'; 
+    alert.style.transition='opacity .3s';
+    setTimeout(function(){ if(alert.parentNode) alert.parentNode.removeChild(alert); }, 300);
+  }, 8000);
+  // Log to Firestore if user logged in
+  if(state.user){
+    db.collection('security_logs').add({
+      type: type, title: title, message: message,
+      userId: state.user ? state.user.uid : null,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    }).catch(function(){});
+  }
+}
+
+// ── NOTIFY OWNER IN ZYNC + FIRESTORE ──
+function notifyOwner(title, message, severity){
+  // Store in Firestore security_alerts collection
+  db.collection('security_alerts').add({
+    title: title, message: message, severity: severity||'high',
+    read: false, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).catch(function(){});
+  // Show in owner's notification if they're logged in as admin
+  if(isAdmin()){
+    showSecAlert(title, message, severity==='high'?'danger':'warn');
+  }
+  // Save to local security log
+  securityLog.push({title:title, message:message, time:new Date().toISOString()});
+}
+
+// ── WATCH FOR SECURITY ALERTS IN REALTIME (ADMIN ONLY) ──
+function startSecurityWatch(){
+  if(!isAdmin()) return;
+  // Listen for new security alerts in real time
+  db.collection('security_alerts')
+    .where('read','==',false)
+    .orderBy('createdAt','desc')
+    .limit(10)
+    .onSnapshot(function(snap){
+      snap.docChanges().forEach(function(change){
+        if(change.type === 'added'){
+          var alert = change.doc.data();
+          // Only show alerts added in last 30 seconds
+          var now = Date.now();
+          var alertTime = alert.createdAt ? alert.createdAt.seconds * 1000 : 0;
+          if(now - alertTime < 30000){
+            showSecAlert(alert.title, alert.message, alert.severity==='high'?'danger':'warn');
+            // Update notification bell
+            updateNotifBell();
+          }
+        }
+      });
+    }, function(){});
+}
+
+// ── ENHANCED LOGIN FAILURE TRACKING ──
+var origTrackLogin = trackLoginAttempt;
+trackLoginAttempt = function(email, success){
+  var result = origTrackLogin(email, success);
+  if(!success){
+    var attempts = failedLoginAttempts[email] ? failedLoginAttempts[email].count : 0;
+    if(attempts >= 3){
+      notifyOwner(
+        '🔴 Multiple Failed Logins',
+        'Account '+email+' has '+attempts+' failed login attempts. Possible brute force attack.',
+        'high'
+      );
+    }
+  }
+  return result;
+};
+
+// ── MONITOR SUSPICIOUS PAYMENT ACTIVITY ──
+function checkSuspiciousPayment(amount, type){
+  var MAX_AMOUNTS = {tip:50, premium:20, airtime:100, data:50, ad:500};
+  var max = MAX_AMOUNTS[type] || 1000;
+  if(amount > max){
+    notifyOwner(
+      '⚠️ Unusual Payment Detected',
+      'A '+type+' payment of $'+amount+' was attempted — above normal limit of $'+max+'.',
+      'high'
+    );
+    return false;
+  }
+  return true;
+}
+
+// ── MONITOR RAPID REQUESTS (DDoS Detection) ──
+var requestCounts = {};
+function monitorRequests(action){
+  var now = Date.now();
+  var key = action;
+  if(!requestCounts[key]) requestCounts[key] = [];
+  requestCounts[key] = requestCounts[key].filter(function(t){ return now-t < 60000; });
+  requestCounts[key].push(now);
+  if(requestCounts[key].length > 50){
+    notifyOwner(
+      '🚨 Possible DDoS Attack',
+      'Action "'+action+'" has been triggered '+requestCounts[key].length+' times in the last minute from one session.',
+      'high'
+    );
+  }
+}
+
+// ── MONITOR ADMIN PANEL ACCESS ──
+var origOpenAdmin = document.getElementById('nav-admin').onclick;
+document.getElementById('nav-admin').addEventListener('click', function(){
+  if(isAdmin()){
+    // Log legitimate admin access
+    db.collection('security_logs').add({
+      type:'info', title:'Admin Panel Accessed',
+      message:'Owner accessed admin panel at '+new Date().toLocaleString(),
+      userId: state.user ? state.user.uid : null,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    }).catch(function(){});
+  }
+});
+
+// ── MONITOR NEW USER SIGNUPS FOR SUSPICIOUS PATTERNS ──
+function monitorNewSignup(email, uid){
+  // Check for disposable email patterns
+  var disposableDomains = ['tempmail','guerrillamail','mailinator','throwaway','fakeinbox','yopmail'];
+  var emailDomain = email.split('@')[1]||'';
+  if(disposableDomains.some(function(d){ return emailDomain.includes(d); })){
+    notifyOwner(
+      '⚠️ Suspicious Signup',
+      'New signup with disposable email: '+email+'. May be a bot or fake account.',
+      'medium'
+    );
+  }
+}
+
+// ── MONITOR WITHDRAWAL REQUESTS ──
+function monitorWithdrawal(amount, userId){
+  if(amount > 500){
+    notifyOwner(
+      '🚨 Large Withdrawal Request',
+      'User '+userId+' requested a withdrawal of $'+amount+'. Please verify before processing.',
+      'high'
+    );
+  }
+}
+
+// ── ADMIN SECURITY DASHBOARD ──
+function loadSecurityAlerts(){
+  if(!isAdmin()) return;
+  db.collection('security_alerts')
+    .orderBy('createdAt','desc')
+    .limit(50)
+    .get().then(function(snap){
+      var unread = snap.docs.filter(function(d){ return !d.data().read; }).length;
+      if(unread > 0){
+        showSecAlert(
+          '🔒 '+unread+' Security Alert'+(unread>1?'s':''),
+          'You have '+unread+' unread security alert'+(unread>1?'s':'')+' waiting in your Admin Panel.',
+          'warn'
+        );
+      }
+    }).catch(function(){});
+}
+
+// ── START SECURITY WATCH WHEN ADMIN LOGS IN ──
+var origCheckAdmin = checkAdminAccess;
+checkAdminAccess = function(){
+  origCheckAdmin();
+  if(isAdmin()){
+    startSecurityWatch();
+    setTimeout(loadSecurityAlerts, 2000);
+  }
+};
+
+// ── ADD SECURITY TAB TO ADMIN PANEL ──
+setTimeout(function(){
+  var adminTabs = document.querySelector('#modal-admin .admin-tabs');
+  if(adminTabs && isAdmin()){
+    var secBtn = document.createElement('button');
+    secBtn.className = 'f-pill';
+    secBtn.innerHTML = '🔒 Security';
+    secBtn.onclick = function(){ switchAdminTab('security', this); };
+    adminTabs.appendChild(secBtn);
+    // Add security panel div
+    var secPanel = document.createElement('div');
+    secPanel.id = 'admin-security';
+    secPanel.style.display = 'none';
+    secPanel.innerHTML = '<div id="security-alerts-list"><div style="text-align:center;padding:20px;color:var(--muted)">Loading security alerts…</div></div>';
+    var adminOverview = document.getElementById('admin-overview');
+    if(adminOverview && adminOverview.parentNode){
+      adminOverview.parentNode.appendChild(secPanel);
+    }
+  }
+}, 3000);
+
+// Override switchAdminTab to handle security tab
+var origSwitchAdminTab = switchAdminTab;
+switchAdminTab = function(tab, btn){
+  if(tab === 'security'){
+    document.querySelectorAll('#modal-admin .admin-tabs .f-pill').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+    ['pending','approved','rejected','overview','security'].forEach(function(t){
+      var el = document.getElementById('admin-'+t);
+      if(el) el.style.display = t===tab?'block':'none';
+    });
+    loadSecurityAlertsList();
+    return;
+  }
+  origSwitchAdminTab(tab, btn);
+};
+
+function loadSecurityAlertsList(){
+  if(!isAdmin()) return;
+  var list = document.getElementById('security-alerts-list');
+  if(!list) return;
+  db.collection('security_alerts').orderBy('createdAt','desc').limit(50).get().then(function(snap){
+    if(snap.empty){
+      list.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)"><div style="font-size:36px;margin-bottom:10px">🛡️</div>No security alerts yet</div>';
+      return;
+    }
+    // Mark all as read
+    snap.docs.forEach(function(d){ d.ref.update({read:true}).catch(function(){}); });
+    list.innerHTML = snap.docs.map(function(d){
+      var a = Object.assign({id:d.id}, d.data());
+      var time = a.createdAt ? new Date(a.createdAt.seconds*1000).toLocaleString() : 'Unknown';
+      var color = a.severity==='high'?'#fca5a5':a.severity==='medium'?'#fcd34d':'#93c5fd';
+      var icon = a.severity==='high'?'🚨':a.severity==='medium'?'⚠️':'ℹ️';
+      return '<div style="background:var(--deep);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px">'+
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">'+
+          '<span style="font-size:16px">'+icon+'</span>'+
+          '<span style="font-size:12px;font-weight:700;color:'+color+'">'+esc(a.title||'Alert')+'</span>'+
+          '<span style="font-size:9px;color:var(--muted);margin-left:auto">'+time+'</span>'+
+        '</div>'+
+        '<div style="font-size:11px;color:var(--moon);line-height:1.6">'+esc(a.message||'')+'</div>'+
+      '</div>';
+    }).join('');
+  }).catch(function(e){
+    if(list) list.innerHTML = '<div style="color:#fca5a5;padding:14px">Error loading alerts: '+esc(e.message)+'</div>';
+  });
+}
+
+// ═══════════════════════════════════════════════
+// ZYNC SECURITY ALERT SYSTEM
+// ═══════════════════════════════════════════════
+
+var OWNER_ALERT_EMAIL = 'ilohgreat25@gmail.com';
+var alertCooldowns = {};
+
+// ── SEND SECURITY ALERT ──
+function sendSecurityAlert(type, message, severity){
+  if(!db) return;
+  var now = Date.now();
+  // Cooldown — don't spam same alert type within 5 mins
+  if(alertCooldowns[type] && now - alertCooldowns[type] < 300000) return;
+  alertCooldowns[type] = now;
+
+  var icons = {
+    'login_attack': '🔴',
+    'suspicious_payment': '💳',
+    'admin_breach': '👑',
+    'spam_attack': '🤖',
+    'malicious_content': '☠️',
+    'unusual_activity': '⚠️'
+  };
+  var icon = icons[type] || '🔒';
+  var severityColors = {high:'#ef4444', medium:'#f59e0b', low:'#22c55e'};
+
+  // Save alert to Firestore
+  db.collection('security_alerts').add({
+    type: type,
+    message: message,
+    severity: severity || 'medium',
+    icon: icon,
+    read: false,
+    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+    userAgent: navigator.userAgent.slice(0,100),
+    url: window.location.href
+  }).catch(function(){});
+
+  // Show in owner's notification bell if they're logged in
+  if(state.user && state.user.email === OWNER_ALERT_EMAIL){
+    db.collection('notifications').add({
+      to: state.user.uid,
+      type: 'security_alert',
+      text: icon + ' SECURITY ALERT: ' + message,
+      severity: severity || 'medium',
+      read: false,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).catch(function(){});
+    // Show immediate toast for high severity
+    if(severity === 'high'){
+      showToast(icon + ' Security Alert: ' + message);
+    }
+  }
+
+  // Log to console with styling
+  console.warn('%c' + icon + ' ZYNC Security Alert [' + (severity||'medium').toUpperCase() + ']: ' + message,
+    'color:' + (severityColors[severity||'medium']) + ';font-weight:bold');
+}
+
+// ── MONITOR ADMIN PANEL ACCESS ──
+var adminAccessLog = [];
+function logAdminAccess(){
+  if(!isAdmin()) return;
+  var now = Date.now();
+  adminAccessLog.push(now);
+  adminAccessLog = adminAccessLog.filter(function(t){ return now-t < 60000; });
+  // Alert if admin panel accessed more than 10 times per minute (suspicious)
+  if(adminAccessLog.length > 10){
+    sendSecurityAlert('admin_breach',
+      'Admin panel accessed ' + adminAccessLog.length + ' times in 1 minute. Possible unauthorized access attempt.',
+      'high');
+  }
+}
+
+// ── MONITOR FAILED LOGINS ──
+var failedLoginLog = {};
+function alertOnFailedLogins(email, count){
+  if(count === 3){
+    sendSecurityAlert('login_attack',
+      'Warning: 3 failed login attempts for ' + email,
+      'medium');
+  }
+  if(count >= 5){
+    sendSecurityAlert('login_attack',
+      'CRITICAL: Account ' + email + ' locked after 5 failed attempts. Possible brute force attack!',
+      'high');
+  }
+}
+
+// ── MONITOR SUSPICIOUS PAYMENTS ──
+function checkPaymentAnomaly(amount, email){
+  // Alert on unusually large payments
+  if(amount > 500){
+    sendSecurityAlert('suspicious_payment',
+      'Large payment detected: $' + amount + ' from ' + email + '. Please verify.',
+      'medium');
+  }
+  // Alert on rapid multiple payments
+  var payKey = 'pay_' + (email||'anon');
+  if(!rateLimits[payKey]) rateLimits[payKey] = [];
+  var now = Date.now();
+  rateLimits[payKey] = rateLimits[payKey].filter(function(t){ return now-t < 60000; });
+  rateLimits[payKey].push(now);
+  if(rateLimits[payKey].length > 5){
+    sendSecurityAlert('suspicious_payment',
+      'Rapid payments detected: ' + rateLimits[payKey].length + ' payments in 1 minute from ' + email,
+      'high');
+  }
+}
+
+// ── MONITOR MALICIOUS CONTENT ATTEMPTS ──
+var maliciousAttempts = 0;
+var origContainsMalicious = containsMalicious;
+containsMalicious = function(text){
+  var result = origContainsMalicious(text);
+  if(result){
+    maliciousAttempts++;
+    sendSecurityAlert('malicious_content',
+      'Malicious content blocked! Attempt #' + maliciousAttempts + '. User: ' + 
+      (state.user ? state.user.email : 'Not logged in'),
+      maliciousAttempts >= 3 ? 'high' : 'medium');
+  }
+  return result;
+};
+
+// ── MONITOR SPAM ATTACKS ──
+var origCheckRateLimit = checkRateLimit;
+checkRateLimit = function(action, maxPerMin){
+  var result = origCheckRateLimit(action, maxPerMin);
+  if(!result){
+    sendSecurityAlert('spam_attack',
+      'Rate limit exceeded for action: ' + action + '. User: ' +
+      (state.user ? state.user.email : 'Not logged in'),
+      'medium');
+  }
+  return result;
+};
+
+// ── HOOK INTO LOGIN TRACKING ──
+var origTrackLogin = trackLoginAttempt;
+trackLoginAttempt = function(email, success){
+  var result = origTrackLogin(email, success);
+  if(!success && failedLoginAttempts[email]){
+    alertOnFailedLogins(email, failedLoginAttempts[email].count);
+  }
+  return result;
+};
+
+// ── SECURITY ALERTS VIEWER (for owner) ──
+function loadSecurityAlerts(){
+  if(!isAdmin()) return;
+  db.collection('security_alerts')
+    .orderBy('timestamp','desc')
+    .limit(50)
+    .get().then(function(snap){
+      var unread = snap.docs.filter(function(d){ return !d.data().read; }).length;
+      if(unread > 0){
+        showToast('🔴 You have ' + unread + ' unread security alerts in your Admin panel');
+      }
+    }).catch(function(){});
+}
+
+// Check security alerts when owner logs in
+setTimeout(function(){
+  if(isAdmin()) loadSecurityAlerts();
+}, 3000);
+
+// ── REAL-TIME SECURITY ALERT LISTENER ──
+function startSecurityAlertListener(){
+  if(!isAdmin() || !state.user) return;
+  db.collection('notifications')
+    .where('to', '==', state.user.uid)
+    .where('type', '==', 'security_alert')
+    .where('read', '==', false)
+    .onSnapshot(function(snap){
+      snap.docChanges().forEach(function(change){
+        if(change.type === 'added'){
+          var alert = change.doc.data();
+          if(alert.severity === 'high'){
+            showToast(alert.text);
+          }
+        }
+      });
+    }, function(){});
+}
+
+// Start listener when owner logs in
+setTimeout(function(){
+  if(isAdmin()) startSecurityAlertListener();
+}, 4000);
+
+function loadSecurityAlertsPanel(){
+  if(!isAdmin()) return;
+  var list = document.getElementById('security-alerts-list');
+  if(!list) return;
+  list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Loading…</div>';
+  db.collection('security_alerts').orderBy('timestamp','desc').limit(50).get().then(function(snap){
+    if(snap.empty){
+      list.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)"><div style="font-size:36px;margin-bottom:10px">🛡️</div>No security alerts yet. ZYNC is safe!</div>';
+      return;
+    }
+    list.innerHTML = snap.docs.map(function(d){
+      var a = Object.assign({id:d.id}, d.data());
+      var time = a.timestamp ? new Date(a.timestamp.seconds*1000).toLocaleString() : 'Unknown';
+      var severityColor = a.severity==='high'?'#ef4444':a.severity==='medium'?'#f59e0b':'#22c55e';
+      var bgColor = a.severity==='high'?'rgba(239,68,68,.08)':a.severity==='medium'?'rgba(245,158,11,.08)':'rgba(34,197,94,.08)';
+      return '<div style="background:'+bgColor+';border:1px solid '+severityColor+'33;border-radius:12px;padding:12px 14px;margin-bottom:8px">' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">' +
+        '<div style="font-size:13px;font-weight:700;color:#fff">'+esc(a.icon||'🔒')+' '+esc(a.type||'alert').replace(/_/g,' ').toUpperCase()+'</div>' +
+        '<div style="font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:2px 8px;border-radius:20px;background:'+severityColor+'22;color:'+severityColor+'">'+esc(a.severity||'medium')+'</div>' +
+        '</div>' +
+        '<div style="font-size:12px;color:var(--moon);line-height:1.6;margin-bottom:5px">'+esc(a.message||'')+'</div>' +
+        '<div style="font-size:10px;color:var(--muted)">'+time+'</div>' +
+        '</div>';
+    }).join('');
+    // Mark all as read
+    snap.docs.forEach(function(d){ d.ref.update({read:true}).catch(function(){}); });
+  }).catch(function(e){
+    list.innerHTML = '<div style="color:#fca5a5;padding:14px">Error: '+esc(e.message)+'</div>';
+  });
+}
 
 firebase.initializeApp({
   apiKey:            'AIzaSyDdTgIqJuOYJhRAhEF9vMuMA8oZViRPlts',
@@ -3882,13 +4553,14 @@ document.getElementById('nav-admin').addEventListener('click', function(){
   setNav(this);
   openModal('modal-admin');
   loadAdminTab('pending');
+  logAdminAccess();
 });
 
 // Switch admin tabs
 function switchAdminTab(tab, btn){
   document.querySelectorAll('#modal-admin .admin-tabs .f-pill').forEach(function(b){ b.classList.remove('active'); });
   btn.classList.add('active');
-  ['pending','approved','rejected','overview'].forEach(function(t){
+  ['pending','approved','rejected','overview','security'].forEach(function(t){
     document.getElementById('admin-'+t).style.display = t===tab ? 'block' : 'none';
   });
   loadAdminTab(tab);
@@ -3899,6 +4571,7 @@ function loadAdminTab(tab){
   else if(tab==='approved') loadAdminAds('active','approved-ads-list');
   else if(tab==='rejected') loadAdminAds('rejected','rejected-ads-list');
   else if(tab==='overview') loadAdminOverview();
+  else if(tab==='security') loadSecurityAlertsPanel();
 }
 
 function loadAdminAds(status, listId){
@@ -4032,6 +4705,61 @@ function loadAdminOverview(){
     activity.sort(function(a,b){return b.time-a.time;});
     document.getElementById('ov-activity').innerHTML = activity.slice(0,10).map(function(a){return '<div>'+a.text+'</div>';}).join('') || '<div style="color:var(--muted)">No activity yet</div>';
   });
+}
+
+// ── SECURITY ALERTS PANEL ──
+function loadSecurityAlertsPanel(){
+  if(!isAdmin()) return;
+  var list = document.getElementById('security-alerts-list');
+  if(!list) return;
+  list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Loading…</div>';
+  db.collection('security_alerts').orderBy('timestamp','desc').limit(50).get().then(function(snap){
+    if(snap.empty){
+      list.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)"><div style="font-size:36px;margin-bottom:10px">🛡️</div>No security alerts — ZYNC is safe!</div>';
+      return;
+    }
+    list.innerHTML = snap.docs.map(function(d){
+      var a = Object.assign({id:d.id}, d.data());
+      var time = a.timestamp ? new Date(a.timestamp.seconds*1000).toLocaleString() : 'Unknown';
+      var isHigh = a.type && (a.type.includes('brute') || a.type.includes('malicious') || a.type.includes('hijack') || a.type.includes('probe'));
+      var color = isHigh ? '#fca5a5' : '#fbbf24';
+      var bg = isHigh ? 'rgba(248,113,113,.08)' : 'rgba(251,191,36,.08)';
+      var border = isHigh ? 'rgba(248,113,113,.25)' : 'rgba(251,191,36,.25)';
+      return '<div style="background:'+bg+';border:1px solid '+border+';border-radius:12px;padding:14px;margin-bottom:8px'+(a.resolved?';opacity:.5':'')+'">'+
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">'+
+          '<div style="font-size:11px;font-weight:700;color:'+color+'">'+esc(a.type||'unknown').toUpperCase().replace(/_/g,' ')+'</div>'+
+          '<div style="font-size:10px;color:var(--muted)">'+esc(time)+(a.resolved?' · ✅ Resolved':'')+'</div>'+
+        '</div>'+
+        '<div style="font-size:12px;color:var(--moon);line-height:1.6;margin-bottom:8px">'+esc(a.message||'')+'</div>'+
+        (!a.resolved ? '<button style="font-size:10px;padding:4px 12px;background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3);border-radius:20px;color:var(--green3);cursor:pointer" data-alertid="'+esc(a.id)+'" data-action="resolve">Mark Resolved</button>' : '')+
+      '</div>';
+    }).join('');
+    // Event delegation for resolve buttons
+    if(!list.dataset.secDelegated){
+      list.dataset.secDelegated='1';
+      list.addEventListener('click',function(e){
+        var btn=e.target.closest('[data-alertid]');
+        if(!btn||btn.dataset.action!=='resolve') return;
+        db.collection('security_alerts').doc(btn.dataset.alertid).update({resolved:true})
+        .then(function(){ loadSecurityAlertsPanel(); showToast('✅ Alert marked resolved'); })
+        .catch(function(e){ showToast('Error: '+e.message); });
+      });
+    }
+  }).catch(function(e){
+    list.innerHTML = '<div style="color:#fca5a5;padding:14px">Error: '+esc(e.message)+'</div>';
+  });
+}
+
+function markAllAlertsResolved(){
+  if(!isAdmin()) return;
+  db.collection('security_alerts').where('resolved','==',false).get().then(function(snap){
+    var batch = db.batch();
+    snap.docs.forEach(function(d){ batch.update(d.ref, {resolved:true}); });
+    return batch.commit();
+  }).then(function(){
+    showToast('✅ All alerts marked resolved');
+    loadSecurityAlertsPanel();
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 // Check pending ads count for notification badge
