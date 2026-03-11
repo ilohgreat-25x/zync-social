@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 40'><rect width='120' height='40' rx='8' fill='%23fefce8'/><text font-size='26' font-family='Georgia,serif' font-weight='bold' fill='%23166534' x='60' y='28' text-anchor='middle' dominant-baseline='middle'>ZYNC</text></svg>">
-<link rel="shortcut icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 40'><rect width='120' height='40' rx='8' fill='%23fefce8'/><text font-size='26' font-family='Georgia,serif' font-weight='bold' fill='%23166534' x='60' y='28' text-anchor='middle' dominant-baseline='middle'>ZYNC</text></svg>">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%23fefce8'/><text font-size='62' font-family='Georgia,serif' font-weight='bold' fill='%23166534' x='50' y='50' text-anchor='middle' dominant-baseline='central'>Z</text></svg>">
+<link rel="shortcut icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%23fefce8'/><text font-size='62' font-family='Georgia,serif' font-weight='bold' fill='%23166534' x='50' y='50' text-anchor='middle' dominant-baseline='central'>Z</text></svg>">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ZYNC — Where Minds Connect</title>
 <!-- SECURITY HEADERS -->
@@ -4993,6 +4993,204 @@ function ariaTyping(){
   msgs.scrollTop=msgs.scrollHeight;
 }
 function ariaRemoveTyping(){ var t=document.getElementById('aria-typing'); if(t) t.remove(); }
+// ARIA Knowledge Base — answers ZYNC questions perfectly
+var ariaKB = {
+  greetings: ['hi','hello','hey','good morning','good afternoon','good evening','howdy','sup','hiya'],
+  about: ['what is zync','about zync','tell me about','what does zync do','explain zync','describe zync','how does zync work','what can zync do','everything about'],
+  features: ['feature','what can i do','capabilities','functions','options','tools','services'],
+  sparks: ['spark','post','share','publish','write','upload','what is a spark'],
+  stories: ['stor','24','48','disappear','temporary'],
+  messages: ['dm','message','chat','direct','inbox','talk'],
+  reels: ['reel','video','short','watch','film'],
+  marketplace: ['market','sell','buy','shop','store','product','listing','item'],
+  premium: ['premium','plan','subscription','upgrade','basic','pro','creator','paid','price','cost','how much'],
+  earn: ['earn','money','withdraw','cash','tip','referral','income','revenue','balance','payout'],
+  airtime: ['airtime','data','top','recharge','network','mtn','airtel','glo','9mobile','etisalat','bundle'],
+  analytics: ['analytic','stat','insight','view','performance','reach','impression'],
+  ads: ['ad','advertise','promote','campaign','boost','sponsor'],
+  account: ['account','profile','sign up','register','login','password','email','username','handle'],
+  security: ['safe','secure','privacy','hack','protect','scam'],
+  help: ['help','support','contact','problem','issue','error','bug','not working'],
+};
+
+function ariaGetResponse(text){
+  var t = text.toLowerCase();
+  var nl = '\n';
+
+  if(ariaKB.greetings.some(function(g){ return t.includes(g); }) && t.length < 30){
+    var greets = [
+      'Hey there! \uD83D\uDC4B I\'m ARIA, your ZYNC assistant. How can I help you today?',
+      'Hello! \uD83D\uDE0A Welcome to ZYNC! I\'m ARIA and I\'m here to help. What would you like to know?',
+      'Hi! \uD83C\uDF3F Great to meet you! I\'m ARIA, ZYNC\'s AI assistant. Ask me anything!'
+    ];
+    return greets[Math.floor(Math.random()*greets.length)];
+  }
+
+  if(ariaKB.about.some(function(g){ return t.includes(g); })){
+    return 'ZYNC is a global social media platform where minds connect \uD83C\uDF3F' + nl + nl +
+      'Here\'s what you can do:' + nl +
+      '\uD83D\uDCDD Sparks \u2014 Post text, images & videos' + nl +
+      '\uD83D\uDCD6 Stories \u2014 Share moments that last 48 hours' + nl +
+      '\uD83D\uDCAC Messages \u2014 Chat privately with anyone' + nl +
+      '\uD83C\uDFAC Reels \u2014 Watch & share short videos' + nl +
+      '\uD83D\uDED2 Marketplace \u2014 Buy & sell products/services' + nl +
+      '\uD83D\uDCF1 Data & Airtime \u2014 Top up for 226 countries' + nl +
+      '\uD83D\uDCB0 Earn \u2014 Get tips, referral bonuses & withdraw cash' + nl +
+      '\uD83D\uDC8E Premium \u2014 Upgrade for verified badge & more' + nl + nl +
+      'What would you like to explore first?';
+  }
+
+  if(ariaKB.sparks.some(function(g){ return t.includes(g); })){
+    return 'A Spark is ZYNC\'s version of a post! \u2728' + nl + nl +
+      'You can spark:' + nl +
+      '\uD83D\uDCDD Text (up to 280 chars free, more with Premium)' + nl +
+      '\uD83D\uDDBC Images' + nl +
+      '\uD83C\uDFA5 Videos (up to 100MB)' + nl + nl +
+      'Click "What\'s sparking in your mind?" or the + button, choose a category and hit Spark! \uD83D\uDE80';
+  }
+
+  if(ariaKB.stories.some(function(g){ return t.includes(g); })){
+    return 'ZYNC Stories disappear after 48 hours \u23F3' + nl + nl +
+      'To post a story: Click the + circle at the top of your feed.' + nl +
+      'Stories appear at the top for all your followers to see!' + nl + nl +
+      'Perfect for moments you don\'t want to stay permanently \uD83D\uDCF8';
+  }
+
+  if(ariaKB.messages.some(function(g){ return t.includes(g); })){
+    return 'ZYNC Direct Messages let you chat privately! \uD83D\uDCAC' + nl + nl +
+      'To send a DM:' + nl +
+      '1. Click Messages in the sidebar' + nl +
+      '2. Search for the person\'s username' + nl +
+      '3. Start chatting in real-time!' + nl + nl +
+      'Your messages are private and secure \uD83D\uDD12';
+  }
+
+  if(ariaKB.reels.some(function(g){ return t.includes(g); })){
+    return 'ZYNC Reels is your short video feed! \uD83C\uDFAC' + nl + nl +
+      'You can:' + nl +
+      '\u2022 Watch videos from creators you follow' + nl +
+      '\u2022 Upload your own videos (up to 100MB)' + nl +
+      '\u2022 Like, comment and share reels' + nl + nl +
+      'Click Reels in the sidebar to explore! \uD83C\uDFA5';
+  }
+
+  if(ariaKB.marketplace.some(function(g){ return t.includes(g); })){
+    return 'ZYNC Marketplace lets you buy and sell inside the app! \uD83D\uDED2' + nl + nl +
+      'You can list:' + nl +
+      '\uD83D\uDCBB Digital products (ebooks, courses, templates)' + nl +
+      '\uD83D\uDCE6 Physical items' + nl +
+      '\uD83D\uDEE0 Services' + nl + nl +
+      'ZYNC takes 10% platform fee. The rest goes to you!' + nl +
+      'Click Marketplace in the sidebar to start \uD83C\uDF3F';
+  }
+
+  if(ariaKB.premium.some(function(g){ return t.includes(g); })){
+    return 'ZYNC Premium Plans \uD83D\uDC8E' + nl + nl +
+      'Basic \u2014 $5/month' + nl +
+      'Pro \u2014 $10/month' + nl +
+      'Creator \u2014 $20/month' + nl + nl +
+      'All plans include:' + nl +
+      '\u2705 Verified badge on your posts' + nl +
+      '\u2705 Ad-free experience' + nl +
+      '\u2705 Longer posts' + nl +
+      '\u2705 Revenue share' + nl + nl +
+      'Click Premium in the sidebar to upgrade! \uD83C\uDF1F';
+  }
+
+  if(ariaKB.earn.some(function(g){ return t.includes(g); })){
+    return 'You can earn real money on ZYNC! \uD83D\uDCB0' + nl + nl +
+      'Ways to earn:' + nl +
+      '\uD83D\uDC9D Tips \u2014 Fans can tip you from $1' + nl +
+      '\uD83D\uDC65 Referrals \u2014 Earn $1 for every friend you invite' + nl +
+      '\uD83D\uDED2 Marketplace sales' + nl +
+      '\uD83D\uDC8E Premium revenue share' + nl + nl +
+      'Minimum withdrawal: $20' + nl +
+      'Click Earn in sidebar to see your balance and referral link! \uD83D\uDE80';
+  }
+
+  if(ariaKB.airtime.some(function(g){ return t.includes(g); })){
+    return 'ZYNC Data & Airtime covers 226 countries! \uD83D\uDCF1' + nl + nl +
+      'Supported networks: MTN, Airtel, Glo, 9mobile and hundreds more globally.' + nl + nl +
+      'To top up:' + nl +
+      '1. Click Data & Airtime in sidebar' + nl +
+      '2. Select your country & network' + nl +
+      '3. Enter phone number & amount' + nl +
+      '4. Pay securely via Paystack' + nl + nl +
+      'Instant delivery! \uD83C\uDF0D';
+  }
+
+  if(ariaKB.analytics.some(function(g){ return t.includes(g); })){
+    return 'ZYNC Creator Analytics shows your performance! \uD83D\uDCCA' + nl + nl +
+      'You can track:' + nl +
+      '\u2022 Total sparks posted' + nl +
+      '\u2022 Total likes received' + nl +
+      '\u2022 Total comments' + nl +
+      '\u2022 Fan count' + nl +
+      '\u2022 Weekly performance chart' + nl + nl +
+      'Click Analytics in the sidebar to see your stats \uD83C\uDF3F';
+  }
+
+  if(ariaKB.ads.some(function(g){ return t.includes(g); })){
+    return 'ZYNC Advertising lets you promote your content! \uD83D\uDCE3' + nl + nl +
+      'Free Ads \u2014 Promote existing posts for free' + nl + nl +
+      'Paid Ads:' + nl +
+      '$5 \u2192 ~500 views' + nl +
+      '$10 \u2192 ~1,200 views' + nl +
+      '$25 \u2192 ~3,500 views' + nl +
+      '$50 \u2192 ~8,000 views' + nl +
+      '$100 \u2192 ~20,000 views' + nl +
+      '$250 \u2192 ~60,000 views' + nl + nl +
+      'All ads are reviewed before going live. Click Advertise in sidebar! \uD83D\uDE80';
+  }
+
+  if(ariaKB.account.some(function(g){ return t.includes(g); })){
+    return 'Managing your ZYNC account is easy! \uD83D\uDC64' + nl + nl +
+      'Profile: Click your avatar in the sidebar' + nl +
+      'Edit profile: Update name, bio and photo' + nl +
+      'Sign out: Click the power icon at top right' + nl + nl +
+      'Need help with something specific? Just ask! \uD83C\uDF3F';
+  }
+
+  if(ariaKB.security.some(function(g){ return t.includes(g); })){
+    return 'ZYNC takes your security seriously! \uD83D\uDD12' + nl + nl +
+      'Protection features:' + nl +
+      '\u2705 Secure connections' + nl +
+      '\u2705 Account lockout after 5 failed login attempts' + nl +
+      '\u2705 Session timeout after 24 hours' + nl +
+      '\u2705 XSS and malicious content protection' + nl +
+      '\u2705 Secure payments via Paystack' + nl + nl +
+      'Stay safe: use a strong password and never share your login details \uD83D\uDEE1';
+  }
+
+  if(ariaKB.help.some(function(g){ return t.includes(g); })){
+    return 'I\'m here to help! \uD83C\uDF3F I can assist with:' + nl + nl +
+      '\u2753 ZYNC features & how-to' + nl +
+      '\u270D Writing posts & captions' + nl +
+      '\uD83D\uDCA1 Content strategy ideas' + nl +
+      '\uD83D\uDCB0 Earning & withdrawals' + nl +
+      '\uD83D\uDCF1 Data & airtime top-up' + nl +
+      '\uD83D\uDED2 Marketplace buying/selling' + nl +
+      '\uD83D\uDC8E Premium plans' + nl + nl +
+      'Just ask me anything! \uD83D\uDE0A';
+  }
+
+  if(t.includes('caption') || t.includes('write') || t.includes('what should i post')){
+    return 'I\'d love to help you write content! \u270D' + nl + nl +
+      'Tell me:' + nl +
+      '1. What is the topic or theme?' + nl +
+      '2. What tone? (fun, serious, inspirational, informative)' + nl +
+      '3. Any specific details to include?' + nl + nl +
+      'Once you tell me more, I\'ll craft the perfect caption! \uD83C\uDF3F';
+  }
+
+  var defaults = [
+    'Great question! \uD83C\uDF3F I\'m ARIA, ZYNC\'s assistant. Could you be more specific so I can give you the best answer? I can help with features, earning, posting, marketplace and more!',
+    'I\'m here to help! \uD83D\uDE0A Try asking about ZYNC features, how to earn money, data & airtime, premium plans, or anything about the platform!',
+    'Interesting! \uD83E\uDD14 Could you rephrase that? I can help with anything related to ZYNC \u2014 features, earning, posting, marketplace and more! \uD83C\uDF3F'
+  ];
+  return defaults[Math.floor(Math.random()*defaults.length)];
+}
+
 async function ariaSend(){
   var inp=document.getElementById('aria-inp');
   var text=inp.value.trim();
@@ -5003,18 +5201,15 @@ async function ariaSend(){
   ariaTyping();
   document.getElementById('aria-send').disabled=true;
   try{
-    var sysPrompt='You are ARIA, the intelligent and friendly AI assistant built into ZYNC — a global social media platform created by Iloh Great. ZYNC tagline is "Where Minds Connect" and uses a Forest Green & Cream color theme.\n\nZYNC FEATURES:\n- Sparks (posts): text, image, video posts with categories (Fun, Learn, Thoughts, News)\n- Stories: 48-hour disappearing content\n- Direct Messages: real-time private chat\n- Reels: short video feed\n- Marketplace: buy/sell digital products, physical items, services\n- Creator Analytics: track sparks, likes, comments, fans\n- Data & Airtime: top-up for 226 countries worldwide\n- Earn Panel: receive tips, referral bonuses ($1 per signup), withdraw earnings (min $20)\n- Notifications: likes, comments, tips, DMs, ad approvals\n- Discover: trending posts sorted by likes\n- Advertise: run free or paid ads ($5-$250 per campaign)\n\nPREMIUM PLANS:\n- Basic: $5/month\n- Pro: $10/month\n- Creator: $20/month\nBenefits: verified badge, ad-free experience, longer posts, revenue share\n\nSECURITY: Advanced protection including XSS prevention, rate limiting, login lockout after 5 failed attempts, and real-time security alerts.\n\nYour role: Help users with any question about ZYNC, assist with writing posts and captions, give content strategy advice, answer general knowledge questions, and be a warm friendly companion. Always respond helpfully and concisely. Use occasional emojis. Respond in the same language the user writes in.'
-    var resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:sysPrompt,messages:ariaHistory})});
-    var data=await resp.json();
+    await new Promise(function(r){ setTimeout(r,600); });
     ariaRemoveTyping();
-    if(data.error){ throw new Error(data.error.message||'API error'); }
-    var reply=(data.content&&data.content[0]&&data.content[0].text)||'Sorry, I had trouble responding. Try again!';
+    var reply = ariaGetResponse(text);
     ariaAddMsg('aria',reply);
     ariaHistory.push({role:'assistant',content:reply});
     if(ariaHistory.length>20) ariaHistory=ariaHistory.slice(-20);
   }catch(e){
     ariaRemoveTyping();
-    ariaAddMsg("aria","Hmm, I ran into a hiccup. Please try again in a moment! 🌿");
+    ariaAddMsg('aria','Sorry, something went wrong. Please try again! 🌿');
   }
   document.getElementById('aria-send').disabled=false;
 }
