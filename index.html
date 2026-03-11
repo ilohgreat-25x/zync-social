@@ -3189,6 +3189,7 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
       <div class="admin-tabs">
         <button class="f-pill active" onclick="switchAdminTab('pending',this)"><span class="pending-dot"></span>Pending Ads</button>
         <button class="f-pill" onclick="switchAdminTab('security',this)">🔴 Security</button>
+        <button class="f-pill" onclick="switchAdminTab('users',this)">👥 Users</button>
         <button class="f-pill" onclick="switchAdminTab('approved',this)">✅ Approved</button>
         <button class="f-pill" onclick="switchAdminTab('rejected',this)">❌ Rejected</button>
         <button class="f-pill" onclick="switchAdminTab('overview',this)">📊 Overview</button>
@@ -3208,6 +3209,16 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
       <!-- REJECTED ADS -->
       <div id="admin-rejected" style="display:none">
         <div id="rejected-ads-list"><div style="text-align:center;padding:30px;color:var(--muted)">Loading rejected ads…</div></div>
+      </div>
+
+      <!-- USERS PANEL -->
+      <div id="admin-users" style="display:none">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <div style="font-size:12px;color:var(--muted)" id="users-stats">Loading users...</div>
+          <button class="f-pill active" onclick="loadUsersPanel()">🔄 Refresh</button>
+        </div>
+        <input id="users-search" class="m-input" placeholder="🔍 Search by name or email..." style="margin-bottom:12px;font-size:12px" oninput="filterUsers(this.value)">
+        <div id="users-list"><div style="text-align:center;padding:30px;color:var(--muted)">Loading...</div></div>
       </div>
 
       <!-- SECURITY ALERTS -->
@@ -3819,7 +3830,7 @@ switchAdminTab = function(tab, btn){
   if(tab === 'security'){
     document.querySelectorAll('#modal-admin .admin-tabs .f-pill').forEach(function(b){ b.classList.remove('active'); });
     btn.classList.add('active');
-    ['pending','approved','rejected','overview','security'].forEach(function(t){
+    ['pending','approved','rejected','overview','security','users'].forEach(function(t){
       var el = document.getElementById('admin-'+t);
       if(el) el.style.display = t===tab?'block':'none';
     });
@@ -4194,6 +4205,14 @@ auth.onAuthStateChanged(function(user){
     db.collection('users').doc(user.uid).get().then(function(snap){
       if(snap.exists){
         state.profile=snap.data();
+        // Check if user is banned
+        if(snap.data().banned === true){
+          auth.signOut();
+          setTimeout(function(){
+            document.getElementById('auth-err').textContent = 'Your account has been suspended. Contact support.';
+          }, 500);
+          return;
+        }
         checkAdminAccess();
         checkPendingAds();
       } else {
@@ -4206,6 +4225,11 @@ auth.onAuthStateChanged(function(user){
       }
       mountApp();
       setTimeout(checkAdminAccess, 500);
+      // Track lastSeen for online status
+      db.collection('users').doc(user.uid).update({ lastSeen: Date.now() }).catch(function(){});
+      setInterval(function(){ 
+        if(state.user) db.collection('users').doc(state.user.uid).update({ lastSeen: Date.now() }).catch(function(){}); 
+      }, 60000);
     }).catch(function(){ state.profile={name:user.displayName||user.email,handle:user.email.split('@')[0],color:COLORS[0],plan:'free'}; mountApp(); });
   } else {
     state.user=null; state.profile=null;
@@ -4668,6 +4692,7 @@ function loadAdminTab(tab){
   else if(tab==='rejected') loadAdminAds('rejected','rejected-ads-list');
   else if(tab==='overview') loadAdminOverview();
   else if(tab==='security') loadSecurityAlertsPanel();
+  else if(tab==='users') loadUsersPanel();
 }
 
 function loadAdminAds(status, listId){
@@ -4844,6 +4869,131 @@ function loadSecurityAlertsPanel(){
   }).catch(function(e){
     list.innerHTML = '<div style="color:#fca5a5;padding:14px">Error: '+esc(e.message)+'</div>';
   });
+}
+
+// ── ADMIN USERS PANEL ──
+var allUsersCache = [];
+
+function loadUsersPanel(){
+  if(!isAdmin()) return;
+  var list = document.getElementById('users-list');
+  var stats = document.getElementById('users-stats');
+  if(!list) return;
+  list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Loading users...</div>';
+  
+  // Get all users from Firestore
+  db.collection('users').get().then(function(snap){
+    allUsersCache = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
+    
+    // Count online (active in last 5 minutes)
+    var now = Date.now();
+    var onlineCount = allUsersCache.filter(function(u){ 
+      return u.lastSeen && (now - u.lastSeen) < 300000; 
+    }).length;
+    var bannedCount = allUsersCache.filter(function(u){ return u.banned; }).length;
+    
+    if(stats) stats.textContent = 'Total: ' + allUsersCache.length + ' users · Online: ' + onlineCount + ' · Banned: ' + bannedCount;
+    
+    renderUsersList(allUsersCache);
+  }).catch(function(e){
+    list.innerHTML = '<div style="color:#fca5a5;padding:14px">Error loading users: ' + esc(e.message) + '</div>';
+  });
+}
+
+function renderUsersList(users){
+  var list = document.getElementById('users-list');
+  if(!list) return;
+  if(!users.length){
+    list.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)">No users found</div>';
+    return;
+  }
+  var now = Date.now();
+  // Sort: online first, then by join date
+  users.sort(function(a,b){
+    var aOnline = a.lastSeen && (now - a.lastSeen) < 300000;
+    var bOnline = b.lastSeen && (now - b.lastSeen) < 300000;
+    if(aOnline && !bOnline) return -1;
+    if(!aOnline && bOnline) return 1;
+    return 0;
+  });
+  list.innerHTML = users.map(function(u){
+    var isOnline = u.lastSeen && (now - u.lastSeen) < 300000;
+    var isBanned = u.banned === true;
+    var lastSeen = u.lastSeen ? new Date(u.lastSeen).toLocaleString() : 'Never';
+    var joinDate = u.createdAt ? new Date(u.createdAt.seconds*1000).toLocaleDateString() : 'Unknown';
+    var statusDot = isOnline ? 
+      '<span style="width:8px;height:8px;border-radius:50%;background:#22c55e;display:inline-block;margin-right:6px"></span>' :
+      '<span style="width:8px;height:8px;border-radius:50%;background:var(--muted);display:inline-block;margin-right:6px"></span>';
+    var bannedBadge = isBanned ? '<span style="background:rgba(239,68,68,.15);color:#fca5a5;border:1px solid rgba(239,68,68,.3);border-radius:20px;padding:2px 8px;font-size:10px;margin-left:6px">BANNED</span>' : '';
+    var premiumBadge = u.isPremium ? '<span style="background:rgba(99,102,241,.15);color:#a5b4fc;border:1px solid rgba(99,102,241,.3);border-radius:20px;padding:2px 8px;font-size:10px;margin-left:6px">PREMIUM</span>' : '';
+    
+    return '<div style="background:var(--deep);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:8px' + (isBanned?';opacity:.6':'') + '" data-userid="'+esc(u.id)+'">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">' +
+        '<div style="display:flex;align-items:center">' +
+          '<div style="width:32px;height:32px;border-radius:50%;background:'+(u.color||'var(--green)')+';display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;margin-right:8px;flex-shrink:0">'+(u.name||'?').charAt(0).toUpperCase()+'</div>' +
+          '<div>' +
+            '<div style="font-size:12px;font-weight:700;color:var(--moon)">' + statusDot + esc(u.name||'Unknown') + bannedBadge + premiumBadge + '</div>' +
+            '<div style="font-size:10px;color:var(--muted)">@' + esc(u.handle||'unknown') + ' · ' + esc(u.email||'') + '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div style="display:flex;gap:6px">' +
+          (!isBanned ? 
+            '<button style="font-size:10px;padding:4px 10px;background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);border-radius:20px;color:#fca5a5;cursor:pointer;font-family:sans-serif" data-action="ban" data-userid="'+esc(u.id)+'" data-username="'+esc(u.name||'user')+'">🚫 Ban</button>' :
+            '<button style="font-size:10px;padding:4px 10px;background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3);border-radius:20px;color:var(--green3);cursor:pointer;font-family:sans-serif" data-action="unban" data-userid="'+esc(u.id)+'" data-username="'+esc(u.name||'user')+'">✅ Unban</button>'
+          ) +
+        '</div>' +
+      '</div>' +
+      '<div style="display:flex;gap:12px;font-size:10px;color:var(--muted)">' +
+        '<span>📅 Joined: ' + esc(joinDate) + '</span>' +
+        '<span>👁 Last seen: ' + (isOnline ? '<span style="color:#22c55e">Online now</span>' : esc(lastSeen)) + '</span>' +
+        '<span>✨ Sparks: ' + (u.sparksCount||0) + '</span>' +
+        '<span>👥 Fans: ' + (u.followers||0) + '</span>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+
+  // Event delegation for ban/unban
+  if(!list.dataset.usersDelegated){
+    list.dataset.usersDelegated = '1';
+    list.addEventListener('click', function(e){
+      var btn = e.target.closest('[data-action]');
+      if(!btn) return;
+      var action = btn.dataset.action;
+      var userId = btn.dataset.userid;
+      var username = btn.dataset.username;
+      if(action === 'ban'){
+        if(!confirm('Ban ' + username + '? They will not be able to login.')){ return; }
+        banUser(userId, username, true);
+      } else if(action === 'unban'){
+        banUser(userId, username, false);
+      }
+    });
+  }
+}
+
+function filterUsers(query){
+  if(!query){ renderUsersList(allUsersCache); return; }
+  var q = query.toLowerCase();
+  var filtered = allUsersCache.filter(function(u){
+    return (u.name||'').toLowerCase().includes(q) || 
+           (u.email||'').toLowerCase().includes(q) || 
+           (u.handle||'').toLowerCase().includes(q);
+  });
+  renderUsersList(filtered);
+}
+
+function banUser(userId, username, ban){
+  if(!isAdmin()) return;
+  db.collection('users').doc(userId).update({ banned: ban }).then(function(){
+    showToast(ban ? ('🚫 ' + username + ' has been banned!') : ('✅ ' + username + ' has been unbanned!'));
+    // Update cache
+    allUsersCache = allUsersCache.map(function(u){ 
+      return u.id === userId ? Object.assign({}, u, {banned: ban}) : u; 
+    });
+    renderUsersList(allUsersCache);
+    // Send security alert for bans
+    if(ban) sendSecurityAlert('brute_force', 'Admin banned user: ' + username + ' (ID: ' + userId + ')');
+  }).catch(function(e){ showToast('Error: ' + e.message); });
 }
 
 function markAllAlertsResolved(){
