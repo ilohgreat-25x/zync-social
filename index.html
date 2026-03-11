@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%23fefce8'/><text font-size='62' font-family='Georgia,serif' font-weight='bold' fill='%23166534' x='50' y='50' text-anchor='middle' dominant-baseline='central'>Z</text></svg>">
-<link rel="shortcut icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%23fefce8'/><text font-size='62' font-family='Georgia,serif' font-weight='bold' fill='%23166534' x='50' y='50' text-anchor='middle' dominant-baseline='central'>Z</text></svg>">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%23166534'/><text font-size='62' font-family='Georgia,serif' font-weight='bold' fill='%23fbbf24' x='50' y='50' text-anchor='middle' dominant-baseline='central'>Z</text></svg>">
+<link rel="shortcut icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%23166534'/><text font-size='62' font-family='Georgia,serif' font-weight='bold' fill='%23fbbf24' x='50' y='50' text-anchor='middle' dominant-baseline='central'>Z</text></svg>">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ZYNC — Where Minds Connect</title>
 <!-- SECURITY HEADERS -->
@@ -163,7 +163,7 @@ button,input,textarea,select{font-family:'DM Sans',sans-serif}
 .sk-time{font-size:10px;color:var(--muted);margin-left:auto}
 .sk-cat{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:20px;background:var(--cdim);color:var(--green3);border:1px solid var(--border);margin-left:5px}
 .sk-body{font-size:13px;color:var(--moon);line-height:1.75;margin-bottom:11px;word-break:break-word}
-.sk-media{width:100%;height:auto;max-height:none;border-radius:10px;object-fit:contain;background:#000;margin-bottom:11px;border:1px solid var(--border);display:block}
+.sk-media{width:100%;height:auto;max-height:500px;border-radius:10px;object-fit:contain;background:#000;margin-bottom:11px;border:1px solid var(--border);display:block;min-height:200px}
 .sk-actions{display:flex;gap:5px;flex-wrap:wrap}
 .s-btn{display:flex;align-items:center;gap:4px;padding:5px 11px;background:var(--deep);border:1px solid var(--border);border-radius:20px;color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif}
 .s-btn:hover{border-color:rgba(34,197,94,.3);color:var(--moon)}
@@ -4339,7 +4339,33 @@ function setTip(amount){ document.getElementById('tip-amt').value=amount; }
 document.getElementById('btn-tip').addEventListener('click',function(){ var amount=parseInt(document.getElementById('tip-amt').value)||0; if(amount<100){ document.getElementById('tip-err').textContent='Minimum tip is $1'; return; } if(!state.user||!state.tipTarget) return; if(typeof PaystackPop==='undefined'){ showToast('Payment loading, try again.'); return; } PaystackPop.setup({key:PAYSTACK_KEY,email:state.user.email,amount:amount*100,currency:'USD',ref:'ZT-'+Date.now(),callback:function(){ db.collection('users').doc(state.tipTarget.id).update({tips:firebase.firestore.FieldValue.increment(amount)}); db.collection('notifications').add({toUid:state.tipTarget.id,fromName:state.profile.name,type:'tip',text:state.profile.name+' tipped you $'+amount.toLocaleString(),read:false,createdAt:firebase.firestore.FieldValue.serverTimestamp()}); closeModal('modal-tip'); showToast('Tip sent! 💝'); },onClose:function(){ showToast('Tip cancelled'); }}).openIframe(); });
 
 function switchTab(group,tab,btn){ document.querySelectorAll('#modal-'+group+' .tab-row .f-pill').forEach(function(b){ b.classList.remove('active'); }); btn.classList.add('active'); document.querySelectorAll('#modal-'+group+' .e-panel').forEach(function(p){ p.classList.remove('active'); }); document.getElementById(group+'-'+tab).classList.add('active'); }
-document.getElementById('btn-wd').addEventListener('click',function(){ var acc=document.getElementById('wd-acc').value.trim(),bank=document.getElementById('wd-bank').value.trim(),amt=parseFloat(document.getElementById('wd-amt').value)||0,err=document.getElementById('wd-err'); if(!acc||!bank){ err.textContent='Fill in all fields'; return; } if(amt<20){ err.textContent='Minimum withdrawal is $20'; return; } db.collection('withdrawals').add({uid:state.user.uid,name:state.profile.name,account:acc,bank:bank,amount:amt,status:'pending',requestedAt:firebase.firestore.FieldValue.serverTimestamp()}); err.textContent=''; showToast('Withdrawal request submitted! ✓'); closeModal('modal-earn'); });
+document.getElementById('btn-wd').addEventListener('click',function(){
+  var acc=document.getElementById('wd-acc').value.trim(),
+      bank=document.getElementById('wd-bank').value.trim(),
+      amt=parseFloat(document.getElementById('wd-amt').value)||0,
+      err=document.getElementById('wd-err');
+  if(!acc||!bank){ err.textContent='Fill in all fields'; return; }
+  if(amt<20){ err.textContent='Minimum withdrawal is $20'; return; }
+  // Get user balance from Firestore
+  var userBalance = parseFloat((state.profile && state.profile.earnings)||0);
+  if(amt > userBalance){
+    err.textContent='Insufficient funds! Your balance is $'+userBalance.toFixed(2);
+    showToast('❌ Insufficient funds! Balance: $'+userBalance.toFixed(2));
+    return;
+  }
+  db.collection('withdrawals').add({
+    uid:state.user.uid,
+    name:state.profile.name,
+    account:acc,
+    bank:bank,
+    amount:amt,
+    status:'pending',
+    requestedAt:firebase.firestore.FieldValue.serverTimestamp()
+  });
+  err.textContent='';
+  showToast('Withdrawal request submitted! ✓');
+  closeModal('modal-earn');
+});
 function copyRef(){ var link=document.getElementById('ref-link').value; if(navigator.clipboard){ navigator.clipboard.writeText(link); showToast('Referral link copied!'); } }
 
 function setNetwork(btn,network){ state.network=network; btn.closest('.ntabs').querySelectorAll('.ntab').forEach(function(b){ b.classList.remove('active'); }); btn.classList.add('active'); }
