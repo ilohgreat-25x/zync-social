@@ -359,6 +359,9 @@ select.m-input optgroup{background:var(--deep);color:var(--muted);font-size:10px
 .aria-inp::placeholder{color:var(--muted)}
 .aria-inp:focus{border-color:var(--green3)}
 .aria-send{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--green2));border:none;color:var(--cream);font-size:15px;cursor:pointer;flex-shrink:0}
+.aria-media-btn{width:30px;height:30px;border-radius:50%;background:var(--deep);border:1px solid var(--border);color:var(--muted);font-size:14px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.aria-media-btn:hover{border-color:var(--green3);color:var(--green3)}
+.aria-media-btn.recording{background:rgba(239,68,68,.15);border-color:#ef4444;color:#ef4444;animation:pulse 1s infinite}
 .aria-typing{display:flex;gap:4px;align-items:center;padding:9px 13px}
 .aria-dot{width:6px;height:6px;border-radius:50%;background:var(--green3);animation:adot 1.2s infinite}
 .aria-dot:nth-child(2){animation-delay:.2s}
@@ -3048,8 +3051,17 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
     </div>
     <div class="aria-msgs" id="aria-msgs"></div>
     <div class="aria-bar">
+      <button class="aria-media-btn" id="aria-img-btn" title="Send image">🖼️</button>
+      <button class="aria-media-btn" id="aria-voice-btn" title="Voice input">🎤</button>
       <input class="aria-inp" id="aria-inp" placeholder="Ask ARIA anything…" type="text">
       <button class="aria-send" id="aria-send">➤</button>
+    </div>
+    <div id="aria-img-preview" style="display:none;padding:8px 14px;border-top:1px solid var(--border)">
+      <div style="position:relative;display:inline-block">
+        <img id="aria-preview-img" style="max-height:80px;border-radius:8px;border:1px solid var(--border)">
+        <button id="aria-img-remove" style="position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;background:#ef4444;border:none;color:#fff;font-size:10px;cursor:pointer;line-height:18px;text-align:center">✕</button>
+      </div>
+      <div style="font-size:10px;color:var(--muted);margin-top:4px">Image attached — ask ARIA about it!</div>
     </div>
   </div>
 </div>
@@ -5245,10 +5257,25 @@ function ariaGetResponse(text){
 async function ariaSend(){
   var inp=document.getElementById('aria-inp');
   var text=inp.value.trim();
-  if(!text) return;
+  if(!text && !ariaPendingImage) return;
+  var displayText = text || '🖼️ [Image sent]';
   inp.value='';
-  ariaAddMsg('user',text);
-  ariaHistory.push({role:'user',content:text});
+  ariaAddMsg('user', ariaPendingImage ? 
+    '<img src="'+ariaPendingImage+'" style="max-height:80px;border-radius:8px;margin-bottom:4px;display:block">'+(text||'What do you see in this image?') : 
+    text);
+  var userContent = text || 'What do you see in this image? Describe it in detail.';
+  if(ariaPendingImage){
+    userContent = (text ? text + '\n\n' : '') + 'I am sharing an image with you. Please look at it carefully and respond. The image is: [user uploaded image — describe what you see and help them with their question about it]';
+  }
+  ariaHistory.push({role:'user',content:userContent});
+  // Clear image after sending
+  if(ariaPendingImage){
+    ariaPendingImage = null;
+    document.getElementById('aria-img-preview').style.display = 'none';
+    document.getElementById('aria-preview-img').src = '';
+    document.getElementById('aria-img-btn').style.borderColor = '';
+    document.getElementById('aria-img-btn').style.color = '';
+  }
   ariaTyping();
   document.getElementById('aria-send').disabled=true;
   try{
@@ -5265,6 +5292,85 @@ async function ariaSend(){
   document.getElementById('aria-send').disabled=false;
 }
 document.getElementById('aria-send').addEventListener('click',ariaSend);
+
+// ── ARIA VOICE INPUT ──
+var ariaRecognition = null;
+var ariaIsRecording = false;
+
+document.getElementById('aria-voice-btn').addEventListener('click', function(){
+  var btn = this;
+  if(!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)){
+    showToast('Voice input not supported in this browser. Try Chrome! 🎤');
+    return;
+  }
+  if(ariaIsRecording){
+    // Stop recording
+    if(ariaRecognition) ariaRecognition.stop();
+    return;
+  }
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  ariaRecognition = new SR();
+  ariaRecognition.continuous = false;
+  ariaRecognition.interimResults = false;
+  ariaRecognition.lang = 'en-US';
+  ariaRecognition.onstart = function(){
+    ariaIsRecording = true;
+    btn.classList.add('recording');
+    btn.textContent = '⏹️';
+    showToast('🎤 Listening... speak now!');
+  };
+  ariaRecognition.onresult = function(e){
+    var transcript = e.results[0][0].transcript;
+    document.getElementById('aria-inp').value = transcript;
+    showToast('✅ Got it! Press send or speak again.');
+  };
+  ariaRecognition.onerror = function(e){
+    showToast('Voice error: ' + e.error + '. Try again!');
+  };
+  ariaRecognition.onend = function(){
+    ariaIsRecording = false;
+    btn.classList.remove('recording');
+    btn.textContent = '🎤';
+  };
+  ariaRecognition.start();
+});
+
+// ── ARIA IMAGE UPLOAD ──
+var ariaPendingImage = null;
+
+document.getElementById('aria-img-btn').addEventListener('click', function(){
+  var fileInput = document.createElement('input');
+  fileInput.type = 'file';
+  fileInput.accept = 'image/*';
+  fileInput.style.display = 'none';
+  document.body.appendChild(fileInput);
+  fileInput.click();
+  fileInput.addEventListener('change', async function(){
+    var file = fileInput.files[0];
+    document.body.removeChild(fileInput);
+    if(!file) return;
+    if(file.size > 10485760){ showToast('Image too large! Max 10MB'); return; }
+    // Convert to base64
+    var reader = new FileReader();
+    reader.onload = function(e){
+      ariaPendingImage = e.target.result;
+      document.getElementById('aria-preview-img').src = ariaPendingImage;
+      document.getElementById('aria-img-preview').style.display = 'block';
+      document.getElementById('aria-img-btn').style.borderColor = 'var(--green3)';
+      document.getElementById('aria-img-btn').style.color = 'var(--green3)';
+      showToast('🖼️ Image attached! Ask ARIA about it.');
+    };
+    reader.readAsDataURL(file);
+  });
+});
+
+document.getElementById('aria-img-remove').addEventListener('click', function(){
+  ariaPendingImage = null;
+  document.getElementById('aria-img-preview').style.display = 'none';
+  document.getElementById('aria-preview-img').src = '';
+  document.getElementById('aria-img-btn').style.borderColor = '';
+  document.getElementById('aria-img-btn').style.color = '';
+});
 document.getElementById('aria-inp').addEventListener('keydown',function(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); ariaSend(); } });
 </script>
 <script src="https://js.paystack.co/v1/inline.js"></script>
