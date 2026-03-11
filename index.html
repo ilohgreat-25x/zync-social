@@ -4680,8 +4680,9 @@ document.getElementById('nav-admin').addEventListener('click', function(){
 function switchAdminTab(tab, btn){
   document.querySelectorAll('#modal-admin .admin-tabs .f-pill').forEach(function(b){ b.classList.remove('active'); });
   btn.classList.add('active');
-  ['pending','approved','rejected','overview','security'].forEach(function(t){
-    document.getElementById('admin-'+t).style.display = t===tab ? 'block' : 'none';
+  ['pending','approved','rejected','overview','security','users'].forEach(function(t){
+    var el = document.getElementById('admin-'+t);
+    if(el) el.style.display = t===tab ? 'block' : 'none';
   });
   loadAdminTab(tab);
 }
