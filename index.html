@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23fefce8'/><text font-size='78' font-family='Georgia,serif' font-weight='bold' fill='%23166534' x='50' y='54' text-anchor='middle' dominant-baseline='middle'>Z</text></svg>">
-<link rel="shortcut icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23fefce8'/><text font-size='78' font-family='Georgia,serif' font-weight='bold' fill='%23166534' x='50' y='54' text-anchor='middle' dominant-baseline='middle'>Z</text></svg>">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 40'><rect width='120' height='40' rx='8' fill='%23fefce8'/><text font-size='26' font-family='Georgia,serif' font-weight='bold' fill='%23166534' x='60' y='28' text-anchor='middle' dominant-baseline='middle'>ZYNC</text></svg>">
+<link rel="shortcut icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 40'><rect width='120' height='40' rx='8' fill='%23fefce8'/><text font-size='26' font-family='Georgia,serif' font-weight='bold' fill='%23166534' x='60' y='28' text-anchor='middle' dominant-baseline='middle'>ZYNC</text></svg>">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ZYNC — Where Minds Connect</title>
 <!-- SECURITY HEADERS -->
@@ -4186,6 +4186,8 @@ auth.onAuthStateChanged(function(user){
     db.collection('users').doc(user.uid).get().then(function(snap){
       if(snap.exists){
         state.profile=snap.data();
+        checkAdminAccess();
+        checkPendingAds();
       } else {
         var color=COLORS[Math.floor(Math.random()*COLORS.length)];
         state.profile={id:user.uid,name:user.displayName||user.email.split('@')[0],handle:(user.displayName||'user').toLowerCase().replace(/\s+/g,'_'),email:user.email,color:color,plan:'free',isPremium:false,sparksCount:0,followers:0,earnings:0,tips:0};
@@ -4195,6 +4197,7 @@ auth.onAuthStateChanged(function(user){
         showToast('Welcome to ZYNC! 🌿');
       }
       mountApp();
+      setTimeout(checkAdminAccess, 500);
     }).catch(function(){ state.profile={name:user.displayName||user.email,handle:user.email.split('@')[0],color:COLORS[0],plan:'free'}; mountApp(); });
   } else {
     state.user=null; state.profile=null;
@@ -4549,11 +4552,37 @@ function isAdmin(){ return state && state.user && state.user.email === ADMIN_EMA
 // Show admin nav only for owner
 function checkAdminAccess(){
   var adminNav = document.getElementById('nav-admin');
-  if(adminNav) adminNav.style.display = (state && state.user && isAdmin()) ? 'flex' : 'none';
+  if(!adminNav) return;
+  // Triple check — must match owner email exactly, case-insensitive
+  var isOwner = state && state.user && 
+                state.user.email && 
+                state.user.email.toLowerCase().trim() === ADMIN_EMAIL.toLowerCase().trim();
+  adminNav.style.display = isOwner ? 'flex' : 'none';
+  adminNav.style.visibility = isOwner ? 'visible' : 'hidden';
+  adminNav.style.pointerEvents = isOwner ? 'auto' : 'none';
+  // Extra security — remove from DOM entirely for non-owners
+  if(!isOwner){
+    adminNav.setAttribute('aria-hidden','true');
+    adminNav.style.opacity = '0';
+    adminNav.style.height = '0';
+    adminNav.style.overflow = 'hidden';
+    adminNav.style.padding = '0';
+    adminNav.style.margin = '0';
+  } else {
+    adminNav.removeAttribute('aria-hidden');
+    adminNav.style.opacity = '1';
+    adminNav.style.height = '';
+    adminNav.style.overflow = '';
+  }
 }
 
 // Admin nav click
 document.getElementById('nav-admin').addEventListener('click', function(){
+  // Security: verify ownership before opening admin panel
+  if(!state || !state.user || state.user.email.toLowerCase().trim() !== ADMIN_EMAIL.toLowerCase().trim()){
+    showToast('⛔ Access denied.');
+    return;
+  }
   setNav(this);
   openModal('modal-admin');
   loadAdminTab('pending');
@@ -4974,10 +5003,11 @@ async function ariaSend(){
   ariaTyping();
   document.getElementById('aria-send').disabled=true;
   try{
-    var sysPrompt='You are ARIA, the friendly and smart AI assistant for ZYNC — a global social media platform with Forest Green & Cream theme. You help users with: writing posts/captions, content strategy, creative ideas, answering questions about ZYNC features (posts, stories, DMs, reels, marketplace, premium plans, tips, data/airtime top-ups, earnings), and general knowledge. Be warm, concise, and helpful. Use occasional emojis. Keep responses under 150 words unless asked for more.';
-    var resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:sysPrompt,messages:ariaHistory})});
+    var sysPrompt='You are ARIA, the intelligent and friendly AI assistant built into ZYNC — a global social media platform created by Iloh Great. ZYNC tagline is "Where Minds Connect" and uses a Forest Green & Cream color theme.\n\nZYNC FEATURES:\n- Sparks (posts): text, image, video posts with categories (Fun, Learn, Thoughts, News)\n- Stories: 48-hour disappearing content\n- Direct Messages: real-time private chat\n- Reels: short video feed\n- Marketplace: buy/sell digital products, physical items, services\n- Creator Analytics: track sparks, likes, comments, fans\n- Data & Airtime: top-up for 226 countries worldwide\n- Earn Panel: receive tips, referral bonuses ($1 per signup), withdraw earnings (min $20)\n- Notifications: likes, comments, tips, DMs, ad approvals\n- Discover: trending posts sorted by likes\n- Advertise: run free or paid ads ($5-$250 per campaign)\n\nPREMIUM PLANS:\n- Basic: $5/month\n- Pro: $10/month\n- Creator: $20/month\nBenefits: verified badge, ad-free experience, longer posts, revenue share\n\nSECURITY: Advanced protection including XSS prevention, rate limiting, login lockout after 5 failed attempts, and real-time security alerts.\n\nYour role: Help users with any question about ZYNC, assist with writing posts and captions, give content strategy advice, answer general knowledge questions, and be a warm friendly companion. Always respond helpfully and concisely. Use occasional emojis. Respond in the same language the user writes in.'
+    var resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:sysPrompt,messages:ariaHistory})});
     var data=await resp.json();
     ariaRemoveTyping();
+    if(data.error){ throw new Error(data.error.message||'API error'); }
     var reply=(data.content&&data.content[0]&&data.content[0].text)||'Sorry, I had trouble responding. Try again!';
     ariaAddMsg('aria',reply);
     ariaHistory.push({role:'assistant',content:reply});
