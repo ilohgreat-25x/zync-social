@@ -142,6 +142,10 @@ button,input,textarea,select{font-family:'DM Sans',sans-serif}
 .f-pill:hover,.f-pill.active{background:var(--green2);color:var(--cream);border-color:transparent}
 .media-btn{width:30px;height:30px;border-radius:8px;background:var(--cdim);border:1px solid var(--border);color:var(--muted);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
 .media-btn:hover{border-color:var(--borderhi);color:var(--green3)}
+.cam-filter-btn{display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:2px solid transparent;border-radius:8px;padding:4px 6px;cursor:pointer;color:var(--muted);font-size:10px;flex-shrink:0;transition:all .2s;font-family:'DM Sans',sans-serif}
+.cam-filter-btn.active{border-color:var(--green3);color:var(--green3)}
+.cam-filter-btn:hover{border-color:var(--borderhi);color:var(--moon)}
+.cam-filter-preview{width:36px;height:36px;border-radius:6px;margin-bottom:2px}
 .cc{font-size:11px;color:var(--muted);margin-left:auto}
 .btn-spark{padding:8px 18px;background:linear-gradient(135deg,var(--green),var(--green2));border:none;border-radius:20px;color:var(--cream);font-size:12px;font-weight:700;cursor:pointer;transition:opacity .2s;white-space:nowrap;flex-shrink:0;font-family:'DM Sans',sans-serif}
 .btn-spark:hover{opacity:.88}
@@ -467,6 +471,33 @@ body.light{
 }
 body.light .c-ta{color:#0f2318!important}
 body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{background:#e8f5e0!important;color:#0f2318!important}
+
+/* ── POLLS ── */
+.poll-opt{background:var(--deep);border:1px solid var(--border);border-radius:8px;padding:8px 12px;margin-bottom:6px;cursor:pointer;position:relative;overflow:hidden;transition:all .2s}
+.poll-opt:hover{border-color:var(--green3)}.poll-opt.voted{border-color:var(--green3)}
+.poll-bar{position:absolute;left:0;top:0;height:100%;background:rgba(34,197,94,.15);transition:width .6s}
+.poll-opt-text{position:relative;z-index:1;font-size:12px;color:var(--moon);display:flex;justify-content:space-between}
+.poll-pct{font-size:11px;color:var(--green3);font-weight:700}
+/* ── REACTIONS ── */
+.reactions-bar{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;padding:0 0 4px}
+.reaction-btn{background:var(--deep);border:1px solid var(--border);border-radius:20px;padding:3px 8px;font-size:11px;cursor:pointer;display:flex;align-items:center;gap:3px;color:var(--muted);transition:all .2s;font-family:'DM Sans',sans-serif}
+.reaction-btn:hover,.reaction-btn.reacted{border-color:var(--green3);color:var(--green3);background:rgba(34,197,94,.08)}
+.reaction-picker{position:absolute;bottom:100%;left:0;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:8px;display:flex;gap:6px;z-index:100;box-shadow:0 4px 20px rgba(0,0,0,.3)}
+/* ── STORY VIEWS ── */
+.story-view-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+/* ── LEADERBOARD ── */
+.lb-item{display:flex;align-items:center;gap:10px;padding:10px;background:var(--deep);border:1px solid var(--border);border-radius:10px;margin-bottom:6px}
+.lb-rank{font-size:18px;font-weight:900;color:var(--green3);width:28px;flex-shrink:0;text-align:center}
+.lb-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
+/* ── QR CODE ── */
+.qr-wrap{background:#fff;border-radius:12px;padding:16px;display:inline-block}
+/* ── LINK PREVIEW ── */
+.link-preview{background:var(--deep);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-top:8px;cursor:pointer}
+.link-preview-info{padding:8px 10px}
+.link-preview-title{font-size:12px;font-weight:700;color:var(--moon);margin-bottom:2px}
+.link-preview-url{font-size:10px;color:var(--muted)}
+/* ── SCHEDULED ── */
+.sched-item{background:var(--deep);border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:8px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
@@ -562,6 +593,9 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
         <button class="nav-item" id="nav-admin" style="display:none"><span class="nav-ic">👑</span> Admin<span class="admin-badge">OWNER</span></button>
         <div style="height:1px;background:var(--border);margin:8px 0"></div>
         <button class="nav-item" id="nav-support" onclick="openSupportModal()"><span class="nav-ic">📧</span> Contact Support</button>
+        <button class="nav-item" onclick="openLeaderboard()"><span class="nav-ic">🏆</span> Leaderboard</button>
+        <button class="nav-item" onclick="openScheduled()"><span class="nav-ic">🌙</span> Scheduled</button>
+        <button class="nav-item" onclick="openQRCode()"><span class="nav-ic">📱</span> My QR Code</button>
       </nav>
     </aside>
 
@@ -584,6 +618,10 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
           <button class="f-pill" data-cat="thoughts">💭 Thoughts</button>
           <button class="f-pill" data-cat="news">🌍 News</button>
           <button class="media-btn" id="btn-media" title="Attach media">📎</button>
+          <button class="media-btn" id="btn-camera" title="Take photo or video">📷</button>
+          <button class="media-btn" id="btn-poll" title="Create poll">📊</button>
+          <button class="media-btn" id="btn-location" title="Tag location">📍</button>
+          <button class="media-btn" id="btn-schedule" title="Schedule post">⏰</button>
           <span class="cc" id="cc">280</span>
           <button class="btn-spark" id="btn-post">✦ Spark</button>
         </div>
@@ -692,6 +730,26 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
         <div class="pl-name">ZYNC Creator 🎯</div>
         <div class="pl-price">$20<span>/month</span></div>
         <div class="pl-perks">✓ All Pro &nbsp;✓ Analytics &nbsp;✓ Creator fund</div>
+      </div>
+      <div style="background:linear-gradient(135deg,rgba(22,101,52,.2),rgba(34,197,94,.1));border:1px solid var(--green3);border-radius:12px;padding:14px;margin-bottom:12px">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div>
+            <div style="font-size:13px;font-weight:700;color:var(--moon);display:flex;align-items:center;gap:6px">
+              <span class="vbadge"></span> Verified Badge Only
+            </div>
+            <div style="font-size:11px;color:var(--muted);margin-top:4px;line-height:1.6">
+              ✓ Green ✅ badge on your profile &nbsp;✓ Builds trust<br>
+              ✓ Stand out in feed &nbsp;✓ One time payment forever
+            </div>
+          </div>
+          <div style="text-align:right;flex-shrink:0;margin-left:12px">
+            <div style="font-size:18px;font-weight:700;color:var(--green3)">$30</div>
+            <div style="font-size:10px;color:var(--muted)">one time</div>
+          </div>
+        </div>
+        <button id="btn-buy-badge" onclick="buyVerifiedBadge()" style="width:100%;margin-top:10px;padding:9px;background:linear-gradient(135deg,var(--green),var(--green2));border:none;border-radius:8px;color:var(--cream);font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">
+          Get Verified Badge — $30
+        </button>
       </div>
       <div style="background:var(--deep);border:1px solid var(--borderhi);border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
         <div><div id="co-name" style="font-size:13px;font-weight:700;color:var(--white)">ZYNC Basic</div><div style="font-size:11px;color:var(--muted)">Billed monthly</div></div>
@@ -3117,6 +3175,210 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
   </div>
 </div>
 
+<!-- CAMERA MODAL -->
+<div class="modal-overlay" id="modal-camera">
+  <div class="modal" style="max-width:520px;padding:0;overflow:hidden;background:var(--deep)">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border)">
+      <span style="font-size:14px;font-weight:700;color:var(--moon)">📷 ZYNC Camera</span>
+      <button class="modal-close" onclick="closeCameraModal()">✕</button>
+    </div>
+
+    <!-- Camera Preview -->
+    <div style="position:relative;background:#000;aspect-ratio:4/3;overflow:hidden" id="cam-container">
+      <video id="cam-preview" autoplay playsinline muted style="width:100%;height:100%;object-fit:cover;display:block"></video>
+      <canvas id="cam-canvas" style="display:none;width:100%;height:100%;object-fit:cover"></canvas>
+      <img id="cam-snapshot" style="display:none;width:100%;height:100%;object-fit:cover">
+
+      <!-- Filter overlay -->
+      <div id="cam-filter-overlay" style="position:absolute;inset:0;pointer-events:none;mix-blend-mode:multiply;opacity:0.4;display:none"></div>
+
+      <!-- Recording indicator -->
+      <div id="cam-rec-indicator" style="display:none;position:absolute;top:12px;left:12px;background:rgba(239,68,68,.9);color:#fff;border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;display:none;align-items:center;gap:6px">
+        <span style="width:8px;height:8px;border-radius:50%;background:#fff;animation:pulse 1s infinite"></span> REC
+      </div>
+
+      <!-- Timer -->
+      <div id="cam-timer" style="display:none;position:absolute;top:12px;right:12px;background:rgba(0,0,0,.6);color:#fff;border-radius:20px;padding:4px 10px;font-size:12px;font-weight:700">0:00</div>
+
+      <!-- Countdown overlay -->
+      <div id="cam-countdown" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;font-size:72px;font-weight:900;color:#fff"></div>
+    </div>
+
+    <!-- Filters Row -->
+    <div style="padding:10px 12px;border-bottom:1px solid var(--border)">
+      <div style="font-size:10px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.8px">Filters</div>
+      <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px" id="cam-filters">
+        <button class="cam-filter-btn active" data-filter="none" onclick="applyFilter(this,'none')">
+          <div class="cam-filter-preview" style="background:linear-gradient(135deg,#f472b6,#60a5fa)"></div>
+          <span>None</span>
+        </button>
+        <button class="cam-filter-btn" data-filter="grayscale(100%)" onclick="applyFilter(this,'grayscale(100%)')">
+          <div class="cam-filter-preview" style="background:linear-gradient(135deg,#9ca3af,#374151);filter:grayscale(1)"></div>
+          <span>B&W</span>
+        </button>
+        <button class="cam-filter-btn" data-filter="sepia(100%)" onclick="applyFilter(this,'sepia(100%)')">
+          <div class="cam-filter-preview" style="background:linear-gradient(135deg,#d97706,#92400e)"></div>
+          <span>Sepia</span>
+        </button>
+        <button class="cam-filter-btn" data-filter="saturate(200%) hue-rotate(90deg)" onclick="applyFilter(this,'saturate(200%) hue-rotate(90deg)')">
+          <div class="cam-filter-preview" style="background:linear-gradient(135deg,#22c55e,#166534)"></div>
+          <span>Forest</span>
+        </button>
+        <button class="cam-filter-btn" data-filter="saturate(200%) hue-rotate(200deg)" onclick="applyFilter(this,'saturate(200%) hue-rotate(200deg)')">
+          <div class="cam-filter-preview" style="background:linear-gradient(135deg,#6366f1,#a855f7)"></div>
+          <span>Neon</span>
+        </button>
+        <button class="cam-filter-btn" data-filter="contrast(150%) brightness(110%)" onclick="applyFilter(this,'contrast(150%) brightness(110%)')">
+          <div class="cam-filter-preview" style="background:linear-gradient(135deg,#f59e0b,#dc2626)"></div>
+          <span>Vivid</span>
+        </button>
+        <button class="cam-filter-btn" data-filter="brightness(130%) saturate(80%)" onclick="applyFilter(this,'brightness(130%) saturate(80%)')">
+          <div class="cam-filter-preview" style="background:linear-gradient(135deg,#fde68a,#fef3c7)"></div>
+          <span>Warm</span>
+        </button>
+        <button class="cam-filter-btn" data-filter="brightness(80%) saturate(120%) hue-rotate(180deg)" onclick="applyFilter(this,'brightness(80%) saturate(120%) hue-rotate(180deg)')">
+          <div class="cam-filter-preview" style="background:linear-gradient(135deg,#0ea5e9,#1e3a5f)"></div>
+          <span>Cool</span>
+        </button>
+        <button class="cam-filter-btn" data-filter="contrast(120%) brightness(90%) saturate(150%) hue-rotate(320deg)" onclick="applyFilter(this,'contrast(120%) brightness(90%) saturate(150%) hue-rotate(320deg)')">
+          <div class="cam-filter-preview" style="background:linear-gradient(135deg,#f9a8d4,#fbcfe8)"></div>
+          <span>Rosy</span>
+        </button>
+        <button class="cam-filter-btn" data-filter="invert(100%)" onclick="applyFilter(this,'invert(100%)')">
+          <div class="cam-filter-preview" style="background:linear-gradient(135deg,#000,#fff)"></div>
+          <span>Invert</span>
+        </button>
+        <button class="cam-filter-btn" data-filter="contrast(200%) grayscale(50%)" onclick="applyFilter(this,'contrast(200%) grayscale(50%)')">
+          <div class="cam-filter-preview" style="background:linear-gradient(135deg,#1f2937,#6b7280)"></div>
+          <span>Drama</span>
+        </button>
+        <button class="cam-filter-btn" data-filter="saturate(300%) contrast(110%)" onclick="applyFilter(this,'saturate(300%) contrast(110%)')">
+          <div class="cam-filter-preview" style="background:linear-gradient(135deg,#f43f5e,#f97316)"></div>
+          <span>Pop</span>
+        </button>
+        <button class="cam-filter-btn" data-filter="brightness(110%) saturate(130%) contrast(105%) hue-rotate(15deg)" onclick="applyFilter(this,'brightness(110%) saturate(130%) contrast(105%) hue-rotate(15deg)')">
+          <div class="cam-filter-preview" style="background:linear-gradient(135deg,#fbbf24,#84cc16)"></div>
+          <span>Golden</span>
+        </button>
+        <button class="cam-filter-btn" data-filter="blur(2px) brightness(110%)" onclick="applyFilter(this,'blur(2px) brightness(110%)')">
+          <div class="cam-filter-preview" style="background:linear-gradient(135deg,#e0e7ff,#c7d2fe);filter:blur(2px)"></div>
+          <span>Dreamy</span>
+        </button>
+        <button class="cam-filter-btn" data-filter="grayscale(30%) sepia(40%) contrast(120%)" onclick="applyFilter(this,'grayscale(30%) sepia(40%) contrast(120%)')">
+          <div class="cam-filter-preview" style="background:linear-gradient(135deg,#a16207,#78350f)"></div>
+          <span>Vintage</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div style="padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px">
+      <button id="cam-flip-btn" onclick="flipCamera()" style="width:38px;height:38px;border-radius:50%;background:var(--cdim);border:1px solid var(--border);color:var(--muted);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center" title="Flip camera">🔄</button>
+
+      <div style="display:flex;gap:10px;align-items:center">
+        <button id="cam-photo-btn" onclick="takePhoto()" style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--green2));border:3px solid var(--cream);color:var(--cream);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center" title="Take photo">📸</button>
+        <button id="cam-video-btn" onclick="toggleVideoRecord()" style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#dc2626,#ef4444);border:3px solid var(--cream);color:var(--cream);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center" title="Record video">🎥</button>
+      </div>
+
+      <button id="cam-use-btn" onclick="useCaptured()" style="display:none;padding:8px 14px;background:linear-gradient(135deg,var(--green),var(--green2));border:none;border-radius:20px;color:var(--cream);font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">Use ✓</button>
+      <div id="cam-use-placeholder" style="width:38px"></div>
+    </div>
+
+    <!-- Retake button -->
+    <div id="cam-retake-bar" style="display:none;padding:0 16px 14px;text-align:center">
+      <button onclick="retakeCamera()" style="background:none;border:1px solid var(--border);border-radius:20px;padding:6px 16px;color:var(--muted);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif">↩ Retake</button>
+    </div>
+  </div>
+</div>
+
+<!-- POLL MODAL -->
+<div class="modal-overlay" id="modal-poll">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-head"><span style="font-size:15px;font-weight:700">📊 Create Poll</span><button class="modal-close" onclick="closeModal('modal-poll')">✕</button></div>
+    <div style="padding:16px">
+      <label class="m-label">Poll Question</label>
+      <input class="m-input" id="poll-q" placeholder="Ask your question..." style="margin-bottom:10px">
+      <label class="m-label">Option 1</label><input class="m-input" id="poll-o1" placeholder="Option 1" style="margin-bottom:6px">
+      <label class="m-label">Option 2</label><input class="m-input" id="poll-o2" placeholder="Option 2" style="margin-bottom:6px">
+      <label class="m-label">Option 3 (optional)</label><input class="m-input" id="poll-o3" placeholder="Option 3" style="margin-bottom:6px">
+      <label class="m-label">Option 4 (optional)</label><input class="m-input" id="poll-o4" placeholder="Option 4" style="margin-bottom:10px">
+      <label class="m-label">Duration</label>
+      <select class="m-input" id="poll-dur" style="margin-bottom:14px">
+        <option value="1">1 day</option><option value="3" selected>3 days</option><option value="7">7 days</option>
+      </select>
+      <div class="m-err" id="poll-err"></div>
+      <button class="btn-pay" onclick="attachPoll()">📊 Attach Poll</button>
+    </div>
+  </div>
+</div>
+
+<!-- LEADERBOARD MODAL -->
+<div class="modal-overlay" id="modal-leaderboard">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-head"><span style="font-size:15px;font-weight:700">🏆 Top ZYNCers</span><button class="modal-close" onclick="closeModal('modal-leaderboard')">✕</button></div>
+    <div style="padding:16px">
+      <div style="display:flex;gap:6px;margin-bottom:14px">
+        <button class="f-pill active" id="lb-tab-sparks" onclick="switchLbTab('sparks',this)">✦ Sparks</button>
+        <button class="f-pill" id="lb-tab-fans" onclick="switchLbTab('fans',this)">👥 Fans</button>
+        <button class="f-pill" id="lb-tab-tips" onclick="switchLbTab('tips',this)">💰 Earners</button>
+      </div>
+      <div id="lb-list"><div style="text-align:center;padding:20px;color:var(--muted)">Loading...</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SCHEDULED POSTS MODAL -->
+<div class="modal-overlay" id="modal-scheduled">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-head"><span style="font-size:15px;font-weight:700">🌙 Scheduled Posts</span><button class="modal-close" onclick="closeModal('modal-scheduled')">✕</button></div>
+    <div style="padding:16px" id="sched-list"><div style="text-align:center;padding:20px;color:var(--muted)">No scheduled posts yet.</div></div>
+  </div>
+</div>
+
+<!-- SCHEDULE PICKER MODAL -->
+<div class="modal-overlay" id="modal-schedule-pick">
+  <div class="modal" style="max-width:380px">
+    <div class="modal-head"><span style="font-size:15px;font-weight:700">⏰ Schedule Post</span><button class="modal-close" onclick="closeModal('modal-schedule-pick')">✕</button></div>
+    <div style="padding:16px">
+      <label class="m-label">Date and Time</label>
+      <input class="m-input" id="sched-dt" type="datetime-local" style="margin-bottom:14px">
+      <div class="m-err" id="sched-err"></div>
+      <button class="btn-pay" onclick="confirmSchedule()">⏰ Schedule</button>
+    </div>
+  </div>
+</div>
+
+<!-- QR CODE MODAL -->
+<div class="modal-overlay" id="modal-qr">
+  <div class="modal" style="max-width:320px;text-align:center">
+    <div class="modal-head"><span style="font-size:15px;font-weight:700">📱 My QR Code</span><button class="modal-close" onclick="closeModal('modal-qr')">✕</button></div>
+    <div style="padding:20px">
+      <div class="qr-wrap" id="qr-wrap"><div style="padding:20px;color:#999">Generating...</div></div>
+      <div style="margin-top:12px;font-size:12px;color:var(--muted)">Scan to visit my ZYNC profile</div>
+      <button class="btn-pay" style="margin-top:12px" onclick="downloadQR()">Download QR</button>
+    </div>
+  </div>
+</div>
+
+<!-- STORY VIEWS MODAL -->
+<div class="modal-overlay" id="modal-story-views">
+  <div class="modal" style="max-width:360px">
+    <div class="modal-head"><span style="font-size:15px;font-weight:700">👁 Story Views</span><button class="modal-close" onclick="closeModal('modal-story-views')">✕</button></div>
+    <div style="padding:16px" id="story-views-list"><div style="text-align:center;padding:20px;color:var(--muted)">Loading...</div></div>
+  </div>
+</div>
+
+<!-- TRANSLATE MODAL -->
+<div class="modal-overlay" id="modal-translate">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-head"><span style="font-size:15px;font-weight:700">🌐 Translation</span><button class="modal-close" onclick="closeModal('modal-translate')">✕</button></div>
+    <div style="padding:16px">
+      <div style="background:var(--deep);border:1px solid var(--border);border-radius:10px;padding:12px;font-size:13px;color:var(--moon);line-height:1.6" id="translated-text">Translating...</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:8px">Translated to your device language</div>
+    </div>
+  </div>
+</div>
+
 <!-- VIDEO AD OVERLAY -->
 <div class="video-ad-overlay" id="video-ad-overlay">
   <div class="va-countdown" id="va-countdown">AD · SKIP IN 5s</div>
@@ -4266,6 +4528,7 @@ auth.onAuthStateChanged(function(user){
         }
         checkAdminAccess();
         checkPendingAds();
+        setTimeout(checkBirthday,2000);
       } else {
         var color=COLORS[Math.floor(Math.random()*COLORS.length)];
         state.profile={id:user.uid,name:user.displayName||user.email.split('@')[0],handle:(user.displayName||'user').toLowerCase().replace(/\s+/g,'_'),email:user.email,color:color,plan:'free',isPremium:false,sparksCount:0,followers:0,earnings:0,tips:0};
@@ -4321,12 +4584,100 @@ function updateStats(){
 
 function loadSparks(){ if(state.sparksUnsub) state.sparksUnsub(); state.sparksUnsub=db.collection('sparks').orderBy('createdAt','desc').limit(50).onSnapshot(function(snap){ state.sparks=snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); }); renderFeed(); },function(){ showToast('Error loading feed'); }); }
 function renderFeed(){ var sparks=state.sparks; if(state.filter!=='all') sparks=sparks.filter(function(s){ return s.category===state.filter; }); var q=document.getElementById('search-inp').value.trim().toLowerCase(); if(q) sparks=sparks.filter(function(s){ return (s.text||'').toLowerCase().includes(q)||(s.authorName||'').toLowerCase().includes(q); }); var fc=document.getElementById('feed-cont'); if(!sparks.length){ fc.innerHTML='<div class="feed-empty"><div class="fi">🌿</div><h3>No sparks yet</h3><p>Be the first to post!</p></div>'; return; } fc.innerHTML=sparks.map(buildSparkHTML).join(''); }
-function buildSparkHTML(s){ var liked=state.user&&(s.likes||[]).indexOf(state.user.uid)>-1,saved=state.user&&(s.saved||[]).indexOf(state.user.uid)>-1,isOwn=state.user&&s.authorId===state.user.uid; var vbadge=s.isPremium?'<span class="vbadge" title="Verified"></span>':''; var media=''; if(s.mediaUrl&&s.mediaType==='image') media='<img class="sk-media" src="'+esc(s.mediaUrl)+'" loading="lazy">'; if(s.mediaUrl&&s.mediaType==='video') media='<video class="sk-media" src="'+esc(s.mediaUrl)+'" controls></video>'; return '<div class="spark-card"><div class="sk-head"><div class="sk-av" style="background:'+esc(s.authorColor||COLORS[0])+'">'+esc((s.authorName||'Z').charAt(0).toUpperCase())+'</div><div><div class="sk-name">'+esc(s.authorName||'ZYNCer')+'<span class="sk-cat">'+esc(s.category||'all')+'</span></div><div class="sk-handle">@'+esc(s.authorHandle||'user')+'</div></div><span class="sk-time">'+timeAgo(s.createdAt)+'</span></div>'+media+'<div class="sk-body">'+esc(s.text||'')+'</div><div class="sk-actions"><button class="s-btn'+(liked?' liked':'')+'" onclick="toggleLike(\''+s.id+'\')">'+(liked?'❤️':'🤍')+' '+(s.likes||[]).length+'</button><button class="s-btn" onclick="openComments(\''+s.id+'\')">💬 '+(s.commentCount||0)+'</button><button class="s-btn'+(saved?' saved':'')+'" onclick="toggleSave(\''+s.id+'\')">🔖</button>'+(isOwn?'':'<button class="s-btn" onclick="openTip(\''+esc(s.authorId)+'\',\''+esc(s.authorName||'Creator')+'\')">💝 Tip</button>')+'<button class="s-btn" onclick="shareSpark(\''+s.id+'\')">↗</button>'+(isOwn?'<button class="s-btn" onclick="delSpark(\''+s.id+'\')" style="color:#fca5a5;margin-left:auto">🗑</button>':'')+'</div></div>'; }
+function buildSparkHTML(s){
+  var liked=state.user&&(s.likes||[]).indexOf(state.user.uid)>-1;
+  var saved=state.user&&(s.saved||[]).indexOf(state.user.uid)>-1;
+  var isOwn=state.user&&s.authorId===state.user.uid;
+  var vbadge=(s.isPremium||s.isVerified)?'<span class="vbadge" title="Verified"></span>':'';
+  var media='';
+  if(s.mediaUrl&&s.mediaType==='image') media='<img class="sk-media" src="'+esc(s.mediaUrl)+'" loading="lazy">';
+  if(s.mediaUrl&&s.mediaType==='video') media='<video class="sk-media" src="'+esc(s.mediaUrl)+'" controls></video>';
+  var pinBadge=s.pinned?'<span style="font-size:10px;color:var(--green3);margin-left:4px">📌</span>':'';
+  var locTag=s.location?'<span class="s-btn" style="cursor:default">📍 '+esc(s.location)+'</span>':'';
+  var pollHTML=s.poll?buildPollHTML(s):'';
+  var reactHTML='<div class="reactions-bar">'+buildReactionsHTML(s)+'</div>';
+  var linkPrev='';
+  if(s.linkUrl){var lu=esc(s.linkUrl);linkPrev='<div class="link-preview" onclick="openLink(\''+lu+'\')"><div class="link-preview-info"><div class="link-preview-title">🔗 External Link</div><div class="link-preview-url">'+lu+'</div></div></div>';}
+  return '<div class="spark-card"'+(s.pinned?' style="border-color:var(--green3)"':'')+'>'+
+    '<div class="sk-head">'+
+      '<div class="sk-av" style="background:'+esc(s.authorColor||COLORS[0])+'">'+esc((s.authorName||'Z').charAt(0).toUpperCase())+'</div>'+
+      '<div><div class="sk-name">'+esc(s.authorName||'ZYNCer')+vbadge+'<span class="sk-cat">'+esc(s.category||'all')+'</span>'+pinBadge+'</div>'+
+      '<div class="sk-handle">@'+esc(s.authorHandle||'user')+'</div></div>'+
+      '<span class="sk-time">'+timeAgo(s.createdAt)+'</span>'+
+    '</div>'+
+    media+
+    '<div class="sk-body">'+esc(s.text||'')+'</div>'+
+    pollHTML+linkPrev+
+    '<div class="sk-actions">'+
+      '<button class="s-btn'+(liked?' liked':'')+'" onclick="toggleLike(\''+s.id+'\')">'+( liked?'\u2764\ufe0f':'\U0001f90d')+' '+(s.likes||[]).length+'</button>'+
+      '<button class="s-btn" onclick="openComments(\''+s.id+'\')">💬 '+(s.commentCount||0)+'</button>'+
+      '<button class="s-btn'+(saved?' saved':'')+'" onclick="toggleSave(\''+s.id+'\')">🔖</button>'+
+      (isOwn?'':'<button class="s-btn" onclick="openTip(\''+esc(s.authorId)+'\',\''+esc(s.authorName||'Creator')+'\')">💝 Tip</button>')+
+      '<button class="s-btn" onclick="shareSpark(\''+s.id+'\')">↗</button>'+
+      '<button class="s-btn" onclick="repostSpark(\''+s.id+'\',\''+esc(s.authorName||'ZYNCer')+'\')">🔁 '+(s.reposts||0)+'</button>'+
+      (isOwn?'<button class="s-btn" onclick="pinSpark(\''+s.id+'\','+!!s.pinned+')">📌</button>':'')+
+      '<button class="s-btn" onclick="translatePost(\''+s.id+'\',\''+esc(s.text||'')+'\')">🌐</button>'+
+      locTag+
+      (isOwn?'<button class="s-btn" onclick="delSpark(\''+s.id+'\')" style="color:#fca5a5;margin-left:auto">🗑</button>':'')+
+    '</div>'+reactHTML+
+  '</div>';
+}
 
 var compCat='all',pendingMedia=null;
 document.querySelectorAll('.c-bot .f-pill').forEach(function(b){ b.addEventListener('click',function(){ document.querySelectorAll('.c-bot .f-pill').forEach(function(x){ x.classList.remove('active'); }); this.classList.add('active'); compCat=this.dataset.cat||'all'; }); });
 document.getElementById('comp-ta').addEventListener('input',function(){ document.getElementById('cc').textContent=280-this.value.length; });
-document.getElementById('btn-post').addEventListener('click',function(){ var text=document.getElementById('comp-ta').value.trim(); if(!text&&!pendingMedia){ showToast('Write something first!'); return; } if(containsMalicious(text)){ showToast('❌ Post contains invalid content.'); return; } if(!checkRateLimit('post',5)){ return; } text=sanitize(text); if(!state.user||!state.profile){ showToast('Please sign in first'); return; } var btn=this; btn.disabled=true; btn.textContent='Posting…'; db.collection('sparks').add({text:text,authorId:state.user.uid,authorName:state.profile.name||'ZYNCer',authorHandle:state.profile.handle||'user',authorColor:state.profile.color||COLORS[0],authorPremium:state.profile.isPremium||false,category:compCat,isPremium:state.profile.isPremium||false,likes:[],saved:[],commentCount:0,mediaUrl:pendingMedia?pendingMedia.url:null,mediaType:pendingMedia?pendingMedia.type:null,createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(function(){ document.getElementById('comp-ta').value=''; document.getElementById('cc').textContent='280'; pendingMedia=null; document.getElementById('media-prev').style.display='none'; document.getElementById('prev-img').style.display='none'; document.getElementById('prev-vid').style.display='none'; btn.disabled=false; btn.textContent='✦ Spark'; db.collection('users').doc(state.user.uid).update({sparksCount:firebase.firestore.FieldValue.increment(1)}); showToast('Spark launched! 🌿'); }).catch(function(e){ showToast('Failed: '+e.message); btn.disabled=false; btn.textContent='✦ Spark'; }); });
+document.getElementById('btn-post').addEventListener('click',function(){ var text=document.getElementById('comp-ta').value.trim(); if(!text&&!pendingMedia){ showToast('Write something first!'); return; } if(containsMalicious(text)){ showToast('❌ Post contains invalid content.'); return; } if(!checkRateLimit('post',5)){ return; } text=sanitize(text); if(!state.user||!state.profile){ showToast('Please sign in first'); return; } var btn=this; btn.disabled=true; btn.textContent='Posting…';
+  if(pendingSchedule){
+    db.collection('scheduled_posts').add({
+      text:text,authorId:state.user.uid,authorName:state.profile.name||'ZYNCer',
+      authorHandle:state.profile.handle||'user',authorColor:state.profile.color||COLORS[0],
+      isPremium:state.profile.isPremium||false,isVerified:state.profile.isVerified||false,
+      category:compCat,scheduledAt:pendingSchedule,
+      createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    }).then(function(){
+      document.getElementById('comp-ta').value='';
+      pendingSchedule=null;pendingPoll=null;pendingLocation=null;
+      btn.disabled=false;btn.textContent='✦ Spark';
+      showToast('Post scheduled successfully!');
+    }).catch(function(){btn.disabled=false;btn.textContent='✦ Spark';showToast('Error scheduling');});
+    return;
+  }
+  db.collection('sparks').add({text:text,authorId:state.user.uid,authorName:state.profile.name||'ZYNCer',authorHandle:state.profile.handle||'user',authorColor:state.profile.color||COLORS[0],authorPremium:state.profile.isPremium||false,category:compCat,isPremium:state.profile.isPremium||false,likes:[],saved:[],commentCount:0,mediaUrl:pendingMedia?pendingMedia.url:null,mediaType:pendingMedia?pendingMedia.type:null,poll:pendingPoll||null,location:pendingLocation||null,reposts:0,createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(function(){ document.getElementById('comp-ta').value=''; pendingPoll=null; pendingLocation=null; pendingSchedule=null; document.getElementById('btn-location').style.color=''; document.getElementById('btn-location').style.borderColor=''; document.getElementById('cc').textContent='280'; pendingMedia=null; document.getElementById('media-prev').style.display='none'; document.getElementById('prev-img').style.display='none'; document.getElementById('prev-vid').style.display='none'; btn.disabled=false; btn.textContent='✦ Spark'; db.collection('users').doc(state.user.uid).update({sparksCount:firebase.firestore.FieldValue.increment(1)}); showToast('Spark launched! 🌿'); }).catch(function(e){ showToast('Failed: '+e.message); btn.disabled=false; btn.textContent='✦ Spark'; }); });
+
+document.getElementById('btn-camera').addEventListener('click', function(){
+  openCameraModal();
+});
+
+document.getElementById('btn-poll').addEventListener('click', function(){
+  if(!state.user){showToast('Login first');return;}
+  document.getElementById('poll-q').value='';
+  document.getElementById('poll-o1').value='';
+  document.getElementById('poll-o2').value='';
+  document.getElementById('poll-o3').value='';
+  document.getElementById('poll-o4').value='';
+  document.getElementById('poll-err').textContent='';
+  openModal('modal-poll');
+});
+
+document.getElementById('btn-location').addEventListener('click', function(){
+  if(pendingLocation){
+    pendingLocation=null;
+    this.style.color='';
+    this.style.borderColor='';
+    showToast('📍 Location removed');
+  } else {
+    getLocation();
+  }
+});
+
+document.getElementById('btn-schedule').addEventListener('click', function(){
+  if(!state.user){showToast('Login first');return;}
+  var now=new Date();
+  now.setMinutes(now.getMinutes()+5);
+  document.getElementById('sched-dt').min=now.toISOString().slice(0,16);
+  document.getElementById('sched-err').textContent='';
+  openModal('modal-schedule-pick');
+});
 
 document.getElementById('btn-media').addEventListener('click',function(){
   // Use hidden file input — bypasses Cloudinary widget CSP issues completely
@@ -4420,6 +4771,37 @@ function sendMsg(dmId,otherId,otherName,otherColor){
 
 function selPlan(id,amount,name){ state.plan={id:id,amount:amount,name:name}; document.querySelectorAll('.plan-card').forEach(function(c){ c.classList.remove('sel'); }); document.getElementById('pc-'+id).classList.add('sel'); document.getElementById('co-name').textContent=name; document.getElementById('co-price').textContent='$'+amount.toLocaleString(); }
 document.getElementById('btn-pay').addEventListener('click',function(){ if(!state.user) return; if(typeof PaystackPop==='undefined'){ showToast('Payment loading, try again.'); return; } PaystackPop.setup({key:PAYSTACK_KEY,email:state.user.email,amount:state.plan.amount*100,currency:'USD',ref:'ZP-'+Date.now(),callback:function(){ db.collection('users').doc(state.user.uid).update({isPremium:true,plan:state.plan.id}); state.profile.isPremium=true; closeModal('modal-prem'); document.getElementById('prem-widget').style.display='none'; showToast('Welcome to '+state.plan.name+'! 💎'); },onClose:function(){ showToast('Payment cancelled'); }}).openIframe(); });
+
+function buyVerifiedBadge(){
+  if(!state.user){ showToast('Please login first'); return; }
+  if(state.profile && state.profile.isVerified){
+    showToast('✅ You already have a Verified Badge!'); return;
+  }
+  if(typeof PaystackPop==='undefined'){ showToast('Payment loading, try again.'); return; }
+  PaystackPop.setup({
+    key: PAYSTACK_KEY,
+    email: state.user.email,
+    amount: 30 * 100,
+    currency: 'USD',
+    ref: 'ZVB-' + Date.now(),
+    callback: function(){
+      db.collection('users').doc(state.user.uid).update({ isVerified: true }).then(function(){
+        state.profile.isVerified = true;
+        closeModal('modal-prem');
+        showToast('🎉 Congratulations! You are now Verified on ZYNC! ✅');
+        // Send notification to user
+        db.collection('notifications').add({
+          uid: state.user.uid,
+          type: 'verified',
+          text: '✅ Your ZYNC Verified Badge has been activated! Your profile now shows the green checkmark.',
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          read: false
+        }).catch(function(){});
+      });
+    },
+    onClose: function(){ showToast('Payment cancelled'); }
+  }).openIframe();
+}
 
 function openTip(authorId,authorName){ state.tipTarget={id:authorId,name:authorName}; document.getElementById('tip-name').textContent=authorName; document.getElementById('tip-amt').value=''; document.getElementById('tip-err').textContent=''; openModal('modal-tip'); }
 function setTip(amount){ document.getElementById('tip-amt').value=amount; }
@@ -5049,6 +5431,611 @@ function banUser(userId, username, ban){
 }
 
 // ── SUPPORT / CONTACT ──
+// ── ZYNC CAMERA ──
+var camStream = null;
+var camFacingMode = 'user';
+var camMediaRecorder = null;
+var camRecordedChunks = [];
+var camIsRecording = false;
+var camTimerInterval = null;
+var camSeconds = 0;
+var camCurrentFilter = 'none';
+var camCapturedBlob = null;
+var camCapturedType = 'image';
+
+function openCameraModal(){
+  if(!state.user){ showToast('Please login first'); return; }
+  document.getElementById('cam-snapshot').style.display = 'none';
+  document.getElementById('cam-preview').style.display = 'block';
+  document.getElementById('cam-canvas').style.display = 'none';
+  document.getElementById('cam-use-btn').style.display = 'none';
+  document.getElementById('cam-use-placeholder').style.display = 'block';
+  document.getElementById('cam-retake-bar').style.display = 'none';
+  document.getElementById('cam-rec-indicator').style.display = 'none';
+  document.getElementById('cam-timer').style.display = 'none';
+  camCapturedBlob = null;
+  startCamera();
+  openModal('modal-camera');
+}
+
+function startCamera(){
+  if(camStream){ camStream.getTracks().forEach(function(t){ t.stop(); }); }
+  navigator.mediaDevices.getUserMedia({ video:{ facingMode: camFacingMode }, audio: true })
+    .then(function(stream){
+      camStream = stream;
+      var preview = document.getElementById('cam-preview');
+      preview.srcObject = stream;
+      applyFilterToPreview(camCurrentFilter);
+    })
+    .catch(function(e){
+      showToast('Camera access denied. Please allow camera permission.');
+      closeModal('modal-camera');
+    });
+}
+
+function closeCameraModal(){
+  stopCamera();
+  closeModal('modal-camera');
+}
+
+function stopCamera(){
+  if(camStream){ camStream.getTracks().forEach(function(t){ t.stop(); }); camStream = null; }
+  if(camTimerInterval){ clearInterval(camTimerInterval); camTimerInterval = null; }
+  if(camIsRecording && camMediaRecorder){ camMediaRecorder.stop(); camIsRecording = false; }
+}
+
+function flipCamera(){
+  camFacingMode = camFacingMode === 'user' ? 'environment' : 'user';
+  startCamera();
+}
+
+function applyFilter(btn, filter){
+  document.querySelectorAll('.cam-filter-btn').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  camCurrentFilter = filter;
+  applyFilterToPreview(filter);
+}
+
+function applyFilterToPreview(filter){
+  var preview = document.getElementById('cam-preview');
+  var snapshot = document.getElementById('cam-snapshot');
+  preview.style.filter = filter === 'none' ? '' : filter;
+  snapshot.style.filter = filter === 'none' ? '' : filter;
+}
+
+function takePhoto(){
+  if(!camStream) return;
+  // Countdown from 3
+  var count = 3;
+  var cd = document.getElementById('cam-countdown');
+  cd.style.display = 'flex';
+  cd.textContent = count;
+  var cdInterval = setInterval(function(){
+    count--;
+    if(count <= 0){
+      clearInterval(cdInterval);
+      cd.style.display = 'none';
+      captureSnapshot();
+    } else {
+      cd.textContent = count;
+    }
+  }, 1000);
+}
+
+function captureSnapshot(){
+  var preview = document.getElementById('cam-preview');
+  var canvas = document.getElementById('cam-canvas');
+  var snapshot = document.getElementById('cam-snapshot');
+  canvas.width = preview.videoWidth;
+  canvas.height = preview.videoHeight;
+  var ctx = canvas.getContext('2d');
+  // Apply filter to canvas
+  if(camCurrentFilter !== 'none') ctx.filter = camCurrentFilter;
+  // Flip horizontally for selfie
+  if(camFacingMode === 'user'){
+    ctx.translate(canvas.width, 0);
+    ctx.scale(-1, 1);
+  }
+  ctx.drawImage(preview, 0, 0);
+  canvas.toBlob(function(blob){
+    camCapturedBlob = blob;
+    camCapturedType = 'image';
+    var url = URL.createObjectURL(blob);
+    snapshot.src = url;
+    snapshot.style.display = 'block';
+    preview.style.display = 'none';
+    document.getElementById('cam-use-btn').style.display = 'block';
+    document.getElementById('cam-use-placeholder').style.display = 'none';
+    document.getElementById('cam-retake-bar').style.display = 'block';
+    showToast('📸 Photo taken! Click "Use" to post it.');
+  }, 'image/jpeg', 0.92);
+}
+
+function toggleVideoRecord(){
+  if(!camStream) return;
+  if(!camIsRecording){
+    startVideoRecord();
+  } else {
+    stopVideoRecord();
+  }
+}
+
+function startVideoRecord(){
+  camRecordedChunks = [];
+  var options = { mimeType: 'video/webm;codecs=vp9' };
+  if(!MediaRecorder.isTypeSupported(options.mimeType)){
+    options = { mimeType: 'video/webm' };
+  }
+  try {
+    camMediaRecorder = new MediaRecorder(camStream, options);
+  } catch(e){
+    camMediaRecorder = new MediaRecorder(camStream);
+  }
+  camMediaRecorder.ondataavailable = function(e){
+    if(e.data && e.data.size > 0) camRecordedChunks.push(e.data);
+  };
+  camMediaRecorder.onstop = function(){
+    var blob = new Blob(camRecordedChunks, { type: 'video/webm' });
+    camCapturedBlob = blob;
+    camCapturedType = 'video';
+    var url = URL.createObjectURL(blob);
+    var preview = document.getElementById('cam-preview');
+    preview.srcObject = null;
+    preview.src = url;
+    preview.muted = false;
+    preview.controls = true;
+    preview.style.display = 'block';
+    document.getElementById('cam-use-btn').style.display = 'block';
+    document.getElementById('cam-use-placeholder').style.display = 'none';
+    document.getElementById('cam-retake-bar').style.display = 'block';
+    showToast('🎥 Video recorded! Click "Use" to post it.');
+  };
+  camMediaRecorder.start(100);
+  camIsRecording = true;
+  camSeconds = 0;
+  document.getElementById('cam-rec-indicator').style.display = 'flex';
+  document.getElementById('cam-timer').style.display = 'block';
+  document.getElementById('cam-video-btn').textContent = '⏹️';
+  document.getElementById('cam-video-btn').style.background = 'linear-gradient(135deg,#374151,#1f2937)';
+  camTimerInterval = setInterval(function(){
+    camSeconds++;
+    var m = Math.floor(camSeconds/60);
+    var s = camSeconds % 60;
+    document.getElementById('cam-timer').textContent = m+':'+(s<10?'0':'')+s;
+    if(camSeconds >= 60){ stopVideoRecord(); } // max 60 seconds
+  }, 1000);
+}
+
+function stopVideoRecord(){
+  if(camMediaRecorder && camIsRecording){
+    camMediaRecorder.stop();
+    camIsRecording = false;
+    clearInterval(camTimerInterval);
+    document.getElementById('cam-rec-indicator').style.display = 'none';
+    document.getElementById('cam-video-btn').textContent = '🎥';
+    document.getElementById('cam-video-btn').style.background = 'linear-gradient(135deg,#dc2626,#ef4444)';
+  }
+}
+
+function retakeCamera(){
+  var preview = document.getElementById('cam-preview');
+  preview.src = '';
+  preview.muted = true;
+  preview.controls = false;
+  document.getElementById('cam-snapshot').style.display = 'none';
+  preview.style.display = 'block';
+  document.getElementById('cam-use-btn').style.display = 'none';
+  document.getElementById('cam-use-placeholder').style.display = 'block';
+  document.getElementById('cam-retake-bar').style.display = 'none';
+  camCapturedBlob = null;
+  startCamera();
+}
+
+function useCaptured(){
+  if(!camCapturedBlob){ showToast('Nothing captured yet!'); return; }
+  // Upload to Cloudinary
+  var formData = new FormData();
+  var ext = camCapturedType === 'image' ? 'jpg' : 'webm';
+  formData.append('file', camCapturedBlob, 'zync-cam-' + Date.now() + '.' + ext);
+  formData.append('upload_preset', 'ml_default');
+  var resourceType = camCapturedType === 'image' ? 'image' : 'video';
+  closeCameraModal();
+  // Show upload banner
+  var banner = document.createElement('div');
+  banner.id = 'upload-banner';
+  banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:linear-gradient(135deg,var(--green),var(--green2));color:var(--cream);text-align:center;padding:10px;font-size:13px;font-weight:700;z-index:9999';
+  banner.textContent = '⏳ Uploading your ' + camCapturedType + '... Please wait';
+  document.body.appendChild(banner);
+
+  fetch('https://api.cloudinary.com/v1_1/dk4svvssf/' + resourceType + '/upload', {
+    method: 'POST', body: formData
+  }).then(function(r){ return r.json(); }).then(function(data){
+    var b = document.getElementById('upload-banner');
+    if(b) b.remove();
+    if(data.secure_url){
+      state.mediaUrl = data.secure_url;
+      state.mediaType = camCapturedType;
+      var prev = document.getElementById('media-prev');
+      var prevVid = document.getElementById('prev-vid');
+      var prevImg = document.getElementById('prev-img');
+      if(camCapturedType === 'image'){
+        if(prevImg){ prevImg.src = data.secure_url; prevImg.style.display = 'block'; }
+        if(prevVid) prevVid.style.display = 'none';
+      } else {
+        if(prevVid){ prevVid.src = data.secure_url; prevVid.style.display = 'block'; }
+        if(prevImg) prevImg.style.display = 'none';
+      }
+      if(prev) prev.style.display = 'block';
+      showToast('✅ ' + (camCapturedType==='image'?'Photo':'Video') + ' ready! Now click Spark to post.');
+    } else {
+      showToast('Upload failed. Try again.');
+    }
+  }).catch(function(e){
+    var b = document.getElementById('upload-banner');
+    if(b) b.remove();
+    showToast('Upload failed: ' + e.message);
+  });
+}
+
+
+// ── OPEN LINK SAFELY ──
+function openLink(url){ window.open(url,'_blank','noopener,noreferrer'); }
+
+// ── BUILD POLL HTML ──
+function buildPollHTML(s){
+  if(!s.poll||!s.poll.options) return '';
+  var total=s.poll.votes?Object.values(s.poll.votes).reduce(function(a,b){return a+(b||0);},0):0;
+  var uid=state.user?state.user.uid:'';
+  var userVote=s.poll.userVotes&&s.poll.userVotes[uid]!==undefined?s.poll.userVotes[uid]:-1;
+  var expired=s.poll.expiresAt&&Date.now()>s.poll.expiresAt;
+  var html='<div style="margin:8px 0;padding:10px;background:var(--deep);border:1px solid var(--border);border-radius:10px">';
+  html+='<div style="font-size:11px;font-weight:700;color:var(--moon);margin-bottom:8px">📊 '+esc(s.poll.question)+(expired?' · <span style="color:var(--muted)">Ended</span>':'')+'</div>';
+  s.poll.options.forEach(function(opt,i){
+    var votes=s.poll.votes&&s.poll.votes[i]?s.poll.votes[i]:0;
+    var pct=total>0?Math.round(votes/total*100):0;
+    var isVoted=userVote===i;
+    html+='<div class="poll-opt'+(isVoted?' voted':'')+'" onclick="votePoll(\''+s.id+'\','+i+')">';
+    html+='<div class="poll-bar" style="width:'+pct+'%"></div>';
+    html+='<div class="poll-opt-text"><span>'+esc(opt)+(isVoted?' ✓':'')+'</span><span class="poll-pct">'+(userVote!==-1||expired?pct+'%':'')+'</span></div>';
+    html+='</div>';
+  });
+  html+='<div style="font-size:10px;color:var(--muted);margin-top:6px">'+total+' vote'+(total!==1?'s':'')+(expired?'':' · Ends '+new Date(s.poll.expiresAt).toLocaleDateString())+'</div>';
+  return html+'</div>';
+}
+
+// ── BUILD REACTIONS HTML ──
+var REACTIONS=['❤️','😂','😮','😢','🔥','👏','🎉','💯'];
+function buildReactionsHTML(s){
+  var uid=state.user?state.user.uid:'';
+  var rxs=s.reactions||{};
+  var html='<button class="reaction-btn" onclick="showReactionPicker(\''+s.id+'\',this)">😊 React</button>';
+  REACTIONS.forEach(function(em){
+    var count=rxs[em]?Object.keys(rxs[em]).length:0;
+    if(count>0){
+      var reacted=rxs[em]&&rxs[em][uid];
+      html+='<button class="reaction-btn'+(reacted?' reacted':'')+'" onclick="toggleReaction(\''+s.id+'\',\''+em+'\')">'+em+' '+count+'</button>';
+    }
+  });
+  return html;
+}
+
+function showReactionPicker(sparkId,btn){
+  var existing=document.getElementById('rxpicker-'+sparkId);
+  if(existing){existing.remove();return;}
+  var picker=document.createElement('div');
+  picker.className='reaction-picker';
+  picker.id='rxpicker-'+sparkId;
+  REACTIONS.forEach(function(em){
+    var b=document.createElement('button');
+    b.textContent=em;
+    b.style.cssText='background:none;border:none;font-size:20px;cursor:pointer;padding:2px';
+    b.onclick=function(){toggleReaction(sparkId,em);picker.remove();};
+    picker.appendChild(b);
+  });
+  btn.parentNode.style.position='relative';
+  btn.parentNode.insertBefore(picker,btn);
+  setTimeout(function(){
+    document.addEventListener('click',function h(e){
+      if(!picker.contains(e.target)){picker.remove();document.removeEventListener('click',h);}
+    });
+  },100);
+}
+
+function toggleReaction(sparkId,emoji){
+  if(!state.user){showToast('Login to react');return;}
+  var uid=state.user.uid;
+  var ref=db.collection('sparks').doc(sparkId);
+  ref.get().then(function(d){
+    if(!d.exists)return;
+    var rxs=d.data().reactions||{};
+    if(!rxs[emoji])rxs[emoji]={};
+    if(rxs[emoji][uid]){delete rxs[emoji][uid];}
+    else{rxs[emoji][uid]=true;}
+    ref.update({reactions:rxs});
+  });
+}
+
+function votePoll(sparkId,optIndex){
+  if(!state.user){showToast('Login to vote');return;}
+  var uid=state.user.uid;
+  var ref=db.collection('sparks').doc(sparkId);
+  ref.get().then(function(d){
+    if(!d.exists)return;
+    var data=d.data();
+    if(!data.poll)return;
+    if(data.poll.expiresAt&&Date.now()>data.poll.expiresAt){showToast('This poll has ended');return;}
+    var userVotes=data.poll.userVotes||{};
+    if(userVotes[uid]!==undefined){showToast('You already voted');return;}
+    userVotes[uid]=optIndex;
+    var votes=data.poll.votes||{};
+    votes[optIndex]=(votes[optIndex]||0)+1;
+    ref.update({'poll.votes':votes,'poll.userVotes':userVotes}).then(function(){showToast('Vote recorded!');});
+  });
+}
+
+function repostSpark(sparkId,authorName){
+  if(!state.user){showToast('Login to repost');return;}
+  if(!confirm('Repost this spark from @'+authorName+'?'))return;
+  var ref=db.collection('sparks').doc(sparkId);
+  ref.get().then(function(d){
+    if(!d.exists)return;
+    var data=d.data();
+    db.collection('sparks').add({
+      text:'🔁 Reposted from @'+esc(data.authorHandle||authorName)+':\n\n'+data.text,
+      authorId:state.user.uid,
+      authorName:state.profile.name||'ZYNCer',
+      authorHandle:state.profile.handle||'user',
+      authorColor:state.profile.color||COLORS[0],
+      isPremium:state.profile.isPremium||false,
+      isVerified:state.profile.isVerified||false,
+      category:data.category||'all',
+      likes:[],reposts:0,commentCount:0,isRepost:true,originalId:sparkId,
+      createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    }).then(function(){
+      ref.update({reposts:firebase.firestore.FieldValue.increment(1)});
+      showToast('🔁 Reposted!');
+    });
+  });
+}
+
+function pinSpark(sparkId,isPinned){
+  if(!state.user)return;
+  var newPinned=!isPinned;
+  if(newPinned){
+    var batch=db.batch();
+    state.sparks.filter(function(s){return s.authorId===state.user.uid&&s.pinned;}).forEach(function(s){
+      batch.update(db.collection('sparks').doc(s.id),{pinned:false});
+    });
+    batch.commit().catch(function(){});
+  }
+  db.collection('sparks').doc(sparkId).update({pinned:newPinned}).then(function(){
+    showToast(newPinned?'📌 Spark pinned!':'📌 Spark unpinned');
+  });
+}
+
+function translatePost(sparkId,text){
+  if(!text){showToast('Nothing to translate');return;}
+  openModal('modal-translate');
+  document.getElementById('translated-text').textContent='Translating...';
+  var url='https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl='+navigator.language.split('-')[0]+'&dt=t&q='+encodeURIComponent(text);
+  fetch(url).then(function(r){return r.json();}).then(function(data){
+    var translated=data[0].map(function(x){return x[0];}).join('');
+    document.getElementById('translated-text').textContent=translated||'Translation unavailable';
+  }).catch(function(){
+    document.getElementById('translated-text').textContent='Translation unavailable. Try again later.';
+  });
+}
+
+var pendingPoll=null;
+function attachPoll(){
+  var q=document.getElementById('poll-q').value.trim();
+  var o1=document.getElementById('poll-o1').value.trim();
+  var o2=document.getElementById('poll-o2').value.trim();
+  var o3=document.getElementById('poll-o3').value.trim();
+  var o4=document.getElementById('poll-o4').value.trim();
+  var dur=parseInt(document.getElementById('poll-dur').value)||3;
+  var err=document.getElementById('poll-err');
+  if(!q){err.textContent='Please enter a question';return;}
+  if(!o1||!o2){err.textContent='Please enter at least 2 options';return;}
+  var opts=[o1,o2];
+  if(o3)opts.push(o3);
+  if(o4)opts.push(o4);
+  pendingPoll={question:q,options:opts,votes:{},userVotes:{},expiresAt:Date.now()+(dur*24*60*60*1000)};
+  closeModal('modal-poll');
+  showToast('📊 Poll attached! Click Spark to post.');
+}
+
+var pendingLocation=null;
+function getLocation(){
+  if(!navigator.geolocation){showToast('Location not supported');return;}
+  showToast('📍 Getting your location...');
+  navigator.geolocation.getCurrentPosition(function(pos){
+    var lat=pos.coords.latitude.toFixed(4);
+    var lng=pos.coords.longitude.toFixed(4);
+    fetch('https://nominatim.openstreetmap.org/reverse?lat='+lat+'&lon='+lng+'&format=json')
+      .then(function(r){return r.json();})
+      .then(function(d){
+        var city=(d.address&&(d.address.city||d.address.town||d.address.village||d.address.state))||'Unknown';
+        var country=(d.address&&d.address.country)||'';
+        pendingLocation=city+(country?', '+country:'');
+        showToast('📍 Location: '+pendingLocation);
+        document.getElementById('btn-location').style.color='var(--green3)';
+        document.getElementById('btn-location').style.borderColor='var(--green3)';
+      }).catch(function(){
+        pendingLocation=lat+', '+lng;
+        showToast('📍 Location tagged!');
+      });
+  },function(){showToast('Location access denied');});
+}
+
+var pendingSchedule=null;
+function confirmSchedule(){
+  var dt=document.getElementById('sched-dt').value;
+  var err=document.getElementById('sched-err');
+  if(!dt){err.textContent='Please select a date and time';return;}
+  var ts=new Date(dt).getTime();
+  if(ts<=Date.now()){err.textContent='Please select a future date and time';return;}
+  pendingSchedule=ts;
+  closeModal('modal-schedule-pick');
+  showToast('Post scheduled for '+new Date(ts).toLocaleString());
+}
+
+function openScheduled(){
+  if(!state.user){showToast('Login first');return;}
+  openModal('modal-scheduled');
+  var list=document.getElementById('sched-list');
+  db.collection('scheduled_posts').where('authorId','==',state.user.uid).get().then(function(snap){
+    if(snap.empty){list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">No scheduled posts yet.</div>';return;}
+    list.innerHTML=snap.docs.map(function(d){
+      var s=d.data();
+      return '<div class="sched-item"><div style="font-size:12px;color:var(--moon)">'+esc(s.text||'')+'</div>'+
+        '<div style="font-size:10px;color:var(--muted);margin-top:4px">Scheduled: '+new Date(s.scheduledAt).toLocaleString()+'</div>'+
+        '<button onclick="deleteScheduled(\''+d.id+'\')" style="margin-top:6px;font-size:10px;background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);border-radius:20px;padding:3px 10px;color:#fca5a5;cursor:pointer">Delete</button>'+
+        '</div>';
+    }).join('');
+  }).catch(function(){list.innerHTML='<div style="color:#fca5a5;padding:10px">Error loading</div>';});
+}
+
+function deleteScheduled(id){
+  if(!confirm('Delete this scheduled post?'))return;
+  db.collection('scheduled_posts').doc(id).delete().then(function(){showToast('Deleted');openScheduled();});
+}
+
+setInterval(function(){
+  if(!state.user)return;
+  db.collection('scheduled_posts').where('authorId','==',state.user.uid).where('scheduledAt','<=',Date.now()).get().then(function(snap){
+    snap.forEach(function(d){
+      var s=d.data();
+      db.collection('sparks').add({
+        text:s.text,authorId:s.authorId,authorName:s.authorName,authorHandle:s.authorHandle,
+        authorColor:s.authorColor,isPremium:s.isPremium||false,isVerified:s.isVerified||false,
+        category:s.category||'all',likes:[],reposts:0,commentCount:0,
+        createdAt:firebase.firestore.FieldValue.serverTimestamp()
+      }).then(function(){d.ref.delete();showToast('Scheduled post published!');});
+    });
+  }).catch(function(){});
+},60000);
+
+function openLeaderboard(){
+  if(!state.user){showToast('Login first');return;}
+  openModal('modal-leaderboard');
+  switchLbTab('sparks',document.getElementById('lb-tab-sparks'));
+}
+
+function switchLbTab(type,btn){
+  document.querySelectorAll('#modal-leaderboard .f-pill').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  loadLeaderboard(type);
+}
+
+function loadLeaderboard(type){
+  var list=document.getElementById('lb-list');
+  list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Loading...</div>';
+  var field=type==='sparks'?'sparksCount':type==='fans'?'followers':'earnings';
+  db.collection('users').orderBy(field,'desc').limit(20).get().then(function(snap){
+    if(snap.empty){list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">No data yet</div>';return;}
+    var medals=['🥇','🥈','🥉'];
+    list.innerHTML=snap.docs.map(function(d,i){
+      var u=d.data();
+      var val=type==='sparks'?(u.sparksCount||0)+' sparks':type==='fans'?(u.followers||0)+' fans':'$'+(parseFloat(u.earnings||0)).toFixed(2)+' earned';
+      return '<div class="lb-item">'+
+        '<div class="lb-rank">'+(medals[i]||('#'+(i+1)))+'</div>'+
+        '<div class="lb-av" style="background:'+(u.color||'var(--green)')+'">'+( u.name||'Z').charAt(0).toUpperCase()+'</div>'+
+        '<div style="flex:1"><div style="font-size:12px;font-weight:700;color:var(--moon)">'+esc(u.name||'ZYNCer')+((u.isPremium||u.isVerified)?'<span class="vbadge" style="margin-left:4px"></span>':'')+'</div>'+
+        '<div style="font-size:10px;color:var(--muted)">@'+esc(u.handle||'user')+' · '+val+'</div></div>'+
+        '</div>';
+    }).join('');
+  }).catch(function(){list.innerHTML='<div style="color:#fca5a5;padding:10px">Could not load leaderboard</div>';});
+}
+
+function openQRCode(){
+  if(!state.user){showToast('Login first');return;}
+  openModal('modal-qr');
+  var wrap=document.getElementById('qr-wrap');
+  wrap.innerHTML='<div style="padding:20px;color:#999">Generating...</div>';
+  var profileUrl='https://zync-social-vf8e.vercel.app?user='+((state.profile&&state.profile.handle)||'');
+  var qrUrl='https://api.qrserver.com/v1/create-qr-code/?size=200x200&data='+encodeURIComponent(profileUrl);
+  var img=document.createElement('img');
+  img.src=qrUrl;
+  img.style.cssText='width:200px;height:200px;border-radius:8px';
+  img.onload=function(){wrap.innerHTML='';wrap.appendChild(img);};
+  img.onerror=function(){wrap.innerHTML='<div style="padding:20px;color:#999">QR generation failed</div>';};
+}
+
+function downloadQR(){
+  var img=document.querySelector('#qr-wrap img');
+  if(!img){showToast('Please wait for QR to load');return;}
+  var a=document.createElement('a');
+  a.href=img.src;a.download='zync-qr-code.png';a.click();
+}
+
+function openStoryViews(storyId){
+  openModal('modal-story-views');
+  var list=document.getElementById('story-views-list');
+  list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Loading...</div>';
+  db.collection('stories').doc(storyId).get().then(function(d){
+    if(!d.exists){list.innerHTML='<div style="color:#fca5a5;padding:10px">Story not found</div>';return;}
+    var views=d.data().views||[];
+    if(!views.length){list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">No views yet</div>';return;}
+    list.innerHTML='<div style="font-size:11px;color:var(--muted);margin-bottom:10px">'+views.length+' view'+(views.length!==1?'s':'')+'</div>'+
+      views.slice(0,50).map(function(v){
+        return '<div class="story-view-item">'+
+          '<div style="width:32px;height:32px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0">'+(v.name||'?').charAt(0)+'</div>'+
+          '<div><div style="font-size:12px;color:var(--moon)">'+esc(v.name||'ZYNCer')+'</div>'+
+          '<div style="font-size:10px;color:var(--muted)">@'+esc(v.handle||'user')+'</div></div>'+
+          '</div>';
+      }).join('');
+  });
+}
+
+function trackStoryView(storyId){
+  if(!state.user||!state.profile)return;
+  db.collection('stories').doc(storyId).update({
+    views:firebase.firestore.FieldValue.arrayUnion({
+      uid:state.user.uid,name:state.profile.name||'ZYNCer',
+      handle:state.profile.handle||'user',viewedAt:Date.now()
+    })
+  }).catch(function(){});
+}
+
+function checkBirthday(){
+  if(!state.profile||!state.profile.birthday)return;
+  var today=new Date();
+  var bday=new Date(state.profile.birthday);
+  if(today.getMonth()===bday.getMonth()&&today.getDate()===bday.getDate()){
+    showToast('🎂 Happy Birthday from ZYNC!');
+    db.collection('notifications').add({
+      uid:state.user.uid,type:'birthday',
+      text:'🎂 Happy Birthday! ZYNC wishes you an amazing day!',
+      createdAt:firebase.firestore.FieldValue.serverTimestamp(),read:false
+    }).catch(function(){});
+  }
+}
+
+function openCreatorSub(creatorId,creatorName,price){
+  if(!state.user){showToast('Login to subscribe');return;}
+  if(!price||price<1){showToast('Invalid price');return;}
+  if(typeof PaystackPop==='undefined'){showToast('Payment loading');return;}
+  PaystackPop.setup({
+    key:PAYSTACK_KEY,email:state.user.email,amount:price*100,currency:'USD',
+    ref:'ZSUB-'+creatorId+'-'+Date.now(),
+    callback:function(){
+      db.collection('creator_subs').add({
+        subscriberId:state.user.uid,subscriberName:state.profile.name||'ZYNCer',
+        creatorId:creatorId,price:price,createdAt:firebase.firestore.FieldValue.serverTimestamp()
+      });
+      db.collection('notifications').add({
+        uid:creatorId,type:'subscription',
+        text:'💎 '+esc(state.profile.name||'Someone')+' subscribed to your content for $'+price+'/month!',
+        createdAt:firebase.firestore.FieldValue.serverTimestamp(),read:false
+      });
+      showToast('Subscribed to '+creatorName+'!');
+    },
+    onClose:function(){showToast('Payment cancelled');}
+  }).openIframe();
+}
+
+
 function openSupportModal(){
   // Pre-fill name if logged in
   if(state.profile && state.profile.name){
