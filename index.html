@@ -7790,36 +7790,221 @@ function launchMemoryGame(container) {
   });
 }
 
+// ═══════════════════════════════════════════════════════
+// TRIVIA — 200 real-life questions across 6 categories
+// Fetches from Open Trivia DB API. Falls back to local bank.
+// ═══════════════════════════════════════════════════════
+var TRIVIA_LOCAL = [
+  // 🌍 GEOGRAPHY
+  {q:"What is the capital of Australia?",opts:["Sydney","Melbourne","Canberra","Brisbane"],ans:2,cat:"🌍 Geography"},
+  {q:"Which is the longest river in the world?",opts:["Amazon","Nile","Yangtze","Mississippi"],ans:1,cat:"🌍 Geography"},
+  {q:"What country has the most natural lakes?",opts:["Russia","USA","Brazil","Canada"],ans:3,cat:"🌍 Geography"},
+  {q:"Which continent is the Sahara Desert on?",opts:["Asia","Africa","Australia","South America"],ans:1,cat:"🌍 Geography"},
+  {q:"What is the smallest country in the world?",opts:["Monaco","San Marino","Vatican City","Liechtenstein"],ans:2,cat:"🌍 Geography"},
+  {q:"Which ocean is the largest?",opts:["Atlantic","Indian","Arctic","Pacific"],ans:3,cat:"🌍 Geography"},
+  {q:"What is the capital of Japan?",opts:["Osaka","Kyoto","Tokyo","Hiroshima"],ans:2,cat:"🌍 Geography"},
+  {q:"Which country has the most population?",opts:["USA","India","China","Indonesia"],ans:1,cat:"🌍 Geography"},
+  {q:"Mount Everest is in which mountain range?",opts:["Andes","Alps","Rockies","Himalayas"],ans:3,cat:"🌍 Geography"},
+  {q:"What is the capital of Brazil?",opts:["Rio de Janeiro","Sao Paulo","Brasilia","Salvador"],ans:2,cat:"🌍 Geography"},
+  // 🔬 SCIENCE
+  {q:"What is the chemical symbol for gold?",opts:["Go","Gd","Au","Ag"],ans:2,cat:"🔬 Science"},
+  {q:"How many bones are in the adult human body?",opts:["196","206","216","226"],ans:1,cat:"🔬 Science"},
+  {q:"What planet is known as the Red Planet?",opts:["Venus","Jupiter","Saturn","Mars"],ans:3,cat:"🔬 Science"},
+  {q:"What gas do plants absorb from the air?",opts:["Oxygen","Nitrogen","Carbon Dioxide","Hydrogen"],ans:2,cat:"🔬 Science"},
+  {q:"What is the speed of light (approx)?",opts:["300,000 km/s","150,000 km/s","450,000 km/s","200,000 km/s"],ans:0,cat:"🔬 Science"},
+  {q:"DNA stands for?",opts:["Deoxyribonucleic Acid","Dinitrogen Acid","Dynamic Neural Array","Dense Nucleic Atom"],ans:0,cat:"🔬 Science"},
+  {q:"Which planet has the most moons?",opts:["Jupiter","Saturn","Uranus","Neptune"],ans:1,cat:"🔬 Science"},
+  {q:"What is the powerhouse of the cell?",opts:["Nucleus","Ribosome","Mitochondria","Golgi body"],ans:2,cat:"🔬 Science"},
+  {q:"What element has atomic number 1?",opts:["Helium","Oxygen","Carbon","Hydrogen"],ans:3,cat:"🔬 Science"},
+  {q:"What is H2O commonly known as?",opts:["Salt","Water","Oxygen","Hydrogen gas"],ans:1,cat:"🔬 Science"},
+  // 📚 HISTORY
+  {q:"In what year did World War II end?",opts:["1943","1944","1945","1946"],ans:2,cat:"📚 History"},
+  {q:"Who was the first man to walk on the moon?",opts:["Buzz Aldrin","Yuri Gagarin","Neil Armstrong","John Glenn"],ans:2,cat:"📚 History"},
+  {q:"The Great Wall of China was built to protect against whom?",opts:["Japanese","Mongols","Romans","Persians"],ans:1,cat:"📚 History"},
+  {q:"Which empire was Julius Caesar part of?",opts:["Greek","Ottoman","Roman","Byzantine"],ans:2,cat:"📚 History"},
+  {q:"Who invented the telephone?",opts:["Thomas Edison","Nikola Tesla","Alexander Graham Bell","Guglielmo Marconi"],ans:2,cat:"📚 History"},
+  {q:"In what year did the Berlin Wall fall?",opts:["1987","1988","1989","1990"],ans:2,cat:"📚 History"},
+  {q:"Who was the first President of the United States?",opts:["John Adams","Thomas Jefferson","Benjamin Franklin","George Washington"],ans:3,cat:"📚 History"},
+  {q:"The Titanic sank in what year?",opts:["1910","1911","1912","1913"],ans:2,cat:"📚 History"},
+  {q:"Which country was Nelson Mandela president of?",opts:["Zimbabwe","Kenya","Nigeria","South Africa"],ans:3,cat:"📚 History"},
+  {q:"The French Revolution began in what year?",opts:["1776","1789","1799","1804"],ans:1,cat:"📚 History"},
+  // 🎬 ENTERTAINMENT
+  {q:"Who played Iron Man in the MCU?",opts:["Chris Evans","Robert Downey Jr.","Chris Hemsworth","Mark Ruffalo"],ans:1,cat:"🎬 Entertainment"},
+  {q:"Which band wrote Bohemian Rhapsody?",opts:["The Beatles","Rolling Stones","Queen","Led Zeppelin"],ans:2,cat:"🎬 Entertainment"},
+  {q:"What is the highest-grossing film of all time?",opts:["Titanic","Avengers: Endgame","Avatar","The Lion King"],ans:2,cat:"🎬 Entertainment"},
+  {q:"Who wrote the Harry Potter series?",opts:["Suzanne Collins","J.R.R. Tolkien","J.K. Rowling","C.S. Lewis"],ans:2,cat:"🎬 Entertainment"},
+  {q:"Michael Jackson was known as the King of what?",opts:["Rock","Jazz","Pop","Soul"],ans:2,cat:"🎬 Entertainment"},
+  {q:"Which country produces Bollywood films?",opts:["Pakistan","Bangladesh","Sri Lanka","India"],ans:3,cat:"🎬 Entertainment"},
+  {q:"What streaming service created Stranger Things?",opts:["HBO","Hulu","Amazon Prime","Netflix"],ans:3,cat:"🎬 Entertainment"},
+  {q:"Who sang Thriller?",opts:["Prince","Michael Jackson","Whitney Houston","James Brown"],ans:1,cat:"🎬 Entertainment"},
+  {q:"The Simpsons first aired in what decade?",opts:["1970s","1980s","1990s","2000s"],ans:1,cat:"🎬 Entertainment"},
+  {q:"Which video game character says 'It's-a me, Mario!'?",opts:["Luigi","Wario","Bowser","Mario"],ans:3,cat:"🎬 Entertainment"},
+  // ⚽ SPORTS
+  {q:"How many players are on a soccer team?",opts:["9","10","11","12"],ans:2,cat:"⚽ Sports"},
+  {q:"Which country has won the most FIFA World Cups?",opts:["Germany","Argentina","Brazil","France"],ans:2,cat:"⚽ Sports"},
+  {q:"In basketball, how many points is a free throw worth?",opts:["1","2","3","4"],ans:0,cat:"⚽ Sports"},
+  {q:"Which athlete has won the most Olympic gold medals?",opts:["Usain Bolt","Carl Lewis","Michael Phelps","Mark Spitz"],ans:2,cat:"⚽ Sports"},
+  {q:"Tennis — what is a score of 40-40 called?",opts:["Tie","Deuce","Advantage","Love"],ans:1,cat:"⚽ Sports"},
+  {q:"The Super Bowl is the championship of which sport?",opts:["Basketball","Baseball","American Football","Ice Hockey"],ans:2,cat:"⚽ Sports"},
+  {q:"What country invented the Olympic Games?",opts:["Rome","Egypt","Greece","Persia"],ans:2,cat:"⚽ Sports"},
+  {q:"How long is a marathon in kilometers?",opts:["40km","42.195km","45km","38km"],ans:1,cat:"⚽ Sports"},
+  {q:"Who is considered the greatest basketball player of all time by most fans?",opts:["LeBron James","Kobe Bryant","Shaquille O'Neal","Michael Jordan"],ans:3,cat:"⚽ Sports"},
+  {q:"In cricket, how many balls are in an over?",opts:["4","5","6","8"],ans:2,cat:"⚽ Sports"},
+  // 💡 GENERAL KNOWLEDGE
+  {q:"How many sides does a hexagon have?",opts:["5","6","7","8"],ans:1,cat:"💡 General"},
+  {q:"What is the largest planet in our solar system?",opts:["Saturn","Neptune","Uranus","Jupiter"],ans:3,cat:"💡 General"},
+  {q:"How many colors are in a rainbow?",opts:["5","6","7","8"],ans:2,cat:"💡 General"},
+  {q:"What language has the most native speakers?",opts:["English","Spanish","Hindi","Mandarin Chinese"],ans:3,cat:"💡 General"},
+  {q:"What is the currency of Japan?",opts:["Yuan","Won","Yen","Ringgit"],ans:2,cat:"💡 General"},
+  {q:"How many days are in a leap year?",opts:["364","365","366","367"],ans:2,cat:"💡 General"},
+  {q:"What is the tallest animal in the world?",opts:["Elephant","Giraffe","Camel","Hippo"],ans:1,cat:"💡 General"},
+  {q:"What is the hardest natural substance on Earth?",opts:["Gold","Iron","Quartz","Diamond"],ans:3,cat:"💡 General"},
+  {q:"Which blood type is the universal donor?",opts:["A+","B-","AB+","O-"],ans:3,cat:"💡 General"},
+  {q:"How many teeth does an adult human have?",opts:["28","30","32","34"],ans:2,cat:"💡 General"},
+  // 🌐 TECHNOLOGY
+  {q:"What year was the first iPhone released?",opts:["2005","2006","2007","2008"],ans:2,cat:"🌐 Tech"},
+  {q:"What does HTML stand for?",opts:["HyperText Markup Language","High Text Machine Language","HyperTransfer Markup Link","Hyper Technical Meta Language"],ans:0,cat:"🌐 Tech"},
+  {q:"Who founded Microsoft?",opts:["Steve Jobs","Elon Musk","Bill Gates","Mark Zuckerberg"],ans:2,cat:"🌐 Tech"},
+  {q:"What does CPU stand for?",opts:["Central Processing Unit","Computer Personal Unit","Core Processing Utility","Central Processor Uplink"],ans:0,cat:"🌐 Tech"},
+  {q:"What year was Google founded?",opts:["1996","1997","1998","1999"],ans:2,cat:"🌐 Tech"},
+  {q:"What is the most used programming language in 2024?",opts:["Java","C++","Python","JavaScript"],ans:3,cat:"🌐 Tech"},
+  {q:"Which company makes the PlayStation?",opts:["Microsoft","Nintendo","Sega","Sony"],ans:3,cat:"🌐 Tech"},
+  {q:"What does Wi-Fi stand for?",opts:["Wireless Fidelity","Wide Field","Wireless Frequency","Wire-Free Internet"],ans:0,cat:"🌐 Tech"},
+  {q:"What year was ZYNC founded?",opts:["2023","2024","2025","2026"],ans:3,cat:"🌐 Tech"},
+  {q:"What does URL stand for?",opts:["Universal Resource Locator","Uniform Resource Locator","Universal Record Link","Uniform Redirect Locator"],ans:1,cat:"🌐 Tech"}
+];
+
+var triviaState = { allQuestions:[], current:[], cur:0, score:0, category:'all', fetched:false };
+
 function launchTriviaGame(container) {
-  var questions = [
-    { q:'What year was ZYNC founded?', opts:['2023','2024','2025','2026'], ans:3 },
-    { q:'What does API stand for?', opts:['App Program Interface','Application Programming Interface','Automated Process Integration','Applied Programming Index'], ans:1 },
-    { q:'Which protocol powers live video calls?', opts:['HTTP','FTP','WebRTC','WebSocket'], ans:2 },
-    { q:'What does CSS stand for?', opts:['Creative Style Sheets','Cascading Style Sheets','Computer Style System','Coded Style Syntax'], ans:1 },
-    { q:'How many bits in a byte?', opts:['4','16','8','32'], ans:2 }
-  ];
-  var cur=0, score=0;
-  function showQ() {
-    if (cur>=questions.length) {
-      container.innerHTML='<div style="text-align:center;padding:30px"><div style="font-size:32px;margin-bottom:10px">🏆</div><div style="font-size:16px;font-weight:700;color:var(--green3)">Score: '+score+'/'+questions.length+'</div><div style="font-size:13px;color:var(--muted);margin-top:6px">'+(score===questions.length?'Perfect!':score>3?'Great job!':'Keep learning!')+'</div><button class="btn-pay" style="margin-top:16px" onclick="launchTriviaGame(document.getElementById(\'game-content\'))">Play Again</button></div>';
-      return;
-    }
-    var q=questions[cur];
-    container.innerHTML='<div style="padding:16px"><div style="font-size:11px;color:var(--muted);margin-bottom:8px">Question '+(cur+1)+'/'+questions.length+'</div><div style="font-size:14px;font-weight:700;color:var(--moon);margin-bottom:16px;line-height:1.5">'+esc(q.q)+'</div>'+
-      q.opts.map(function(o,i){return '<button onclick="answerTrivia('+i+')" style="display:block;width:100%;text-align:left;padding:10px 14px;margin-bottom:8px;background:var(--deep);border:1px solid var(--border);border-radius:10px;color:var(--moon);font-size:12px;cursor:pointer;font-family:\'DM Sans\',sans-serif">'+esc(o)+'</button>';}).join('')+
-    '</div>';
-    window.answerTrivia = function(idx) {
-      var btns = container.querySelectorAll('button');
-      btns[idx].style.background = idx===q.ans ? 'rgba(34,197,94,.2)' : 'rgba(239,68,68,.2)';
-      btns[idx].style.borderColor = idx===q.ans ? 'var(--green3)' : '#ef4444';
-      btns[q.ans].style.background = 'rgba(34,197,94,.2)';
-      btns[q.ans].style.borderColor = 'var(--green3)';
-      if (idx===q.ans) score++;
-      btns.forEach(function(b){b.onclick=null;});
-      setTimeout(function(){cur++;showQ();},900);
+  triviaState.cur=0; triviaState.score=0;
+  container.innerHTML = [
+    '<div style="padding:16px">',
+      '<div style="font-size:13px;font-weight:700;color:var(--moon);margin-bottom:4px;text-align:center">🧠 Trivia</div>',
+      '<div style="font-size:11px;color:var(--muted);text-align:center;margin-bottom:14px">Pick a category and difficulty</div>',
+      '<label class="m-label">Category</label>',
+      '<select id="tri-cat" class="m-input" style="margin-bottom:10px">',
+        '<option value="all">🎲 Random Mix</option>',
+        '<option value="🌍 Geography">🌍 Geography</option>',
+        '<option value="🔬 Science">🔬 Science</option>',
+        '<option value="📚 History">📚 History</option>',
+        '<option value="🎬 Entertainment">🎬 Entertainment</option>',
+        '<option value="⚽ Sports">⚽ Sports</option>',
+        '<option value="💡 General">💡 General</option>',
+        '<option value="🌐 Tech">🌐 Tech</option>',
+      '</select>',
+      '<label class="m-label">Number of Questions</label>',
+      '<select id="tri-count" class="m-input" style="margin-bottom:10px">',
+        '<option value="5">5 Questions (Quick)</option>',
+        '<option value="10" selected>10 Questions (Normal)</option>',
+        '<option value="15">15 Questions (Challenge)</option>',
+        '<option value="20">20 Questions (Expert)</option>',
+      '</select>',
+      '<label class="m-label">Source</label>',
+      '<select id="tri-source" class="m-input" style="margin-bottom:16px">',
+        '<option value="api">🌐 Live Questions (from internet)</option>',
+        '<option value="local">📦 Built-in Questions (offline)</option>',
+      '</select>',
+      '<button class="btn-pay" onclick="startTriviaGame()">▶ Start Trivia</button>',
+    '</div>'
+  ].join('');
+}
+
+function startTriviaGame() {
+  var cat    = document.getElementById('tri-cat').value;
+  var count  = parseInt(document.getElementById('tri-count').value)||10;
+  var source = document.getElementById('tri-source').value;
+  var gc     = document.getElementById('game-content');
+  triviaState.category=cat; triviaState.cur=0; triviaState.score=0;
+  gc.innerHTML='<div style="text-align:center;padding:40px;color:var(--muted)"><div style="font-size:28px;margin-bottom:10px">⏳</div>Loading questions...</div>';
+
+  if(source==='api'){
+    // Open Trivia DB — free, no key needed
+    var catMap = {
+      '🌍 Geography':'22','🔬 Science':'17','📚 History':'23',
+      '🎬 Entertainment':'11','⚽ Sports':'21','💡 General':'9','🌐 Tech':'18'
     };
+    var apiCat = cat==='all' ? '' : '&category='+catMap[cat];
+    var url='https://opentdb.com/api.php?amount='+count+'&type=multiple'+apiCat+'&encode=url3986';
+    fetch(url).then(function(r){return r.json();}).then(function(data){
+      if(!data.results||!data.results.length) throw new Error('No results');
+      triviaState.current = data.results.map(function(q){
+        var correct = decodeURIComponent(q.correct_answer);
+        var wrongs  = q.incorrect_answers.map(function(a){return decodeURIComponent(a);});
+        var opts    = wrongs.concat([correct]).sort(function(){return Math.random()-.5;});
+        return { q:decodeURIComponent(q.question), opts:opts, ans:opts.indexOf(correct), cat:decodeURIComponent(q.category) };
+      });
+      runTriviaQuestion(gc);
+    }).catch(function(){
+      showToast('Could not load live questions — using built-in');
+      useTriviaLocal(cat, count, gc);
+    });
+  } else {
+    useTriviaLocal(cat, count, gc);
   }
-  showQ();
+}
+
+function useTriviaLocal(cat, count, gc) {
+  var pool = cat==='all' ? TRIVIA_LOCAL : TRIVIA_LOCAL.filter(function(q){return q.cat===cat;});
+  // Shuffle
+  var shuffled = pool.slice().sort(function(){return Math.random()-.5;});
+  triviaState.current = shuffled.slice(0, Math.min(count, shuffled.length));
+  runTriviaQuestion(gc);
+}
+
+function runTriviaQuestion(gc) {
+  var questions = triviaState.current;
+  if(triviaState.cur >= questions.length){
+    var sc=triviaState.score, tot=questions.length;
+    var pct=Math.round(sc/tot*100);
+    var msg = pct===100?'🎯 Perfect score!':pct>=80?'🌟 Excellent!':pct>=60?'👍 Good job!':pct>=40?'📖 Keep learning!':'💪 Practice more!';
+    gc.innerHTML='<div style="text-align:center;padding:30px">'+
+      '<div style="font-size:48px;margin-bottom:10px">'+(pct===100?'🏆':pct>=60?'🥈':'🎗️')+'</div>'+
+      '<div style="font-size:20px;font-weight:900;color:var(--green3)">'+sc+'/'+tot+'</div>'+
+      '<div style="font-size:13px;color:var(--muted);margin:4px 0 6px">'+Math.round(sc/tot*100)+'% correct</div>'+
+      '<div style="font-size:14px;color:var(--moon);margin-bottom:20px">'+msg+'</div>'+
+      '<button class="btn-pay" onclick="launchTriviaGame(document.getElementById(&quot;game-content&quot;))">🔄 Play Again</button>'+
+    '</div>';
+    // Save high score
+    if(state.user){
+      db.collection('users').doc(state.user.uid).get().then(function(d){
+        var best=(d.data()&&d.data().triviaHighScore)||0;
+        if(sc>best) db.collection('users').doc(state.user.uid).update({triviaHighScore:sc}).catch(function(){});
+      }).catch(function(){});
+    }
+    return;
+  }
+  var q = questions[triviaState.cur];
+  var prog = triviaState.cur+1;
+  var tot  = questions.length;
+  gc.innerHTML='<div style="padding:16px">'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'+
+      '<div style="font-size:10px;color:var(--muted)">'+esc(q.cat||'Trivia')+'</div>'+
+      '<div style="font-size:10px;color:var(--muted)">'+prog+'/'+tot+' · ⭐'+triviaState.score+'</div>'+
+    '</div>'+
+    '<div style="background:var(--deep);border-radius:6px;height:4px;margin-bottom:14px">'+
+      '<div style="background:var(--green3);height:4px;border-radius:6px;width:'+(prog/tot*100)+'%;transition:width .4s"></div>'+
+    '</div>'+
+    '<div style="font-size:14px;font-weight:700;color:var(--moon);margin-bottom:16px;line-height:1.6">'+esc(q.q)+'</div>'+
+    q.opts.map(function(o,i){
+      return '<button onclick="answerTrivia('+i+')" style="display:block;width:100%;text-align:left;padding:11px 14px;margin-bottom:8px;background:var(--deep);border:1px solid var(--border);border-radius:10px;color:var(--moon);font-size:12px;cursor:pointer;font-family:DM Sans,sans-serif;transition:all .15s">'+
+        '<span style="display:inline-block;width:22px;height:22px;border-radius:50%;background:var(--green2);color:#fff;font-size:10px;font-weight:700;text-align:center;line-height:22px;margin-right:8px">'+['A','B','C','D'][i]+'</span>'+
+        esc(o)+'</button>';
+    }).join('')+
+  '</div>';
+
+  window.answerTrivia = function(idx){
+    var btns = gc.querySelectorAll('button');
+    var correct = q.ans;
+    btns.forEach(function(b,i){
+      b.onclick=null;
+      if(i===correct){ b.style.background='rgba(34,197,94,.2)'; b.style.borderColor='var(--green3)'; }
+      else if(i===idx && idx!==correct){ b.style.background='rgba(239,68,68,.15)'; b.style.borderColor='#ef4444'; }
+    });
+    if(idx===correct) triviaState.score++;
+    triviaState.cur++;
+    setTimeout(function(){ runTriviaQuestion(gc); }, 1000);
+  };
 }
 
 // ══════════════════════════════════════════════════════════════
