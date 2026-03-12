@@ -498,6 +498,23 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
 .link-preview-url{font-size:10px;color:var(--muted)}
 /* ── SCHEDULED ── */
 .sched-item{background:var(--deep);border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:8px}
+
+/* ── LIVE STREAMING ── */
+.live-badge{background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;animation:pulse 1.2s infinite;letter-spacing:.5px;vertical-align:middle}
+.live-card{background:var(--deep);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:10px;cursor:pointer;transition:border-color .2s}
+.live-card:hover{border-color:#ef4444}
+.live-thumb{width:100%;height:140px;background:linear-gradient(135deg,#1a1a2e,#16213e);position:relative;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px}
+.live-host-av{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff;border:3px solid #ef4444}
+.live-viewers-pill{position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.7);color:#fff;font-size:10px;padding:3px 9px;border-radius:20px}
+.live-stream-view{position:fixed;inset:0;background:#000;z-index:600;display:flex;flex-direction:column;overflow:hidden}
+.live-stream-video{width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0}
+.live-overlay-top{position:absolute;top:0;left:0;right:0;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(to bottom,rgba(0,0,0,.7),transparent);z-index:10}
+.live-overlay-bot{position:absolute;bottom:0;left:0;right:0;padding:10px 12px;background:linear-gradient(to top,rgba(0,0,0,.8),transparent);z-index:10;display:flex;gap:8px;align-items:center}
+.live-chat-scroll{position:absolute;bottom:60px;left:0;right:0;max-height:220px;overflow-y:auto;padding:0 12px;display:flex;flex-direction:column;justify-content:flex-end;gap:4px;z-index:9}
+.live-chat-bubble{background:rgba(0,0,0,.55);backdrop-filter:blur(4px);color:#fff;border-radius:16px;padding:5px 11px;font-size:11px;width:fit-content;max-width:80%;word-break:break-word}
+.live-chat-inp{flex:1;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:20px;padding:8px 14px;color:#fff;font-size:12px;outline:none;font-family:'DM Sans',sans-serif}
+.live-chat-inp::placeholder{color:rgba(255,255,255,.4)}
+.live-send-btn{width:36px;height:36px;border-radius:50%;background:var(--green2);border:none;color:#fff;font-size:14px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
@@ -593,6 +610,8 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
         <button class="nav-item" id="nav-admin" style="display:none"><span class="nav-ic">👑</span> Admin<span class="admin-badge">OWNER</span></button>
         <div style="height:1px;background:var(--border);margin:8px 0"></div>
         <button class="nav-item" id="nav-support" onclick="openSupportModal()"><span class="nav-ic">📧</span> Contact Support</button>
+        <button class="nav-item" id="nav-live" onclick="openGoLive()"><span class="nav-ic">🔴</span> Go Live</button>
+        <button class="nav-item" onclick="openLivesList()"><span class="nav-ic">📺</span> Watch Live</button>
         <button class="nav-item" onclick="openLeaderboard()"><span class="nav-ic">🏆</span> Leaderboard</button>
         <button class="nav-item" onclick="openScheduled()"><span class="nav-ic">🌙</span> Scheduled</button>
         <button class="nav-item" onclick="openQRCode()"><span class="nav-ic">📱</span> My QR Code</button>
@@ -3379,6 +3398,89 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
   </div>
 </div>
 
+<!-- GO LIVE SETUP MODAL -->
+<div class="modal-overlay" id="modal-go-live">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-head"><span style="font-size:15px;font-weight:700">🔴 Go Live</span><button class="modal-close" onclick="cancelGoLive()">✕</button></div>
+    <div style="padding:16px">
+      <div style="background:var(--deep);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:14px;position:relative">
+        <video id="live-preview-cam" autoplay muted playsinline style="width:100%;height:180px;object-fit:cover;background:#000;display:block"></video>
+        <div style="position:absolute;top:8px;left:8px"><span class="live-badge">PREVIEW</span></div>
+      </div>
+      <label class="m-label">Stream Title</label>
+      <input class="m-input" id="live-title-inp" placeholder="What are you going live about?" style="margin-bottom:14px" maxlength="80">
+      <label class="m-label">Category</label>
+      <select class="m-input" id="live-cat-inp" style="margin-bottom:14px">
+        <option value="general">General</option>
+        <option value="gaming">Gaming</option>
+        <option value="music">Music</option>
+        <option value="talk">Talk / Chat</option>
+        <option value="education">Education</option>
+        <option value="fitness">Fitness</option>
+        <option value="cooking">Cooking</option>
+        <option value="art">Art</option>
+      </select>
+      <div class="m-err" id="live-err"></div>
+      <button class="btn-pay" id="live-start-btn" style="background:linear-gradient(135deg,#b91c1c,#ef4444)" onclick="startLiveStream()">🔴 Start Streaming</button>
+    </div>
+  </div>
+</div>
+
+<!-- WATCH LIVE LIST MODAL -->
+<div class="modal-overlay" id="modal-lives-list">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-head"><span style="font-size:15px;font-weight:700">📺 Live Now</span><button class="modal-close" onclick="closeModal('modal-lives-list')">✕</button></div>
+    <div style="padding:16px">
+      <div id="lives-list-container"><div style="text-align:center;padding:30px;color:var(--muted)">Loading streams...</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- HOST BROADCAST VIEW (fullscreen overlay) -->
+<div id="live-host-view" style="display:none;position:fixed;inset:0;z-index:600;background:#000;overflow:hidden">
+  <video id="live-host-video" style="width:100%;height:100%;object-fit:cover;transform:scaleX(-1)" autoplay muted playsinline></video>
+  <div class="live-overlay-top">
+    <div style="display:flex;align-items:center;gap:8px">
+      <span class="live-badge">LIVE</span>
+      <span style="font-size:12px;color:#fff;font-weight:600" id="live-host-title-lbl">My Stream</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="font-size:11px;color:rgba(255,255,255,.8)">👁 <span id="live-host-viewer-lbl">0</span> viewers</span>
+      <button onclick="endLiveStream()" style="background:rgba(239,68,68,.9);border:none;border-radius:20px;padding:6px 14px;color:#fff;font-size:11px;cursor:pointer;font-weight:700;font-family:'DM Sans',sans-serif">End Live</button>
+    </div>
+  </div>
+  <div class="live-chat-scroll" id="live-host-chat"></div>
+  <div class="live-overlay-bot">
+    <div style="flex:1;font-size:11px;color:rgba(255,255,255,.6)">You are live 🔴 — viewers can see and chat with you</div>
+    <button onclick="toggleHostCam()" style="background:rgba(255,255,255,.15);border:none;border-radius:20px;padding:6px 12px;color:#fff;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif">🔄 Flip</button>
+  </div>
+</div>
+
+<!-- VIEWER WATCH VIEW (fullscreen overlay) -->
+<div id="live-watch-view" style="display:none;position:fixed;inset:0;z-index:600;background:#000;overflow:hidden">
+  <video id="live-watch-video" style="width:100%;height:100%;object-fit:cover" autoplay playsinline></video>
+  <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.5) 0%,transparent 30%,transparent 60%,rgba(0,0,0,.6) 100%)"></div>
+  <div class="live-overlay-top">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div id="watch-host-av" style="width:32px;height:32px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff">Z</div>
+      <div>
+        <div style="font-size:12px;font-weight:700;color:#fff" id="watch-host-name">Host</div>
+        <div style="font-size:10px;color:rgba(255,255,255,.7)">👁 <span id="watch-viewer-lbl">0</span> viewers</div>
+      </div>
+      <span class="live-badge">LIVE</span>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button onclick="sendLiveTip()" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:5px 12px;color:#fff;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif">💝 Tip</button>
+      <button onclick="leaveStream()" style="background:rgba(239,68,68,.8);border:none;border-radius:20px;padding:5px 12px;color:#fff;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif">✕ Leave</button>
+    </div>
+  </div>
+  <div class="live-chat-scroll" id="live-watch-chat"></div>
+  <div class="live-overlay-bot">
+    <input class="live-chat-inp" id="live-watch-inp" placeholder="Say something..." maxlength="100" onkeydown="if(event.key==='Enter')sendViewerChat()">
+    <button class="live-send-btn" onclick="sendViewerChat()">➤</button>
+  </div>
+</div>
+
 <!-- VIDEO AD OVERLAY -->
 <div class="video-ad-overlay" id="video-ad-overlay">
   <div class="va-countdown" id="va-countdown">AD · SKIP IN 5s</div>
@@ -6033,6 +6135,406 @@ function openCreatorSub(creatorId,creatorName,price){
     },
     onClose:function(){showToast('Payment cancelled');}
   }).openIframe();
+}
+
+
+// ══════════════════════════════════════════════════════
+// 🔴 ZYNC LIVE STREAMING — WebRTC + Firestore Signaling
+// ══════════════════════════════════════════════════════
+
+var liveState = {
+  localStream: null,
+  peerConnections: {},
+  currentLiveId: null,
+  isHost: false,
+  chatUnsub: null,
+  viewerUnsub: null,
+  viewerCountInterval: null,
+  hostFacingUser: true
+};
+
+var ICE_SERVERS = { iceServers: [
+  { urls: 'stun:stun.l.google.com:19302' },
+  { urls: 'stun:stun1.l.google.com:19302' },
+  { urls: 'stun:stun2.l.google.com:19302' }
+]};
+
+// ── OPEN GO LIVE SETUP ──
+function openGoLive() {
+  if (!state.user) { showToast('Please login first'); return; }
+  openModal('modal-go-live');
+  document.getElementById('live-err').textContent = '';
+  document.getElementById('live-title-inp').value = '';
+  // Start camera preview
+  navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+    .then(function(stream) {
+      liveState.localStream = stream;
+      document.getElementById('live-preview-cam').srcObject = stream;
+    })
+    .catch(function(err) {
+      document.getElementById('live-err').textContent = 'Camera/mic access denied. Please allow and retry.';
+    });
+}
+
+function cancelGoLive() {
+  // Stop preview stream
+  if (liveState.localStream) {
+    liveState.localStream.getTracks().forEach(function(t) { t.stop(); });
+    liveState.localStream = null;
+  }
+  closeModal('modal-go-live');
+}
+
+// ── START BROADCASTING ──
+function startLiveStream() {
+  var title = document.getElementById('live-title-inp').value.trim();
+  var cat   = document.getElementById('live-cat-inp').value;
+  var err   = document.getElementById('live-err');
+  if (!title) { err.textContent = 'Please enter a stream title'; return; }
+  if (!liveState.localStream) { err.textContent = 'Camera not ready. Please allow access.'; return; }
+
+  var btn = document.getElementById('live-start-btn');
+  btn.disabled = true; btn.textContent = 'Starting…';
+
+  var liveDoc = {
+    hostId:      state.user.uid,
+    hostName:    (state.profile && state.profile.name) || 'ZYNCer',
+    hostHandle:  (state.profile && state.profile.handle) || 'user',
+    hostColor:   (state.profile && state.profile.color) || COLORS[0],
+    isPremium:   (state.profile && state.profile.isPremium) || false,
+    isVerified:  (state.profile && state.profile.isVerified) || false,
+    title:       title,
+    category:    cat,
+    viewers:     0,
+    live:        true,
+    createdAt:   firebase.firestore.FieldValue.serverTimestamp()
+  };
+
+  db.collection('live_streams').add(liveDoc).then(function(docRef) {
+    liveState.currentLiveId = docRef.id;
+    liveState.isHost         = true;
+
+    // Close modal, open host view
+    closeModal('modal-go-live');
+    document.getElementById('live-host-title-lbl').textContent = title;
+    document.getElementById('live-host-video').srcObject = liveState.localStream;
+    document.getElementById('live-host-view').style.display = 'block';
+
+    // Post a spark announcing the live
+    db.collection('sparks').add({
+      text: '🔴 ' + esc((state.profile && state.profile.name) || 'ZYNCer') + ' just went LIVE: "' + esc(title) + '" — join now!',
+      authorId: state.user.uid,
+      authorName: (state.profile && state.profile.name) || 'ZYNCer',
+      authorHandle: (state.profile && state.profile.handle) || 'user',
+      authorColor: (state.profile && state.profile.color) || COLORS[0],
+      isPremium: (state.profile && state.profile.isPremium) || false,
+      isVerified: (state.profile && state.profile.isVerified) || false,
+      category: 'all',
+      isLiveAnnouncement: true,
+      liveId: docRef.id,
+      likes: [], saved: [], commentCount: 0, reposts: 0,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).catch(function() {});
+
+    // Listen for viewer join signals (WebRTC offers)
+    db.collection('live_streams').doc(docRef.id)
+      .collection('signals').where('type','==','offer')
+      .onSnapshot(function(snap) {
+        snap.docChanges().forEach(function(change) {
+          if (change.type === 'added') {
+            handleViewerOffer(change.doc.id, change.doc.data());
+          }
+        });
+      });
+
+    // Listen for live chat
+    subscribeHostChat(docRef.id);
+
+    // Update viewer count every 10s
+    liveState.viewerCountInterval = setInterval(function() {
+      db.collection('live_streams').doc(liveState.currentLiveId).get()
+        .then(function(d) {
+          if (d.exists) {
+            document.getElementById('live-host-viewer-lbl').textContent = d.data().viewers || 0;
+          }
+        }).catch(function() {});
+    }, 10000);
+
+    btn.disabled = false; btn.textContent = '🔴 Start Streaming';
+  }).catch(function(e) {
+    err.textContent = 'Failed to start stream. Try again.';
+    btn.disabled = false; btn.textContent = '🔴 Start Streaming';
+  });
+}
+
+// ── HOST: handle incoming viewer WebRTC offer ──
+function handleViewerOffer(viewerId, data) {
+  if (liveState.peerConnections[viewerId]) return;
+  var pc = new RTCPeerConnection(ICE_SERVERS);
+  liveState.peerConnections[viewerId] = pc;
+
+  // Add local tracks
+  liveState.localStream.getTracks().forEach(function(track) {
+    pc.addTrack(track, liveState.localStream);
+  });
+
+  // ICE candidates from host to viewer
+  pc.onicecandidate = function(e) {
+    if (e.candidate) {
+      db.collection('live_streams').doc(liveState.currentLiveId)
+        .collection('signals').doc(viewerId).collection('host_ice').add(e.candidate.toJSON())
+        .catch(function() {});
+    }
+  };
+
+  pc.setRemoteDescription(new RTCSessionDescription({ type: 'offer', sdp: data.sdp }))
+    .then(function() { return pc.createAnswer(); })
+    .then(function(answer) { return pc.setLocalDescription(answer).then(function() { return answer; }); })
+    .then(function(answer) {
+      db.collection('live_streams').doc(liveState.currentLiveId)
+        .collection('signals').doc(viewerId).update({ type: 'answer', answerSdp: answer.sdp })
+        .catch(function() {});
+    })
+    .catch(function(e) { console.warn('WebRTC offer handling error:', e); });
+
+  // Listen for viewer ICE candidates
+  db.collection('live_streams').doc(liveState.currentLiveId)
+    .collection('signals').doc(viewerId).collection('viewer_ice')
+    .onSnapshot(function(snap) {
+      snap.docChanges().forEach(function(change) {
+        if (change.type === 'added') {
+          pc.addIceCandidate(new RTCIceCandidate(change.doc.data())).catch(function() {});
+        }
+      });
+    });
+}
+
+// ── END STREAM (host) ──
+function endLiveStream() {
+  if (!confirm('End your live stream?')) return;
+  clearInterval(liveState.viewerCountInterval);
+  if (liveState.localStream) {
+    liveState.localStream.getTracks().forEach(function(t) { t.stop(); });
+    liveState.localStream = null;
+  }
+  Object.values(liveState.peerConnections).forEach(function(pc) { try { pc.close(); } catch(e) {} });
+  liveState.peerConnections = {};
+  if (liveState.chatUnsub) { liveState.chatUnsub(); liveState.chatUnsub = null; }
+
+  if (liveState.currentLiveId) {
+    db.collection('live_streams').doc(liveState.currentLiveId).update({ live: false, endedAt: firebase.firestore.FieldValue.serverTimestamp() }).catch(function() {});
+  }
+
+  liveState.currentLiveId = null;
+  liveState.isHost = false;
+  document.getElementById('live-host-view').style.display = 'none';
+  showToast('Stream ended! 👋');
+}
+
+function toggleHostCam() {
+  liveState.hostFacingUser = !liveState.hostFacingUser;
+  if (liveState.localStream) {
+    liveState.localStream.getTracks().forEach(function(t) { t.stop(); });
+  }
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: liveState.hostFacingUser ? 'user' : 'environment' }, audio: true })
+    .then(function(stream) {
+      liveState.localStream = stream;
+      document.getElementById('live-host-video').srcObject = stream;
+      // Re-add tracks to all peer connections
+      Object.values(liveState.peerConnections).forEach(function(pc) {
+        var senders = pc.getSenders();
+        stream.getTracks().forEach(function(track) {
+          var sender = senders.find(function(s) { return s.track && s.track.kind === track.kind; });
+          if (sender) sender.replaceTrack(track);
+        });
+      });
+    }).catch(function() { showToast('Could not switch camera'); });
+}
+
+// ── WATCH LIVE (viewer joins) ──
+function openLivesList() {
+  if (!state.user) { showToast('Please login first'); return; }
+  openModal('modal-lives-list');
+  var container = document.getElementById('lives-list-container');
+  container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Loading...</div>';
+
+  db.collection('live_streams').where('live','==',true).orderBy('createdAt','desc').get()
+    .then(function(snap) {
+      if (snap.empty) {
+        container.innerHTML = '<div style="text-align:center;padding:30px"><div style="font-size:32px;margin-bottom:10px">📺</div><div style="color:var(--muted)">No one is live right now.<br>Be the first to go live!</div><button class="btn-pay" style="margin-top:14px" onclick="closeModal(\'modal-lives-list\');openGoLive()">🔴 Go Live</button></div>';
+        return;
+      }
+      container.innerHTML = snap.docs.map(function(d) {
+        var s = d.data();
+        var initial = (s.hostName || 'Z').charAt(0).toUpperCase();
+        return '<div class="live-card" onclick="joinStream(\'' + d.id + '\',\'' + esc(s.hostName||'ZYNCer') + '\',\'' + esc(s.hostHandle||'user') + '\',\'' + esc(s.hostColor||COLORS[0]) + '\')">' +
+          '<div class="live-thumb">' +
+            '<div class="live-host-av" style="background:' + esc(s.hostColor||COLORS[0]) + '">' + initial + '</div>' +
+            '<span class="live-badge" style="position:absolute;top:8px;left:8px">LIVE</span>' +
+            '<div class="live-viewers-pill">👁 ' + (s.viewers||0) + ' watching</div>' +
+          '</div>' +
+          '<div style="padding:10px">' +
+            '<div style="font-size:12px;font-weight:700;color:var(--moon)">' + esc(s.title||'Untitled Stream') + '</div>' +
+            '<div style="font-size:10px;color:var(--muted);margin-top:2px">@' + esc(s.hostHandle||'user') + ' · ' + esc(s.category||'general') + '</div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    })
+    .catch(function() { container.innerHTML = '<div style="color:#fca5a5;padding:10px">Error loading streams</div>'; });
+}
+
+function joinStream(liveId, hostName, hostHandle, hostColor) {
+  closeModal('modal-lives-list');
+  liveState.currentLiveId = liveId;
+  liveState.isHost = false;
+
+  // Update viewer count
+  db.collection('live_streams').doc(liveId).update({ viewers: firebase.firestore.FieldValue.increment(1) }).catch(function() {});
+
+  // Set up watch view UI
+  document.getElementById('watch-host-name').textContent = hostName;
+  document.getElementById('watch-host-av').textContent = (hostName||'Z').charAt(0).toUpperCase();
+  document.getElementById('watch-host-av').style.background = hostColor||COLORS[0];
+  document.getElementById('live-watch-chat').innerHTML = '';
+  document.getElementById('live-watch-view').style.display = 'block';
+
+  // WebRTC: create offer and send to host via Firestore signaling
+  var viewerId = state.user.uid + '_' + Date.now();
+  var pc = new RTCPeerConnection(ICE_SERVERS);
+  liveState.peerConnections[viewerId] = pc;
+
+  pc.ontrack = function(e) {
+    var vid = document.getElementById('live-watch-video');
+    if (vid.srcObject !== e.streams[0]) vid.srcObject = e.streams[0];
+  };
+
+  pc.onicecandidate = function(e) {
+    if (e.candidate) {
+      db.collection('live_streams').doc(liveId)
+        .collection('signals').doc(viewerId).collection('viewer_ice').add(e.candidate.toJSON())
+        .catch(function() {});
+    }
+  };
+
+  // Create offer
+  pc.createOffer({ offerToReceiveAudio: true, offerToReceiveVideo: true })
+    .then(function(offer) { return pc.setLocalDescription(offer).then(function() { return offer; }); })
+    .then(function(offer) {
+      return db.collection('live_streams').doc(liveId)
+        .collection('signals').doc(viewerId).set({ type: 'offer', sdp: offer.sdp, viewerId: viewerId });
+    })
+    .catch(function(e) { console.warn('WebRTC offer error:', e); showToast('Connection error. Try again.'); });
+
+  // Listen for host's answer
+  db.collection('live_streams').doc(liveId)
+    .collection('signals').doc(viewerId)
+    .onSnapshot(function(snap) {
+      var data = snap.data();
+      if (data && data.answerSdp && pc.signalingState === 'have-local-offer') {
+        pc.setRemoteDescription(new RTCSessionDescription({ type: 'answer', sdp: data.answerSdp }))
+          .catch(function(e) { console.warn('Answer error:', e); });
+      }
+    });
+
+  // Listen for host ICE candidates
+  db.collection('live_streams').doc(liveId)
+    .collection('signals').doc(viewerId).collection('host_ice')
+    .onSnapshot(function(snap) {
+      snap.docChanges().forEach(function(change) {
+        if (change.type === 'added') {
+          pc.addIceCandidate(new RTCIceCandidate(change.doc.data())).catch(function() {});
+        }
+      });
+    });
+
+  // Check if stream ended
+  liveState.viewerUnsub = db.collection('live_streams').doc(liveId).onSnapshot(function(d) {
+    if (d.exists && d.data().live === false) {
+      showToast('Stream has ended');
+      leaveStream();
+    }
+    var viewers = d.exists ? (d.data().viewers||0) : 0;
+    document.getElementById('watch-viewer-lbl').textContent = viewers;
+  });
+
+  // Subscribe chat
+  subscribeViewerChat(liveId);
+}
+
+function leaveStream() {
+  if (liveState.currentLiveId) {
+    db.collection('live_streams').doc(liveState.currentLiveId).update({ viewers: firebase.firestore.FieldValue.increment(-1) }).catch(function() {});
+  }
+  Object.values(liveState.peerConnections).forEach(function(pc) { try { pc.close(); } catch(e) {} });
+  liveState.peerConnections = {};
+  if (liveState.chatUnsub) { liveState.chatUnsub(); liveState.chatUnsub = null; }
+  if (liveState.viewerUnsub) { liveState.viewerUnsub(); liveState.viewerUnsub = null; }
+  liveState.currentLiveId = null;
+  document.getElementById('live-watch-view').style.display = 'none';
+}
+
+// ── LIVE CHAT ──
+function subscribeHostChat(liveId) {
+  liveState.chatUnsub = db.collection('live_streams').doc(liveId).collection('chat')
+    .orderBy('createdAt','asc').limitToLast(100)
+    .onSnapshot(function(snap) {
+      snap.docChanges().forEach(function(change) {
+        if (change.type === 'added') appendLiveChatMsg('live-host-chat', change.doc.data());
+      });
+    });
+}
+
+function subscribeViewerChat(liveId) {
+  liveState.chatUnsub = db.collection('live_streams').doc(liveId).collection('chat')
+    .orderBy('createdAt','asc').limitToLast(100)
+    .onSnapshot(function(snap) {
+      snap.docChanges().forEach(function(change) {
+        if (change.type === 'added') appendLiveChatMsg('live-watch-chat', change.doc.data());
+      });
+    });
+}
+
+function appendLiveChatMsg(containerId, data) {
+  var container = document.getElementById(containerId);
+  if (!container) return;
+  var div = document.createElement('div');
+  div.className = 'live-chat-bubble';
+  div.innerHTML = '<strong style="color:var(--green3)">' + esc(data.name||'ZYNCer') + '</strong>: ' + esc(data.text||'');
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function sendViewerChat() {
+  var inp = document.getElementById('live-watch-inp');
+  var text = inp.value.trim();
+  if (!text || !liveState.currentLiveId || !state.user) return;
+  inp.value = '';
+  db.collection('live_streams').doc(liveState.currentLiveId).collection('chat').add({
+    uid: state.user.uid,
+    name: (state.profile && state.profile.name) || 'ZYNCer',
+    text: text,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).catch(function() {});
+}
+
+function subscribeHostChat(liveId) {
+  liveState.chatUnsub = db.collection('live_streams').doc(liveId).collection('chat')
+    .orderBy('createdAt','asc').limitToLast(100)
+    .onSnapshot(function(snap) {
+      snap.docChanges().forEach(function(change) {
+        if (change.type === 'added') appendLiveChatMsg('live-host-chat', change.doc.data());
+      });
+    });
+}
+
+function sendLiveTip() {
+  if (!liveState.currentLiveId || !state.user) return;
+  db.collection('live_streams').doc(liveState.currentLiveId).get().then(function(d) {
+    if (!d.exists) return;
+    var hostId = d.data().hostId;
+    var hostName = d.data().hostName || 'Creator';
+    openTip(hostId, hostName);
+  });
 }
 
 
