@@ -23,6 +23,8 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
 <style>
 :root{
   --bg:#0a1a0f;--card:#0f2318;--deep:#060f09;
@@ -515,6 +517,43 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
 .live-chat-inp{flex:1;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:20px;padding:8px 14px;color:#fff;font-size:12px;outline:none;font-family:'DM Sans',sans-serif}
 .live-chat-inp::placeholder{color:rgba(255,255,255,.4)}
 .live-send-btn{width:36px;height:36px;border-radius:50%;background:var(--green2);border:none;color:#fff;font-size:14px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+
+/* ── CALLS ── */
+.call-overlay{position:fixed;inset:0;background:#000;z-index:700;display:none;flex-direction:column;align-items:center;justify-content:center}
+.call-remote-video{width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0}
+.call-local-video{position:absolute;top:16px;right:16px;width:100px;height:140px;object-fit:cover;border-radius:12px;border:2px solid var(--green3);z-index:5;display:none}
+.call-info{position:absolute;top:0;left:0;right:0;padding:20px;text-align:center;z-index:10;background:linear-gradient(to bottom,rgba(0,0,0,.7),transparent)}
+.call-avatar{width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;color:#fff;margin:0 auto 10px;border:3px solid var(--green3)}
+.call-btns{position:absolute;bottom:40px;display:flex;gap:20px;z-index:10}
+.call-btn{width:56px;height:56px;border-radius:50%;border:none;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center}
+/* ── INCOMING CALL ── */
+.incoming-call-banner{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--green3);border-radius:16px;padding:14px 18px;display:none;align-items:center;gap:14px;z-index:800;box-shadow:0 8px 32px rgba(0,0,0,.5);min-width:280px}
+/* ── GROUPS ── */
+.group-item{display:flex;align-items:center;gap:10px;padding:10px;background:var(--deep);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;cursor:pointer;transition:border-color .2s}
+.group-item:hover{border-color:var(--green3)}
+.group-av{width:42px;height:42px;border-radius:50%;background:var(--green2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+/* ── ADVANCED SEARCH ── */
+.search-tab{padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
+.search-tab.active{background:var(--green2);color:#fff;border-color:var(--green2)}
+.search-result-item{display:flex;align-items:center;gap:10px;padding:8px;border-radius:10px;cursor:pointer;border:1px solid transparent;transition:all .2s}
+.search-result-item:hover{background:var(--deep);border-color:var(--border)}
+/* ── MUSIC ── */
+.music-item{display:flex;align-items:center;gap:10px;padding:10px;background:var(--deep);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;cursor:pointer;transition:all .2s}
+.music-item:hover,.music-item.selected{border-color:var(--green3)}
+/* ── GAMES ── */
+.game-card{background:var(--deep);border:1px solid var(--border);border-radius:14px;padding:16px;text-align:center;cursor:pointer;transition:all .2s;flex:1;min-width:120px}
+.game-card:hover{border-color:var(--green3);transform:translateY(-2px)}
+.game-container{position:fixed;inset:0;background:var(--bg);z-index:600;display:none;flex-direction:column;overflow-y:auto}
+.game-header{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+/* ── GIFTS ── */
+.gift-panel{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--border);border-radius:20px 20px 0 0;padding:16px;z-index:650;display:none;flex-direction:column;gap:14px}
+.gift-item{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px;background:var(--deep);border:1px solid var(--border);border-radius:12px;cursor:pointer;transition:all .2s;flex:1}
+.gift-item:hover{border-color:var(--green3);transform:translateY(-2px)}
+/* ── GROUP CHAT MODAL ── */
+#modal-group-chat{position:fixed;inset:0;z-index:600;background:var(--bg);display:none;flex-direction:column}
+.group-chat-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--card)}
+.group-chat-msgs{flex:1;overflow-y:auto;padding:12px 16px}
+.group-chat-bar{padding:10px 12px;border-top:1px solid var(--border);display:flex;gap:8px;background:var(--card)}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
@@ -612,6 +651,14 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
         <button class="nav-item" id="nav-support" onclick="openSupportModal()"><span class="nav-ic">📧</span> Contact Support</button>
         <button class="nav-item" id="nav-live" onclick="openGoLive()"><span class="nav-ic">🔴</span> Go Live</button>
         <button class="nav-item" onclick="openLivesList()"><span class="nav-ic">📺</span> Watch Live</button>
+        <button class="nav-item" onclick="openGroups()"><span class="nav-ic">👥</span> Groups</button>
+        <button class="nav-item" onclick="openAdvancedSearch()"><span class="nav-ic">🔍</span> Search</button>
+        <button class="nav-item" onclick="openGames()"><span class="nav-ic">🎮</span> Games</button>
+        <button class="nav-item" onclick="openNewsletter()"><span class="nav-ic">📰</span> Newsletter</button>
+        <button class="nav-item" onclick="openPaidEvents()"><span class="nav-ic">🎟</span> Events</button>
+        <button class="nav-item" onclick="openDigitalStore()"><span class="nav-ic">📚</span> Store</button>
+        <button class="nav-item" onclick="openCarouselUpload()"><span class="nav-ic">📸</span> Carousel</button>
+        <button class="nav-item" id="a11y-toggle" onclick="toggleAccessibility()"><span class="nav-ic">♿</span> Accessibility: OFF</button>
         <button class="nav-item" onclick="openLeaderboard()"><span class="nav-ic">🏆</span> Leaderboard</button>
         <button class="nav-item" onclick="openScheduled()"><span class="nav-ic">🌙</span> Scheduled</button>
         <button class="nav-item" onclick="openQRCode()"><span class="nav-ic">📱</span> My QR Code</button>
@@ -638,6 +685,7 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
           <button class="f-pill" data-cat="news">🌍 News</button>
           <button class="media-btn" id="btn-media" title="Attach media">📎</button>
           <button class="media-btn" id="btn-camera" title="Take photo or video">📷</button>
+          <button class="media-btn" id="btn-story-music" title="Add music to story" onclick="openMusicPicker()">🎵</button>
           <button class="media-btn" id="btn-poll" title="Create poll">📊</button>
           <button class="media-btn" id="btn-location" title="Tag location">📍</button>
           <button class="media-btn" id="btn-schedule" title="Schedule post">⏰</button>
@@ -3481,6 +3529,277 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
   </div>
 </div>
 
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- CALL OVERLAY -->
+<div class="call-overlay" id="call-overlay">
+  <video id="call-remote-video" class="call-remote-video" autoplay playsinline></video>
+  <video id="call-local-video" class="call-local-video" autoplay muted playsinline></video>
+  <div class="call-info">
+    <div id="call-avatar" class="call-avatar">Z</div>
+    <div id="call-title" style="font-size:16px;font-weight:700;color:#fff">Calling...</div>
+    <div id="call-type-icon" style="font-size:24px;margin-top:6px">📞</div>
+  </div>
+  <div class="call-btns">
+    <button id="call-mic-btn" class="call-btn" onclick="toggleCallMic()" style="background:rgba(255,255,255,.2)">🎤</button>
+    <button class="call-btn" onclick="hangUp()" style="background:#ef4444">📵</button>
+    <button id="call-cam-btn" class="call-btn" onclick="toggleCallCam()" style="background:rgba(255,255,255,.2)">📷</button>
+  </div>
+</div>
+
+<!-- INCOMING CALL BANNER -->
+<div class="incoming-call-banner" id="incoming-call-banner">
+  <div id="incoming-caller-av" style="width:40px;height:40px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;flex-shrink:0">Z</div>
+  <div style="flex:1">
+    <div style="font-size:12px;font-weight:700;color:var(--moon)"><span id="incoming-call-icon">📞</span> <span id="incoming-caller-name">Someone</span></div>
+    <div style="font-size:10px;color:var(--muted)">Incoming call...</div>
+  </div>
+  <input type="hidden" id="incoming-call-id">
+  <button onclick="acceptCall()" style="background:var(--green2);border:none;border-radius:20px;padding:7px 14px;color:#fff;font-size:11px;cursor:pointer;font-weight:700;font-family:'DM Sans',sans-serif">✅ Accept</button>
+  <button onclick="declineCall()" style="background:rgba(239,68,68,.8);border:none;border-radius:20px;padding:7px 14px;color:#fff;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif">✕ Decline</button>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- GROUPS MODAL -->
+<div class="modal-overlay" id="modal-groups">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-head"><span style="font-size:15px;font-weight:700">👥 Groups</span><button class="modal-close" onclick="closeModal('modal-groups')">✕</button></div>
+    <div style="padding:16px">
+      <div id="groups-list-view">
+        <div style="display:flex;gap:6px;margin-bottom:12px">
+          <button class="f-pill active" onclick="loadMyGroups()">My Groups</button>
+          <button class="f-pill" onclick="discoverGroups()">Discover</button>
+          <button class="btn-pay" style="margin-left:auto;padding:6px 14px;font-size:11px" onclick="showCreateGroup()">+ Create</button>
+        </div>
+        <div id="groups-list"><div style="text-align:center;padding:20px;color:var(--muted)">Loading...</div></div>
+      </div>
+      <div id="create-group-view" style="display:none">
+        <button onclick="cancelCreateGroup()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:12px;margin-bottom:12px;font-family:'DM Sans',sans-serif">← Back</button>
+        <label class="m-label">Group Name</label>
+        <input class="m-input" id="group-name-inp" placeholder="e.g. ZYNC Creators" style="margin-bottom:10px">
+        <label class="m-label">Description (optional)</label>
+        <input class="m-input" id="group-desc-inp" placeholder="What is this group about?" style="margin-bottom:10px">
+        <label class="m-label">Emoji Icon</label>
+        <input class="m-input" id="group-emoji-inp" placeholder="👥" style="margin-bottom:10px;width:80px">
+        <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--moon);margin-bottom:14px;cursor:pointer">
+          <input type="checkbox" id="group-public-chk" checked> Public group (anyone can join)
+        </label>
+        <div class="m-err" id="group-err"></div>
+        <button class="btn-pay" onclick="createGroup()">👥 Create Group</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GROUP CHAT FULLSCREEN -->
+<div id="modal-group-chat">
+  <div class="group-chat-header">
+    <div>
+      <div style="font-size:14px;font-weight:700;color:var(--moon)" id="group-chat-name">Group</div>
+      <div style="font-size:10px;color:var(--muted)" id="group-members-bar">Members</div>
+    </div>
+    <button onclick="closeGroupChat()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px">✕</button>
+  </div>
+  <div class="group-chat-msgs" id="group-chat-msgs"></div>
+  <div class="group-chat-bar">
+    <input class="m-input" id="group-msg-inp" placeholder="Message..." style="flex:1;margin:0" onkeydown="if(event.key==='Enter')sendGroupMessage()">
+    <button onclick="sendGroupMessage()" style="width:36px;height:36px;border-radius:50%;background:var(--green2);border:none;color:#fff;cursor:pointer;font-size:14px;flex-shrink:0">➤</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- ADVANCED SEARCH MODAL -->
+<div class="modal-overlay" id="modal-adv-search">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-head"><span style="font-size:15px;font-weight:700">🔍 Advanced Search</span><button class="modal-close" onclick="closeModal('modal-adv-search')">✕</button></div>
+    <div style="padding:16px">
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <input class="m-input" id="adv-search-inp" placeholder="Search users, posts, hashtags..." style="flex:1;margin:0" onkeydown="if(event.key==='Enter')runAdvancedSearch()">
+        <button class="btn-pay" style="padding:0 16px;white-space:nowrap" onclick="runAdvancedSearch()">Search</button>
+      </div>
+      <div style="display:flex;gap:6px;margin-bottom:14px">
+        <button class="search-tab active" data-type="all" onclick="switchSearchTab('all',this)">All</button>
+        <button class="search-tab" data-type="users" onclick="switchSearchTab('users',this)">👤 Users</button>
+        <button class="search-tab" data-type="posts" onclick="switchSearchTab('posts',this)">✦ Posts</button>
+        <button class="search-tab" data-type="hashtags" onclick="switchSearchTab('hashtags',this)"># Hashtags</button>
+      </div>
+      <div id="adv-search-results"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- MUSIC PICKER MODAL -->
+<div class="modal-overlay" id="modal-music-picker">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-head"><span style="font-size:15px;font-weight:700">🎵 Add Background Music</span><button class="modal-close" onclick="closeMusicPicker()">✕</button></div>
+    <div style="padding:16px">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:12px">Preview a track then select it for your story or reel</div>
+      <div id="music-list"></div>
+      <div style="font-size:10px;color:var(--muted);margin-top:10px;text-align:center">Music plays during story/reel for viewers</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- GAMES MODAL -->
+<div class="modal-overlay" id="modal-games">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-head"><span style="font-size:15px;font-weight:700">🎮 ZYNC Games</span><button class="modal-close" onclick="closeModal('modal-games')">✕</button></div>
+    <div style="padding:16px">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:14px">Play mini games and challenge your friends!</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <div class="game-card" onclick="launchGame('typing')">
+          <div style="font-size:32px;margin-bottom:8px">⌨️</div>
+          <div style="font-size:12px;font-weight:700;color:var(--moon)">Typing Speed</div>
+          <div style="font-size:10px;color:var(--muted)">Type as fast as you can</div>
+        </div>
+        <div class="game-card" onclick="launchGame('memory')">
+          <div style="font-size:32px;margin-bottom:8px">🃏</div>
+          <div style="font-size:12px;font-weight:700;color:var(--moon)">Memory Match</div>
+          <div style="font-size:10px;color:var(--muted)">Match emoji pairs</div>
+        </div>
+        <div class="game-card" onclick="launchGame('trivia')">
+          <div style="font-size:32px;margin-bottom:8px">🧠</div>
+          <div style="font-size:12px;font-weight:700;color:var(--moon)">Trivia</div>
+          <div style="font-size:10px;color:var(--muted)">Test your knowledge</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GAME FULLSCREEN CONTAINER -->
+<div id="game-container" class="game-container">
+  <div class="game-header">
+    <span style="font-size:14px;font-weight:700;color:var(--moon)">🎮 Game</span>
+    <button onclick="closeGame()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px">✕</button>
+  </div>
+  <div id="game-content" style="flex:1;overflow-y:auto"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- NEWSLETTER MODAL -->
+<div class="modal-overlay" id="modal-newsletter">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-head"><span style="font-size:15px;font-weight:700">📰 Newsletter</span><button class="modal-close" onclick="closeModal('modal-newsletter')">✕</button></div>
+    <div style="padding:16px">
+      <div style="margin-bottom:16px">
+        <label class="m-label">Subject</label>
+        <input class="m-input" id="nl-subject" placeholder="Newsletter subject..." style="margin-bottom:10px">
+        <label class="m-label">Message</label>
+        <textarea class="m-input" id="nl-body" placeholder="Write your newsletter content..." rows="5" style="resize:vertical;margin-bottom:10px"></textarea>
+        <div class="m-err" id="nl-err"></div>
+        <button class="btn-pay" onclick="sendNewsletter()">📰 Send to All Fans</button>
+      </div>
+      <div style="border-top:1px solid var(--border);padding-top:14px">
+        <div style="font-size:12px;font-weight:700;color:var(--moon);margin-bottom:8px">Past Newsletters</div>
+        <div id="newsletter-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- GIFT PANEL (slide up) -->
+<div class="gift-panel" id="gift-panel">
+  <div style="display:flex;align-items:center;justify-content:space-between">
+    <div style="font-size:14px;font-weight:700;color:var(--moon)">🎁 Send a Gift to <span id="gift-panel-hostName">Creator</span></div>
+    <button onclick="closeGiftPanel()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px">✕</button>
+  </div>
+  <input type="hidden" id="gift-panel-liveId">
+  <input type="hidden" id="gift-panel-hostId">
+  <div id="gift-list" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- CAROUSEL UPLOAD MODAL -->
+<div class="modal-overlay" id="modal-carousel">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-head"><span style="font-size:15px;font-weight:700">📸 Carousel Post</span><button class="modal-close" onclick="closeModal('modal-carousel')">✕</button></div>
+    <div style="padding:16px">
+      <div id="carousel-preview" style="margin-bottom:12px"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <span style="font-size:11px;color:var(--muted)"><span id="carousel-count">0/10</span> files selected</span>
+        <button onclick="pickCarouselFiles()" style="font-size:11px;padding:6px 14px;border-radius:20px;background:var(--deep);border:1px solid var(--green3);color:var(--green3);cursor:pointer;font-family:'DM Sans',sans-serif">+ Add Files</button>
+      </div>
+      <label class="m-label">Caption (optional)</label>
+      <input class="m-input" id="carousel-caption" placeholder="Write a caption..." style="margin-bottom:14px">
+      <button id="carousel-post-btn" class="btn-pay" onclick="postCarousel()">📸 Post Carousel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- PAID EVENTS MODAL -->
+<div class="modal-overlay" id="modal-paid-events">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-head"><span style="font-size:15px;font-weight:700">🎟 Paid Events</span><button class="modal-close" onclick="closeModal('modal-paid-events')">✕</button></div>
+    <div style="padding:16px">
+      <div id="events-list-view">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+          <button class="btn-pay" style="padding:6px 14px;font-size:11px" onclick="showCreateEvent()">+ Host Event</button>
+        </div>
+        <div id="paid-events-list"></div>
+      </div>
+      <div id="create-event-view" style="display:none">
+        <button onclick="cancelCreateEvent()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:12px;margin-bottom:12px;font-family:'DM Sans',sans-serif">← Back</button>
+        <label class="m-label">Event Title</label>
+        <input class="m-input" id="ev-title" placeholder="Event name" style="margin-bottom:10px">
+        <label class="m-label">Description</label>
+        <textarea class="m-input" id="ev-desc" placeholder="What is this event about?" rows="3" style="resize:none;margin-bottom:10px"></textarea>
+        <label class="m-label">Date & Time</label>
+        <input class="m-input" id="ev-date" type="datetime-local" style="margin-bottom:10px">
+        <label class="m-label">Ticket Price (USD)</label>
+        <input class="m-input" id="ev-price" type="number" min="1" placeholder="5" style="margin-bottom:10px">
+        <label class="m-label">Meeting Link (Zoom, Google Meet, etc.)</label>
+        <input class="m-input" id="ev-link" placeholder="https://zoom.us/..." style="margin-bottom:14px">
+        <div class="m-err" id="ev-err"></div>
+        <button class="btn-pay" onclick="createPaidEvent()">🎟 Create Event</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- DIGITAL PRODUCTS STORE MODAL -->
+<div class="modal-overlay" id="modal-digital-store">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-head"><span style="font-size:15px;font-weight:700">📚 Digital Store</span><button class="modal-close" onclick="closeModal('modal-digital-store')">✕</button></div>
+    <div style="padding:16px">
+      <div id="digital-list-view">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+          <button class="btn-pay" style="padding:6px 14px;font-size:11px" onclick="showListProduct()">+ List Product</button>
+        </div>
+        <div id="digital-products-list"></div>
+      </div>
+      <div id="digital-create-view" style="display:none">
+        <button onclick="cancelListProduct()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:12px;margin-bottom:12px;font-family:'DM Sans',sans-serif">← Back</button>
+        <label class="m-label">Product Title</label>
+        <input class="m-input" id="dp-title" placeholder="e.g. Beginner's Guide to ZYNC" style="margin-bottom:10px">
+        <label class="m-label">Description</label>
+        <textarea class="m-input" id="dp-desc" placeholder="What do buyers get?" rows="3" style="resize:none;margin-bottom:10px"></textarea>
+        <label class="m-label">Type</label>
+        <select class="m-input" id="dp-type" style="margin-bottom:10px">
+          <option value="ebook">📖 eBook</option>
+          <option value="course">🎓 Course</option>
+          <option value="template">📄 Template</option>
+          <option value="preset">🎨 Preset</option>
+          <option value="audio">🎵 Audio</option>
+          <option value="other">📦 Other</option>
+        </select>
+        <label class="m-label">Price (USD)</label>
+        <input class="m-input" id="dp-price" type="number" min="1" placeholder="9.99" style="margin-bottom:10px">
+        <label class="m-label">Emoji Icon</label>
+        <input class="m-input" id="dp-emoji" placeholder="📖" style="margin-bottom:10px;width:80px">
+        <label class="m-label">Download/Delivery URL</label>
+        <input class="m-input" id="dp-url" placeholder="https://drive.google.com/..." style="margin-bottom:14px">
+        <div class="m-err" id="dp-err"></div>
+        <button class="btn-pay" onclick="listDigitalProduct()">📦 List Product</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- VIDEO AD OVERLAY -->
 <div class="video-ad-overlay" id="video-ad-overlay">
   <div class="va-countdown" id="va-countdown">AD · SKIP IN 5s</div>
@@ -4631,6 +4950,7 @@ auth.onAuthStateChanged(function(user){
         checkAdminAccess();
         checkPendingAds();
         setTimeout(checkBirthday,2000);
+        setTimeout(function(){ initPushNotifications(); listenForIncomingCalls(); },3000);
       } else {
         var color=COLORS[Math.floor(Math.random()*COLORS.length)];
         state.profile={id:user.uid,name:user.displayName||user.email.split('@')[0],handle:(user.displayName||'user').toLowerCase().replace(/\s+/g,'_'),email:user.email,color:color,plan:'free',isPremium:false,sparksCount:0,followers:0,earnings:0,tips:0};
@@ -6535,6 +6855,1265 @@ function sendLiveTip() {
     var hostName = d.data().hostName || 'Creator';
     openTip(hostId, hostName);
   });
+}
+
+
+// ══════════════════════════════════════════════════════════════
+// FEATURE 1: PUSH NOTIFICATIONS (FCM)
+// ══════════════════════════════════════════════════════════════
+var messaging = null;
+var VAPID_KEY = 'BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDkBWseIkuokgHpwjefpYuToPNi9oJq3DFsT6VJxMqI8'; // placeholder - user must replace
+
+function initPushNotifications() {
+  if (!state.user) return;
+  if (!('Notification' in window)) return;
+  try {
+    messaging = firebase.messaging();
+    if (Notification.permission === 'granted') {
+      subscribePush();
+    } else if (Notification.permission !== 'denied') {
+      Notification.requestPermission().then(function(perm) {
+        if (perm === 'granted') subscribePush();
+      });
+    }
+  } catch(e) { console.warn('FCM init error:', e); }
+}
+
+function subscribePush() {
+  if (!messaging) return;
+  messaging.getToken({ vapidKey: VAPID_KEY }).then(function(token) {
+    if (token && state.user) {
+      db.collection('users').doc(state.user.uid).update({ fcmToken: token, pushEnabled: true }).catch(function(){});
+    }
+  }).catch(function(e) { console.warn('FCM token error:', e); });
+
+  messaging.onMessage(function(payload) {
+    var title = (payload.notification && payload.notification.title) || 'ZYNC';
+    var body  = (payload.notification && payload.notification.body)  || 'New notification';
+    showToast('🔔 ' + title + ': ' + body);
+    loadNotifications();
+  });
+}
+
+// Register service worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/firebase-messaging-sw.js').catch(function(){});
+}
+
+// Helper: send push to a user via Firestore trigger record
+function sendPushToUser(uid, title, body, type) {
+  db.collection('push_queue').add({
+    uid: uid, title: title, body: body, type: type || 'general',
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).catch(function(){});
+}
+
+// ══════════════════════════════════════════════════════════════
+// FEATURE 2 & 3: VOICE & VIDEO CALLS (WebRTC)
+// ══════════════════════════════════════════════════════════════
+var callState = {
+  pc: null,
+  localStream: null,
+  callDocId: null,
+  isCalller: false,
+  callUnsub: null,
+  iceUnsub: null
+};
+
+var CALL_ICE = { iceServers: [
+  { urls: 'stun:stun.l.google.com:19302' },
+  { urls: 'stun:stun1.l.google.com:19302' }
+]};
+
+function startCall(targetUid, targetName, targetColor, isVideo) {
+  if (!state.user) { showToast('Login first'); return; }
+  if (callState.pc) { showToast('Already in a call'); return; }
+  var callType = isVideo ? 'video' : 'audio';
+  var constraints = isVideo ? { video: true, audio: true } : { audio: true };
+
+  navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
+    callState.localStream = stream;
+    callState.isCalller = true;
+
+    document.getElementById('call-local-video').srcObject = stream;
+    document.getElementById('call-title').textContent = (isVideo ? '📹' : '📞') + ' Calling ' + targetName + '...';
+    document.getElementById('call-avatar').textContent = (targetName||'Z').charAt(0).toUpperCase();
+    document.getElementById('call-avatar').style.background = targetColor || COLORS[0];
+    document.getElementById('call-type-icon').textContent = isVideo ? '📹' : '📞';
+    if (isVideo) {
+      document.getElementById('call-local-video').style.display = 'block';
+      document.getElementById('call-remote-video').style.display = 'block';
+    }
+    document.getElementById('call-overlay').style.display = 'flex';
+
+    var pc = new RTCPeerConnection(CALL_ICE);
+    callState.pc = pc;
+    stream.getTracks().forEach(function(t) { pc.addTrack(t, stream); });
+
+    pc.ontrack = function(e) {
+      document.getElementById('call-remote-video').srcObject = e.streams[0];
+      document.getElementById('call-title').textContent = (isVideo ? '📹' : '📞') + ' ' + targetName;
+    };
+
+    pc.onicecandidate = function(e) {
+      if (e.candidate && callState.callDocId) {
+        db.collection('calls').doc(callState.callDocId).collection('callerCandidates').add(e.candidate.toJSON()).catch(function(){});
+      }
+    };
+
+    db.collection('calls').add({
+      callerId: state.user.uid,
+      callerName: (state.profile && state.profile.name) || 'ZYNCer',
+      callerColor: (state.profile && state.profile.color) || COLORS[0],
+      calleeId: targetUid,
+      calleeName: targetName,
+      type: callType,
+      status: 'ringing',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(function(docRef) {
+      callState.callDocId = docRef.id;
+
+      pc.createOffer().then(function(offer) {
+        return pc.setLocalDescription(offer).then(function() {
+          return db.collection('calls').doc(docRef.id).update({ offerSdp: offer.sdp });
+        });
+      }).catch(function(e) { console.warn('Offer error:', e); });
+
+      // Send notification to callee
+      db.collection('notifications').add({
+        uid: targetUid, type: 'call',
+        text: '📞 ' + esc((state.profile&&state.profile.name)||'Someone') + ' is calling you! Open ZYNC to answer.',
+        callId: docRef.id, callType: callType,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(), read: false
+      }).catch(function(){});
+
+      // Listen for answer
+      callState.callUnsub = db.collection('calls').doc(docRef.id).onSnapshot(function(d) {
+        var data = d.data();
+        if (!data) return;
+        if (data.answerSdp && pc.signalingState === 'have-local-offer') {
+          pc.setRemoteDescription(new RTCSessionDescription({ type: 'answer', sdp: data.answerSdp })).catch(function(){});
+        }
+        if (data.status === 'ended') { hangUp(); }
+      });
+
+      callState.iceUnsub = db.collection('calls').doc(docRef.id).collection('calleeCandidates')
+        .onSnapshot(function(snap) {
+          snap.docChanges().forEach(function(ch) {
+            if (ch.type === 'added') pc.addIceCandidate(new RTCIceCandidate(ch.doc.data())).catch(function(){});
+          });
+        });
+    });
+  }).catch(function() { showToast('Camera/mic access denied'); });
+}
+
+function answerCall(callId) {
+  if (callState.pc) { showToast('Already in a call'); return; }
+  db.collection('calls').doc(callId).get().then(function(d) {
+    if (!d.exists) return;
+    var data = d.data();
+    var isVideo = data.type === 'video';
+    var constraints = isVideo ? { video: true, audio: true } : { audio: true };
+
+    navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
+      callState.localStream = stream;
+      callState.isCalller = false;
+      callState.callDocId = callId;
+
+      document.getElementById('call-local-video').srcObject = stream;
+      document.getElementById('call-title').textContent = (isVideo?'📹':'📞') + ' ' + esc(data.callerName||'ZYNCer');
+      document.getElementById('call-avatar').textContent = (data.callerName||'Z').charAt(0).toUpperCase();
+      document.getElementById('call-avatar').style.background = data.callerColor || COLORS[0];
+      if (isVideo) {
+        document.getElementById('call-local-video').style.display = 'block';
+        document.getElementById('call-remote-video').style.display = 'block';
+      }
+      document.getElementById('call-overlay').style.display = 'flex';
+
+      var pc = new RTCPeerConnection(CALL_ICE);
+      callState.pc = pc;
+      stream.getTracks().forEach(function(t) { pc.addTrack(t, stream); });
+
+      pc.ontrack = function(e) { document.getElementById('call-remote-video').srcObject = e.streams[0]; };
+
+      pc.onicecandidate = function(e) {
+        if (e.candidate) {
+          db.collection('calls').doc(callId).collection('calleeCandidates').add(e.candidate.toJSON()).catch(function(){});
+        }
+      };
+
+      pc.setRemoteDescription(new RTCSessionDescription({ type: 'offer', sdp: data.offerSdp }))
+        .then(function() { return pc.createAnswer(); })
+        .then(function(answer) {
+          return pc.setLocalDescription(answer).then(function() {
+            return db.collection('calls').doc(callId).update({ answerSdp: answer.sdp, status: 'active' });
+          });
+        }).catch(function(e) { console.warn('Answer error:', e); });
+
+      callState.iceUnsub = db.collection('calls').doc(callId).collection('callerCandidates')
+        .onSnapshot(function(snap) {
+          snap.docChanges().forEach(function(ch) {
+            if (ch.type==='added') pc.addIceCandidate(new RTCIceCandidate(ch.doc.data())).catch(function(){});
+          });
+        });
+
+      callState.callUnsub = db.collection('calls').doc(callId).onSnapshot(function(d2) {
+        if (d2.exists && d2.data().status === 'ended') hangUp();
+      });
+    }).catch(function() { showToast('Camera/mic access denied'); });
+  });
+}
+
+function hangUp() {
+  if (callState.pc) { try { callState.pc.close(); } catch(e){} callState.pc = null; }
+  if (callState.localStream) { callState.localStream.getTracks().forEach(function(t){t.stop();}); callState.localStream = null; }
+  if (callState.callUnsub) { callState.callUnsub(); callState.callUnsub = null; }
+  if (callState.iceUnsub) { callState.iceUnsub(); callState.iceUnsub = null; }
+  if (callState.callDocId) {
+    db.collection('calls').doc(callState.callDocId).update({ status: 'ended' }).catch(function(){});
+    callState.callDocId = null;
+  }
+  document.getElementById('call-overlay').style.display = 'none';
+  document.getElementById('call-remote-video').srcObject = null;
+  document.getElementById('call-local-video').srcObject = null;
+}
+
+function toggleCallMic() {
+  if (!callState.localStream) return;
+  var track = callState.localStream.getAudioTracks()[0];
+  if (track) { track.enabled = !track.enabled; document.getElementById('call-mic-btn').textContent = track.enabled ? '🎤' : '🔇'; }
+}
+
+function toggleCallCam() {
+  if (!callState.localStream) return;
+  var track = callState.localStream.getVideoTracks()[0];
+  if (track) { track.enabled = !track.enabled; document.getElementById('call-cam-btn').textContent = track.enabled ? '📷' : '🚫'; }
+}
+
+// Listen for incoming calls when logged in
+function listenForIncomingCalls() {
+  if (!state.user) return;
+  db.collection('calls').where('calleeId','==',state.user.uid).where('status','==','ringing')
+    .onSnapshot(function(snap) {
+      snap.docChanges().forEach(function(ch) {
+        if (ch.type === 'added') {
+          var data = ch.doc.data();
+          showIncomingCall(ch.doc.id, data.callerName||'Someone', data.callerColor||COLORS[0], data.type||'audio');
+        }
+      });
+    });
+}
+
+function showIncomingCall(callId, callerName, callerColor, callType) {
+  document.getElementById('incoming-caller-name').textContent = callerName;
+  document.getElementById('incoming-call-icon').textContent = callType==='video' ? '📹' : '📞';
+  document.getElementById('incoming-caller-av').textContent = callerName.charAt(0).toUpperCase();
+  document.getElementById('incoming-caller-av').style.background = callerColor;
+  document.getElementById('incoming-call-id').value = callId;
+  document.getElementById('incoming-call-banner').style.display = 'flex';
+  // Auto-dismiss after 30s
+  setTimeout(function() { declineCall(callId); }, 30000);
+}
+
+function acceptCall() {
+  var callId = document.getElementById('incoming-call-id').value;
+  document.getElementById('incoming-call-banner').style.display = 'none';
+  answerCall(callId);
+}
+
+function declineCall(callId) {
+  var id = callId || document.getElementById('incoming-call-id').value;
+  document.getElementById('incoming-call-banner').style.display = 'none';
+  if (id) db.collection('calls').doc(id).update({ status: 'declined' }).catch(function(){});
+}
+
+// ══════════════════════════════════════════════════════════════
+// FEATURE 4: GROUPS / COMMUNITIES
+// ══════════════════════════════════════════════════════════════
+var currentGroupId = null;
+var groupChatUnsub = null;
+
+function openGroups() {
+  if (!state.user) { showToast('Login first'); return; }
+  openModal('modal-groups');
+  loadMyGroups();
+}
+
+function loadMyGroups() {
+  var list = document.getElementById('groups-list');
+  list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Loading...</div>';
+  db.collection('groups').where('members','array-contains',state.user.uid)
+    .orderBy('lastActivity','desc').limit(30).get()
+    .then(function(snap) {
+      if (snap.empty) {
+        list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">No groups yet.<br>Create one or join one!</div>';
+        return;
+      }
+      list.innerHTML = snap.docs.map(function(d) {
+        var g = d.data();
+        return '<div class="group-item" onclick="openGroupChat(\''+d.id+'\',\''+esc(g.name||'Group')+'\',\''+esc(g.emoji||'👥')+'\')">'+
+          '<div class="group-av">'+esc(g.emoji||'👥')+'</div>'+
+          '<div style="flex:1">'+
+            '<div style="font-size:13px;font-weight:700;color:var(--moon)">'+esc(g.name||'Group')+'</div>'+
+            '<div style="font-size:11px;color:var(--muted)">'+(g.members||[]).length+' members · '+esc(g.lastMsg||'No messages yet')+'</div>'+
+          '</div>'+
+        '</div>';
+      }).join('');
+    }).catch(function() { list.innerHTML = '<div style="color:#fca5a5;padding:10px">Error loading groups</div>'; });
+}
+
+function showCreateGroup() {
+  document.getElementById('groups-list-view').style.display = 'none';
+  document.getElementById('create-group-view').style.display = 'block';
+}
+
+function cancelCreateGroup() {
+  document.getElementById('groups-list-view').style.display = 'block';
+  document.getElementById('create-group-view').style.display = 'none';
+}
+
+function createGroup() {
+  var name  = document.getElementById('group-name-inp').value.trim();
+  var desc  = document.getElementById('group-desc-inp').value.trim();
+  var emoji = document.getElementById('group-emoji-inp').value.trim() || '👥';
+  var isPublic = document.getElementById('group-public-chk').checked;
+  var err = document.getElementById('group-err');
+  if (!name) { err.textContent = 'Please enter a group name'; return; }
+  err.textContent = '';
+
+  db.collection('groups').add({
+    name: name, description: desc, emoji: emoji,
+    isPublic: isPublic,
+    ownerId: state.user.uid,
+    ownerName: (state.profile&&state.profile.name)||'ZYNCer',
+    members: [state.user.uid],
+    admins: [state.user.uid],
+    lastMsg: '', lastActivity: firebase.firestore.FieldValue.serverTimestamp(),
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function(d) {
+    showToast('👥 Group "'+name+'" created!');
+    cancelCreateGroup();
+    loadMyGroups();
+    openGroupChat(d.id, name, emoji);
+  }).catch(function() { err.textContent = 'Error creating group'; });
+}
+
+function openGroupChat(groupId, groupName, groupEmoji) {
+  currentGroupId = groupId;
+  closeModal('modal-groups');
+  document.getElementById('group-chat-name').textContent = (groupEmoji||'👥')+' '+groupName;
+  document.getElementById('group-chat-msgs').innerHTML = '';
+  document.getElementById('modal-group-chat').style.display = 'flex';
+  loadGroupMembers(groupId);
+
+  if (groupChatUnsub) groupChatUnsub();
+  groupChatUnsub = db.collection('groups').doc(groupId).collection('messages')
+    .orderBy('createdAt','asc').limitToLast(60)
+    .onSnapshot(function(snap) {
+      snap.docChanges().forEach(function(ch) {
+        if (ch.type === 'added') appendGroupMsg(ch.doc.data());
+      });
+    });
+}
+
+function appendGroupMsg(data) {
+  var c2 = document.getElementById('group-chat-msgs');
+  var isOwn = state.user && data.authorId === state.user.uid;
+  var div = document.createElement('div');
+  div.style.cssText = 'margin-bottom:10px;display:flex;flex-direction:column;align-items:'+(isOwn?'flex-end':'flex-start');
+  div.innerHTML = (!isOwn?'<div style="font-size:10px;color:var(--muted);margin-bottom:2px">'+esc(data.authorName||'ZYNCer')+'</div>':'')+
+    '<div style="max-width:75%;background:'+(isOwn?'var(--green2)':'var(--deep)')+';border:1px solid var(--border);border-radius:'+(isOwn?'16px 4px 16px 16px':'4px 16px 16px 16px')+';padding:8px 12px;font-size:12px;color:'+(isOwn?'#fff':'var(--moon)')+'">'+esc(data.text||'')+'</div>'+
+    '<div style="font-size:9px;color:var(--muted);margin-top:2px">'+timeAgo(data.createdAt)+'</div>';
+  c2.appendChild(div);
+  c2.scrollTop = c2.scrollHeight;
+}
+
+function sendGroupMessage() {
+  var inp = document.getElementById('group-msg-inp');
+  var text = inp.value.trim();
+  if (!text || !currentGroupId || !state.user) return;
+  inp.value = '';
+  var msg = {
+    authorId: state.user.uid,
+    authorName: (state.profile&&state.profile.name)||'ZYNCer',
+    authorColor: (state.profile&&state.profile.color)||COLORS[0],
+    text: text,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+  db.collection('groups').doc(currentGroupId).collection('messages').add(msg);
+  db.collection('groups').doc(currentGroupId).update({ lastMsg: text, lastActivity: firebase.firestore.FieldValue.serverTimestamp() });
+}
+
+function closeGroupChat() {
+  if (groupChatUnsub) { groupChatUnsub(); groupChatUnsub = null; }
+  currentGroupId = null;
+  document.getElementById('modal-group-chat').style.display = 'none';
+}
+
+function loadGroupMembers(groupId) {
+  db.collection('groups').doc(groupId).get().then(function(d) {
+    if (!d.exists) return;
+    var g = d.data();
+    var mDiv = document.getElementById('group-members-bar');
+    if (mDiv) mDiv.textContent = (g.members||[]).length + ' members';
+  });
+}
+
+function discoverGroups() {
+  var list = document.getElementById('groups-list');
+  list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Loading public groups...</div>';
+  db.collection('groups').where('isPublic','==',true).orderBy('lastActivity','desc').limit(20).get()
+    .then(function(snap) {
+      if (snap.empty) { list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">No public groups yet</div>'; return; }
+      list.innerHTML = snap.docs.map(function(d) {
+        var g = d.data();
+        var isMember = (g.members||[]).indexOf(state.user.uid) > -1;
+        return '<div class="group-item">'+
+          '<div class="group-av">'+esc(g.emoji||'👥')+'</div>'+
+          '<div style="flex:1">'+
+            '<div style="font-size:13px;font-weight:700;color:var(--moon)">'+esc(g.name||'Group')+'</div>'+
+            '<div style="font-size:11px;color:var(--muted)">'+(g.members||[]).length+' members</div>'+
+          '</div>'+
+          (isMember
+            ? '<button onclick="openGroupChat(\''+d.id+'\',\''+esc(g.name)+'\',\''+esc(g.emoji||'👥')+'\')" style="font-size:10px;padding:4px 10px;border-radius:20px;border:1px solid var(--green3);background:transparent;color:var(--green3);cursor:pointer">Open</button>'
+            : '<button onclick="joinGroup(\''+d.id+'\')" style="font-size:10px;padding:4px 10px;border-radius:20px;border:1px solid var(--green3);background:transparent;color:var(--green3);cursor:pointer">Join</button>'
+          )+
+        '</div>';
+      }).join('');
+    }).catch(function() { list.innerHTML = '<div style="color:#fca5a5;padding:10px">Error loading</div>'; });
+}
+
+function joinGroup(groupId) {
+  db.collection('groups').doc(groupId).update({ members: firebase.firestore.FieldValue.arrayUnion(state.user.uid) })
+    .then(function() { showToast('👥 Joined group!'); discoverGroups(); });
+}
+
+// ══════════════════════════════════════════════════════════════
+// FEATURE 5: ADVANCED SEARCH
+// ══════════════════════════════════════════════════════════════
+function openAdvancedSearch() {
+  if (!state.user) { showToast('Login first'); return; }
+  openModal('modal-adv-search');
+  document.getElementById('adv-search-inp').value = '';
+  document.getElementById('adv-search-results').innerHTML = '';
+  setTimeout(function() { document.getElementById('adv-search-inp').focus(); }, 300);
+}
+
+function runAdvancedSearch() {
+  var q = document.getElementById('adv-search-inp').value.trim().toLowerCase();
+  var results = document.getElementById('adv-search-results');
+  var tab = document.querySelector('#modal-adv-search .search-tab.active');
+  var type = tab ? tab.dataset.type : 'all';
+  if (!q) return;
+  results.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Searching...</div>';
+
+  var promises = [];
+
+  if (type === 'all' || type === 'users') {
+    promises.push(
+      db.collection('users').orderBy('name').startAt(q).endAt(q+'\uf8ff').limit(10).get()
+        .then(function(snap) { return snap.docs.map(function(d) { return { type:'user', id:d.id, data:d.data() }; }); })
+        .catch(function() { return []; })
+    );
+  }
+
+  if (type === 'all' || type === 'posts') {
+    promises.push(
+      db.collection('sparks').orderBy('text').startAt(q).endAt(q+'\uf8ff').limit(10).get()
+        .then(function(snap) { return snap.docs.map(function(d) { return { type:'post', id:d.id, data:d.data() }; }); })
+        .catch(function() { return []; })
+    );
+  }
+
+  if (type === 'all' || type === 'hashtags') {
+    promises.push(
+      db.collection('sparks').where('hashtags','array-contains',q).limit(10).get()
+        .then(function(snap) { return snap.docs.map(function(d) { return { type:'hashtag', id:d.id, data:d.data() }; }); })
+        .catch(function() { return []; })
+    );
+  }
+
+  Promise.all(promises).then(function(arrs) {
+    var all = [].concat.apply([], arrs);
+    if (!all.length) { results.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">No results for "'+esc(q)+'"</div>'; return; }
+    results.innerHTML = all.map(function(item) {
+      if (item.type === 'user') {
+        return '<div class="search-result-item" onclick="openProfileModal(\''+item.id+'\')">'+
+          '<div style="width:36px;height:36px;border-radius:50%;background:'+(item.data.color||'var(--green)')+';display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0">'+(item.data.name||'Z').charAt(0)+'</div>'+
+          '<div><div style="font-size:13px;font-weight:700;color:var(--moon)">'+esc(item.data.name||'ZYNCer')+'</div>'+
+          '<div style="font-size:11px;color:var(--muted)">@'+esc(item.data.handle||'user')+' · 👤 User</div></div>'+
+        '</div>';
+      } else {
+        return '<div class="search-result-item" onclick="openComments(\''+item.id+'\')">'+
+          '<div style="font-size:20px;flex-shrink:0">'+(item.type==='hashtag'?'#️⃣':'✦')+'</div>'+
+          '<div><div style="font-size:12px;color:var(--moon)">'+esc((item.data.text||'').slice(0,80))+'</div>'+
+          '<div style="font-size:10px;color:var(--muted)">by @'+esc(item.data.authorHandle||'user')+'</div></div>'+
+        '</div>';
+      }
+    }).join('');
+  });
+}
+
+function switchSearchTab(type, btn) {
+  document.querySelectorAll('#modal-adv-search .search-tab').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  if (document.getElementById('adv-search-inp').value.trim()) runAdvancedSearch();
+}
+
+// ══════════════════════════════════════════════════════════════
+// FEATURE 6: BACKGROUND MUSIC ON STORIES/REELS
+// ══════════════════════════════════════════════════════════════
+var storyMusicAudio = null;
+var pendingStoryMusic = null;
+
+var STORY_TRACKS = [
+  { name:'Chill Vibes', url:'https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0c6ff1bab.mp3' },
+  { name:'Upbeat Energy', url:'https://cdn.pixabay.com/download/audio/2021/11/25/audio_91b32e02f9.mp3' },
+  { name:'Dreamy', url:'https://cdn.pixabay.com/download/audio/2022/03/10/audio_270f49b51b.mp3' },
+  { name:'Lo-Fi Beat', url:'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3' },
+  { name:'Ambient', url:'https://cdn.pixabay.com/download/audio/2022/08/02/audio_884fe92c21.mp3' },
+  { name:'Happy Tune', url:'https://cdn.pixabay.com/download/audio/2022/01/20/audio_d8fbba82b7.mp3' }
+];
+
+function openMusicPicker() {
+  openModal('modal-music-picker');
+  var list = document.getElementById('music-list');
+  list.innerHTML = STORY_TRACKS.map(function(t, i) {
+    var isSelected = pendingStoryMusic && pendingStoryMusic.name === t.name;
+    return '<div class="music-item'+(isSelected?' selected':'')+'" id="music-item-'+i+'" onclick="previewTrack('+i+')">'+
+      '<div style="width:36px;height:36px;border-radius:50%;background:var(--green2);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">🎵</div>'+
+      '<div style="flex:1"><div style="font-size:12px;font-weight:700;color:var(--moon)">'+esc(t.name)+'</div>'+
+      '<div style="font-size:10px;color:var(--muted)">Tap to preview</div></div>'+
+      '<button onclick="selectTrack('+i+');event.stopPropagation()" style="font-size:10px;padding:4px 10px;border-radius:20px;border:1px solid var(--green3);background:'+(isSelected?'var(--green3)':'transparent')+';color:'+(isSelected?'#fff':'var(--green3)')+';cursor:pointer">'+( isSelected?'✓ Selected':'Select')+'</button>'+
+    '</div>';
+  }).join('');
+}
+
+function previewTrack(i) {
+  if (storyMusicAudio) { storyMusicAudio.pause(); storyMusicAudio = null; }
+  storyMusicAudio = new Audio(STORY_TRACKS[i].url);
+  storyMusicAudio.volume = 0.5;
+  storyMusicAudio.play().catch(function(){});
+  setTimeout(function() { if (storyMusicAudio) { storyMusicAudio.pause(); storyMusicAudio = null; } }, 8000);
+}
+
+function selectTrack(i) {
+  if (storyMusicAudio) { storyMusicAudio.pause(); storyMusicAudio = null; }
+  pendingStoryMusic = STORY_TRACKS[i];
+  closeModal('modal-music-picker');
+  showToast('🎵 "'+STORY_TRACKS[i].name+'" added to your story!');
+  document.getElementById('btn-story-music') && (document.getElementById('btn-story-music').style.color = 'var(--green3)');
+}
+
+function closeMusicPicker() {
+  if (storyMusicAudio) { storyMusicAudio.pause(); storyMusicAudio = null; }
+  closeModal('modal-music-picker');
+}
+
+// ══════════════════════════════════════════════════════════════
+// FEATURE 7: THREADED REPLIES
+// ══════════════════════════════════════════════════════════════
+var replyingTo = null;
+
+function replyToComment(commentId, authorName) {
+  replyingTo = { id: commentId, name: authorName };
+  var inp = document.getElementById('comment-inp');
+  if (inp) {
+    inp.placeholder = 'Replying to @' + authorName + '...';
+    inp.focus();
+    document.getElementById('reply-indicator') && (document.getElementById('reply-indicator').style.display = 'flex');
+    document.getElementById('reply-to-name') && (document.getElementById('reply-to-name').textContent = '@'+authorName);
+  }
+}
+
+function cancelReply() {
+  replyingTo = null;
+  var inp = document.getElementById('comment-inp');
+  if (inp) inp.placeholder = 'Add a comment...';
+  document.getElementById('reply-indicator') && (document.getElementById('reply-indicator').style.display = 'none');
+}
+
+// Patch sendComment to support threads — called from existing sendComment flow
+function patchSendCommentForThreads(sparkId, text) {
+  if (!state.user || !text) return;
+  var commentData = {
+    authorId: state.user.uid,
+    authorName: (state.profile&&state.profile.name)||'ZYNCer',
+    authorHandle: (state.profile&&state.profile.handle)||'user',
+    authorColor: (state.profile&&state.profile.color)||COLORS[0],
+    text: text,
+    parentId: replyingTo ? replyingTo.id : null,
+    replyTo: replyingTo ? replyingTo.name : null,
+    likes: [],
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+  cancelReply();
+  return db.collection('sparks').doc(sparkId).collection('comments').add(commentData);
+}
+
+// ══════════════════════════════════════════════════════════════
+// FEATURE 8: COLLAB POSTS
+// ══════════════════════════════════════════════════════════════
+var collabInvite = null;
+
+function openCollabPost() {
+  if (!state.user) { showToast('Login first'); return; }
+  openModal('modal-collab');
+  document.getElementById('collab-user-search').value = '';
+  document.getElementById('collab-user-results').innerHTML = '';
+  collabInvite = null;
+}
+
+function searchCollabUser() {
+  var q = document.getElementById('collab-user-search').value.trim().toLowerCase();
+  var res = document.getElementById('collab-user-results');
+  if (!q) return;
+  db.collection('users').orderBy('handle').startAt(q).endAt(q+'\uf8ff').limit(6).get()
+    .then(function(snap) {
+      if (snap.empty) { res.innerHTML = '<div style="color:var(--muted);font-size:12px;padding:6px 0">No users found</div>'; return; }
+      res.innerHTML = snap.docs.filter(function(d){return d.id!==state.user.uid;}).map(function(d) {
+        var u = d.data();
+        return '<div class="search-result-item" onclick="selectCollabUser(\''+d.id+'\',\''+esc(u.name||'ZYNCer')+'\',\''+esc(u.color||COLORS[0])+'\')">'+
+          '<div style="width:32px;height:32px;border-radius:50%;background:'+(u.color||'var(--green)')+';display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff">'+(u.name||'Z').charAt(0)+'</div>'+
+          '<div style="font-size:12px;color:var(--moon)">'+esc(u.name||'ZYNCer')+'<br><span style="font-size:10px;color:var(--muted)">@'+esc(u.handle||'user')+'</span></div>'+
+        '</div>';
+      }).join('');
+    });
+}
+
+function selectCollabUser(uid, name, color) {
+  collabInvite = { uid: uid, name: name, color: color };
+  document.getElementById('collab-selected').innerHTML = '<div style="display:flex;align-items:center;gap:8px;padding:8px;background:rgba(34,197,94,.1);border:1px solid var(--green3);border-radius:10px;margin-top:8px">'+
+    '<div style="width:28px;height:28px;border-radius:50%;background:'+color+';display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff">'+name.charAt(0)+'</div>'+
+    '<span style="font-size:12px;color:var(--green3)">✓ Collaborating with '+esc(name)+'</span></div>';
+}
+
+function postCollabSpark() {
+  var text = document.getElementById('collab-text').value.trim();
+  if (!text) { showToast('Write something first'); return; }
+  if (!collabInvite) { showToast('Select a collaborator'); return; }
+  db.collection('sparks').add({
+    text: text,
+    authorId: state.user.uid,
+    authorName: (state.profile&&state.profile.name)||'ZYNCer',
+    authorHandle: (state.profile&&state.profile.handle)||'user',
+    authorColor: (state.profile&&state.profile.color)||COLORS[0],
+    isPremium: (state.profile&&state.profile.isPremium)||false,
+    isVerified: (state.profile&&state.profile.isVerified)||false,
+    collabId: collabInvite.uid,
+    collabName: collabInvite.name,
+    collabColor: collabInvite.color,
+    isCollab: true,
+    category: 'all',
+    likes:[], saved:[], commentCount:0, reposts:0,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function() {
+    db.collection('notifications').add({
+      uid: collabInvite.uid, type: 'collab',
+      text: '🤝 '+esc((state.profile&&state.profile.name)||'Someone')+' tagged you in a Collab Post!',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(), read: false
+    });
+    closeModal('modal-collab');
+    showToast('🤝 Collab post published!');
+  }).catch(function() { showToast('Error posting'); });
+}
+
+// ══════════════════════════════════════════════════════════════
+// FEATURE 9: MINI GAMES
+// ══════════════════════════════════════════════════════════════
+function openGames() {
+  if (!state.user) { showToast('Login first'); return; }
+  openModal('modal-games');
+}
+
+function launchGame(game) {
+  closeModal('modal-games');
+  document.getElementById('game-container').style.display = 'flex';
+  var gc = document.getElementById('game-content');
+  if (game === 'typing') {
+    launchTypingGame(gc);
+  } else if (game === 'memory') {
+    launchMemoryGame(gc);
+  } else if (game === 'trivia') {
+    launchTriviaGame(gc);
+  }
+}
+
+function closeGame() {
+  document.getElementById('game-container').style.display = 'none';
+  document.getElementById('game-content').innerHTML = '';
+}
+
+function launchTypingGame(container) {
+  var words = ['social','media','zync','connect','community','spark','creator','stream','follow','friend','live','post','like','comment','share'];
+  var score = 0, timeLeft = 30, currentWord = '', interval;
+  function newWord() { currentWord = words[Math.floor(Math.random()*words.length)]; document.getElementById('tg-word').textContent = currentWord; document.getElementById('tg-inp').value = ''; document.getElementById('tg-inp').focus(); }
+  container.innerHTML = '<div style="text-align:center;padding:20px"><div style="font-size:13px;font-weight:700;color:var(--moon);margin-bottom:4px">⌨️ Typing Speed</div><div style="font-size:11px;color:var(--muted);margin-bottom:16px">Type the word as fast as you can!</div><div style="display:flex;justify-content:space-between;margin-bottom:16px"><span style="font-size:14px;color:var(--green3)">Score: <b id="tg-score">0</b></span><span style="font-size:14px;color:var(--moon)">Time: <b id="tg-time">30</b>s</span></div><div id="tg-word" style="font-size:28px;font-weight:900;color:var(--green3);margin-bottom:16px;letter-spacing:2px">Press Start</div><input id="tg-inp" class="m-input" placeholder="Type here..." style="margin-bottom:10px" disabled><button class="btn-pay" onclick="startTypingGame()">▶ Start</button></div>';
+  window.startTypingGame = function() {
+    score=0; timeLeft=30;
+    document.getElementById('tg-inp').disabled=false;
+    newWord();
+    document.getElementById('tg-inp').addEventListener('input', function() {
+      if (this.value.trim().toLowerCase() === currentWord) { score++; document.getElementById('tg-score').textContent=score; newWord(); }
+    });
+    interval = setInterval(function() {
+      timeLeft--;
+      document.getElementById('tg-time') && (document.getElementById('tg-time').textContent = timeLeft);
+      if (timeLeft <= 0) {
+        clearInterval(interval);
+        document.getElementById('tg-inp').disabled=true;
+        document.getElementById('tg-word').textContent = 'Time\'s up!';
+        showToast('⌨️ Score: '+score+' words! '+( score>10?'Amazing!':score>5?'Good job!':'Keep practicing!'));
+        db.collection('users').doc(state.user.uid).update({ typingHighScore: firebase.firestore.FieldValue.increment(0) }).then(function() {
+          db.collection('users').doc(state.user.uid).get().then(function(d) {
+            var best = (d.data()&&d.data().typingHighScore)||0;
+            if (score > best) db.collection('users').doc(state.user.uid).update({ typingHighScore: score });
+          });
+        }).catch(function(){});
+      }
+    }, 1000);
+  };
+}
+
+function launchMemoryGame(container) {
+  var emojis = ['🦁','🐯','🐻','🦊','🐸','🐬','🦋','🌸'];
+  var cards = emojis.concat(emojis).sort(function(){return Math.random()-.5;});
+  var flipped=[], matched=[], moves=0;
+  container.innerHTML = '<div style="padding:16px"><div style="text-align:center;margin-bottom:12px"><span style="font-size:13px;font-weight:700;color:var(--moon)">🃏 Memory Match</span> <span style="font-size:11px;color:var(--muted)" id="mm-moves">Moves: 0</span></div><div id="mm-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px"></div></div>';
+  var grid = document.getElementById('mm-grid');
+  cards.forEach(function(em, i) {
+    var card = document.createElement('div');
+    card.style.cssText='height:56px;background:var(--deep);border:2px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;transition:all .2s;user-select:none';
+    card.dataset.emoji = em;
+    card.dataset.idx = i;
+    card.dataset.shown = '0';
+    card.textContent = '?';
+    card.onclick = function() {
+      if (this.dataset.shown==='1'||flipped.length===2) return;
+      this.textContent = this.dataset.emoji;
+      this.style.borderColor = 'var(--green3)';
+      this.dataset.shown = '1';
+      flipped.push(this);
+      if (flipped.length===2) {
+        moves++;
+        document.getElementById('mm-moves').textContent = 'Moves: '+moves;
+        if (flipped[0].dataset.emoji===flipped[1].dataset.emoji) {
+          flipped.forEach(function(c){c.style.background='rgba(34,197,94,.2)';});
+          matched.push(flipped[0].dataset.emoji);
+          flipped=[];
+          if (matched.length===emojis.length) { setTimeout(function(){showToast('🎉 You won in '+moves+' moves!');},300); }
+        } else {
+          var f=flipped.slice();
+          setTimeout(function(){ f.forEach(function(c){c.textContent='?';c.style.borderColor='var(--border)';c.dataset.shown='0';}); flipped=[]; }, 800);
+        }
+      }
+    };
+    grid.appendChild(card);
+  });
+}
+
+function launchTriviaGame(container) {
+  var questions = [
+    { q:'What year was ZYNC founded?', opts:['2023','2024','2025','2026'], ans:2 },
+    { q:'What does API stand for?', opts:['App Program Interface','Application Programming Interface','Automated Process Integration','Applied Programming Index'], ans:1 },
+    { q:'Which protocol powers live video calls?', opts:['HTTP','FTP','WebRTC','WebSocket'], ans:2 },
+    { q:'What does CSS stand for?', opts:['Creative Style Sheets','Cascading Style Sheets','Computer Style System','Coded Style Syntax'], ans:1 },
+    { q:'How many bits in a byte?', opts:['4','16','8','32'], ans:2 }
+  ];
+  var cur=0, score=0;
+  function showQ() {
+    if (cur>=questions.length) {
+      container.innerHTML='<div style="text-align:center;padding:30px"><div style="font-size:32px;margin-bottom:10px">🏆</div><div style="font-size:16px;font-weight:700;color:var(--green3)">Score: '+score+'/'+questions.length+'</div><div style="font-size:13px;color:var(--muted);margin-top:6px">'+(score===questions.length?'Perfect!':score>3?'Great job!':'Keep learning!')+'</div><button class="btn-pay" style="margin-top:16px" onclick="launchTriviaGame(document.getElementById(\'game-content\'))">Play Again</button></div>';
+      return;
+    }
+    var q=questions[cur];
+    container.innerHTML='<div style="padding:16px"><div style="font-size:11px;color:var(--muted);margin-bottom:8px">Question '+(cur+1)+'/'+questions.length+'</div><div style="font-size:14px;font-weight:700;color:var(--moon);margin-bottom:16px;line-height:1.5">'+esc(q.q)+'</div>'+
+      q.opts.map(function(o,i){return '<button onclick="answerTrivia('+i+')" style="display:block;width:100%;text-align:left;padding:10px 14px;margin-bottom:8px;background:var(--deep);border:1px solid var(--border);border-radius:10px;color:var(--moon);font-size:12px;cursor:pointer;font-family:\'DM Sans\',sans-serif">'+esc(o)+'</button>';}).join('')+
+    '</div>';
+    window.answerTrivia = function(idx) {
+      var btns = container.querySelectorAll('button');
+      btns[idx].style.background = idx===q.ans ? 'rgba(34,197,94,.2)' : 'rgba(239,68,68,.2)';
+      btns[idx].style.borderColor = idx===q.ans ? 'var(--green3)' : '#ef4444';
+      btns[q.ans].style.background = 'rgba(34,197,94,.2)';
+      btns[q.ans].style.borderColor = 'var(--green3)';
+      if (idx===q.ans) score++;
+      btns.forEach(function(b){b.onclick=null;});
+      setTimeout(function(){cur++;showQ();},900);
+    };
+  }
+  showQ();
+}
+
+// ══════════════════════════════════════════════════════════════
+// FEATURE 10: NEWSLETTER
+// ══════════════════════════════════════════════════════════════
+function openNewsletter() {
+  if (!state.user) { showToast('Login first'); return; }
+  openModal('modal-newsletter');
+  loadMyNewsletters();
+}
+
+function loadMyNewsletters() {
+  var list = document.getElementById('newsletter-list');
+  db.collection('newsletters').where('authorId','==',state.user.uid).orderBy('createdAt','desc').limit(10).get()
+    .then(function(snap) {
+      if (snap.empty) { list.innerHTML = '<div style="text-align:center;padding:16px;color:var(--muted)">No newsletters sent yet.</div>'; return; }
+      list.innerHTML = snap.docs.map(function(d) {
+        var n = d.data();
+        return '<div class="sched-item"><div style="font-size:12px;font-weight:700;color:var(--moon)">'+esc(n.subject||'Newsletter')+'</div>'+
+          '<div style="font-size:11px;color:var(--muted);margin-top:2px">Sent to '+(n.recipientCount||0)+' fans · '+timeAgo(n.createdAt)+'</div></div>';
+      }).join('');
+    }).catch(function(){list.innerHTML='<div style="color:#fca5a5;padding:10px">Error</div>';});
+}
+
+function sendNewsletter() {
+  var subject = document.getElementById('nl-subject').value.trim();
+  var body    = document.getElementById('nl-body').value.trim();
+  var err     = document.getElementById('nl-err');
+  if (!subject) { err.textContent='Please enter a subject'; return; }
+  if (!body)    { err.textContent='Please enter a message'; return; }
+  err.textContent='';
+
+  // Get all followers
+  db.collection('follows').where('followingId','==',state.user.uid).get().then(function(snap) {
+    var fans = snap.docs.map(function(d){return d.data().followerId;});
+    var batch = db.batch();
+    fans.forEach(function(uid) {
+      var ref = db.collection('notifications').doc();
+      batch.set(ref, {
+        uid: uid, type: 'newsletter',
+        text: '📰 '+esc((state.profile&&state.profile.name)||'A creator')+' sent a newsletter: "'+esc(subject)+'"',
+        body: body,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(), read: false
+      });
+    });
+    return batch.commit().then(function() {
+      return db.collection('newsletters').add({
+        authorId: state.user.uid,
+        authorName: (state.profile&&state.profile.name)||'ZYNCer',
+        subject: subject, body: body,
+        recipientCount: fans.length,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    });
+  }).then(function() {
+    document.getElementById('nl-subject').value='';
+    document.getElementById('nl-body').value='';
+    showToast('📰 Newsletter sent to your fans!');
+    loadMyNewsletters();
+  }).catch(function() { err.textContent='Error sending newsletter'; });
+}
+
+// ══════════════════════════════════════════════════════════════
+// FEATURE 11: GIFT SYSTEM (during live)
+// ══════════════════════════════════════════════════════════════
+var GIFTS = [
+  { emoji:'🌸', name:'Rose',    price:1  },
+  { emoji:'🍕', name:'Pizza',   price:2  },
+  { emoji:'💎', name:'Diamond', price:5  },
+  { emoji:'🚀', name:'Rocket',  price:10 },
+  { emoji:'👑', name:'Crown',   price:20 },
+  { emoji:'🏆', name:'Trophy',  price:50 }
+];
+
+function openGiftPanel(liveId, hostId, hostName) {
+  document.getElementById('gift-panel-liveId').value = liveId||'';
+  document.getElementById('gift-panel-hostId').value = hostId||'';
+  document.getElementById('gift-panel-hostName').textContent = hostName||'Creator';
+  var list = document.getElementById('gift-list');
+  list.innerHTML = GIFTS.map(function(g,i) {
+    return '<div class="gift-item" onclick="sendGift('+i+')">'+
+      '<div style="font-size:28px">'+g.emoji+'</div>'+
+      '<div style="font-size:10px;color:var(--moon);font-weight:700">'+esc(g.name)+'</div>'+
+      '<div style="font-size:10px;color:var(--green3)">$'+g.price+'</div>'+
+    '</div>';
+  }).join('');
+  document.getElementById('gift-panel').style.display='flex';
+}
+
+function closeGiftPanel() { document.getElementById('gift-panel').style.display='none'; }
+
+function sendGift(idx) {
+  if (!state.user) { showToast('Login first'); return; }
+  var gift   = GIFTS[idx];
+  var liveId = document.getElementById('gift-panel-liveId').value;
+  var hostId = document.getElementById('gift-panel-hostId').value;
+  if (!hostId) { showToast('Invalid host'); return; }
+  if (typeof PaystackPop==='undefined') { showToast('Payment loading'); return; }
+  closeGiftPanel();
+  PaystackPop.setup({
+    key: PAYSTACK_KEY, email: state.user.email,
+    amount: gift.price*100, currency:'USD',
+    ref:'ZGIFT-'+Date.now(),
+    callback:function() {
+      // Record gift
+      db.collection('gifts').add({
+        senderId: state.user.uid,
+        senderName: (state.profile&&state.profile.name)||'ZYNCer',
+        hostId: hostId, liveId: liveId,
+        gift: gift.name, emoji: gift.emoji, amount: gift.price,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      // Notify host
+      db.collection('notifications').add({
+        uid: hostId, type:'gift',
+        text: gift.emoji+' '+esc((state.profile&&state.profile.name)||'Someone')+' sent you a '+gift.name+' ($'+gift.price+')!',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(), read:false
+      });
+      // Show in live chat
+      if (liveId) {
+        db.collection('live_streams').doc(liveId).collection('chat').add({
+          uid: state.user.uid,
+          name: (state.profile&&state.profile.name)||'ZYNCer',
+          text: gift.emoji+' sent a '+gift.name+'!',
+          isGift:true,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      }
+      showToast(gift.emoji+' Gift sent!');
+    },
+    onClose:function(){showToast('Gift cancelled');}
+  }).openIframe();
+}
+
+// ══════════════════════════════════════════════════════════════
+// FEATURE 12: ACCESSIBILITY MODE
+// ══════════════════════════════════════════════════════════════
+var accessibilityOn = localStorage.getItem('zync_accessibility') === '1';
+
+function toggleAccessibility() {
+  accessibilityOn = !accessibilityOn;
+  localStorage.setItem('zync_accessibility', accessibilityOn ? '1' : '0');
+  applyAccessibility();
+  showToast(accessibilityOn ? '♿ Accessibility mode ON' : '♿ Accessibility mode OFF');
+}
+
+function applyAccessibility() {
+  var root = document.documentElement;
+  if (accessibilityOn) {
+    root.style.setProperty('--a11y-scale','1.15');
+    document.body.style.fontSize = '16px';
+    document.querySelectorAll('.spark-card,.sk-body,.m-input,.btn-pay').forEach(function(el){
+      el.style.fontSize='15px';
+    });
+    document.getElementById('a11y-toggle') && (document.getElementById('a11y-toggle').textContent='♿ Accessibility: ON');
+  } else {
+    root.style.removeProperty('--a11y-scale');
+    document.body.style.fontSize='';
+    document.querySelectorAll('.spark-card,.sk-body,.m-input,.btn-pay').forEach(function(el){
+      el.style.fontSize='';
+    });
+    document.getElementById('a11y-toggle') && (document.getElementById('a11y-toggle').textContent='♿ Accessibility: OFF');
+  }
+}
+
+// Apply on load
+setTimeout(applyAccessibility, 500);
+
+// ══════════════════════════════════════════════════════════════
+// FEATURE 13: BULK MEDIA UPLOAD (CAROUSEL)
+// ══════════════════════════════════════════════════════════════
+var carouselMedia = [];
+var carouselUploading = false;
+
+function openCarouselUpload() {
+  if (!state.user) { showToast('Login first'); return; }
+  carouselMedia = [];
+  document.getElementById('carousel-preview').innerHTML='<div style="color:var(--muted);font-size:12px;text-align:center;padding:20px">No images selected</div>';
+  document.getElementById('carousel-count').textContent='0/10';
+  openModal('modal-carousel');
+}
+
+function pickCarouselFiles() {
+  var inp = document.createElement('input');
+  inp.type='file'; inp.multiple=true; inp.accept='image/*,video/*';
+  inp.onchange = function() {
+    var files = Array.from(inp.files).slice(0, 10 - carouselMedia.length);
+    if (!files.length) return;
+    files.forEach(function(file) {
+      if (file.size > 200*1024*1024) { showToast('File too large: '+file.name); return; }
+      carouselMedia.push(file);
+    });
+    renderCarouselPreview();
+  };
+  inp.click();
+}
+
+function renderCarouselPreview() {
+  var preview = document.getElementById('carousel-preview');
+  document.getElementById('carousel-count').textContent = carouselMedia.length+'/10';
+  if (!carouselMedia.length) {
+    preview.innerHTML='<div style="color:var(--muted);font-size:12px;text-align:center;padding:20px">No files selected</div>';
+    return;
+  }
+  preview.innerHTML='<div style="display:flex;gap:8px;flex-wrap:wrap">';
+  carouselMedia.forEach(function(file, i) {
+    var url = URL.createObjectURL(file);
+    var isVideo = file.type.startsWith('video');
+    preview.innerHTML += '<div style="position:relative;width:80px;height:80px;border-radius:8px;overflow:hidden;border:1px solid var(--border)">'+
+      (isVideo
+        ? '<video src="'+url+'" style="width:100%;height:100%;object-fit:cover" muted></video><div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:18px">▶️</div>'
+        : '<img src="'+url+'" style="width:100%;height:100%;object-fit:cover">')+
+      '<button onclick="removeCarouselItem('+i+')" style="position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:50%;background:rgba(239,68,68,.9);border:none;color:#fff;font-size:10px;cursor:pointer;line-height:1">✕</button>'+
+    '</div>';
+  });
+  preview.innerHTML += '</div>';
+}
+
+function removeCarouselItem(idx) {
+  carouselMedia.splice(idx,1);
+  renderCarouselPreview();
+}
+
+function postCarousel() {
+  if (!carouselMedia.length) { showToast('Add at least one file'); return; }
+  if (carouselUploading) return;
+  carouselUploading = true;
+  var btn = document.getElementById('carousel-post-btn');
+  btn.disabled = true; btn.textContent = 'Uploading...';
+  var caption = document.getElementById('carousel-caption').value.trim();
+
+  // Upload all files to Cloudinary
+  var uploads = carouselMedia.map(function(file) {
+    var fd = new FormData();
+    fd.append('file', file);
+    fd.append('upload_preset','ml_default');
+    var endpoint = file.type.startsWith('video')
+      ? 'https://api.cloudinary.com/v1_1/dk4svvssf/video/upload'
+      : 'https://api.cloudinary.com/v1_1/dk4svvssf/image/upload';
+    return fetch(endpoint, { method:'POST', body:fd })
+      .then(function(r){return r.json();})
+      .then(function(d){return { url:d.secure_url, type:file.type.startsWith('video')?'video':'image' };});
+  });
+
+  Promise.all(uploads).then(function(mediaItems) {
+    return db.collection('sparks').add({
+      text: caption,
+      authorId: state.user.uid,
+      authorName: (state.profile&&state.profile.name)||'ZYNCer',
+      authorHandle: (state.profile&&state.profile.handle)||'user',
+      authorColor: (state.profile&&state.profile.color)||COLORS[0],
+      isPremium: (state.profile&&state.profile.isPremium)||false,
+      isVerified: (state.profile&&state.profile.isVerified)||false,
+      category:'all',
+      isCarousel:true,
+      carouselMedia: mediaItems,
+      mediaUrl: mediaItems[0].url, mediaType: mediaItems[0].type,
+      likes:[], saved:[], commentCount:0, reposts:0,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  }).then(function() {
+    closeModal('modal-carousel');
+    carouselMedia=[];
+    carouselUploading=false;
+    btn.disabled=false; btn.textContent='Post Carousel';
+    showToast('📸 Carousel posted!');
+  }).catch(function(e) {
+    carouselUploading=false;
+    btn.disabled=false; btn.textContent='Post Carousel';
+    showToast('Upload failed: '+e.message);
+  });
+}
+
+// ══════════════════════════════════════════════════════════════
+// FEATURE 14: PAID EVENTS
+// ══════════════════════════════════════════════════════════════
+function openPaidEvents() {
+  if (!state.user) { showToast('Login first'); return; }
+  openModal('modal-paid-events');
+  loadPaidEvents();
+}
+
+function loadPaidEvents() {
+  var list = document.getElementById('paid-events-list');
+  list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Loading events...</div>';
+  db.collection('paid_events').where('eventDate','>',new Date()).orderBy('eventDate','asc').limit(20).get()
+    .then(function(snap) {
+      if (snap.empty) { list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">No upcoming events.<br>Create one!</div>'; return; }
+      list.innerHTML = snap.docs.map(function(d) {
+        var ev = d.data();
+        var isOwn = ev.hostId===state.user.uid;
+        var attended = (ev.attendees||[]).indexOf(state.user.uid)>-1;
+        return '<div class="sched-item">'+
+          '<div style="display:flex;justify-content:space-between;align-items:flex-start">'+
+            '<div>'+
+              '<div style="font-size:13px;font-weight:700;color:var(--moon)">'+esc(ev.title||'Event')+'</div>'+
+              '<div style="font-size:11px;color:var(--muted);margin-top:2px">'+
+                '📅 '+new Date(ev.eventDate&&ev.eventDate.seconds?ev.eventDate.seconds*1000:ev.eventDate).toLocaleDateString()+' · '+
+                '👤 by @'+esc(ev.hostHandle||'user')+'</div>'+
+              '<div style="font-size:11px;color:var(--muted)">🎟 '+(ev.attendees||[]).length+' attending · 💵 $'+ev.price+'</div>'+
+              '<div style="font-size:11px;color:var(--moon);margin-top:4px">'+esc((ev.description||'').slice(0,80))+'</div>'+
+            '</div>'+
+            (attended?'<span style="font-size:10px;padding:4px 10px;border-radius:20px;background:rgba(34,197,94,.15);color:var(--green3)">✓ Attending</span>':
+              isOwn?'<span style="font-size:10px;padding:4px 10px;border-radius:20px;background:rgba(99,102,241,.15);color:#a5b4fc">Your Event</span>':
+              '<button onclick="buyEventTicket(\''+d.id+'\',\''+esc(ev.title||'Event')+'\','+ev.price+')" style="font-size:10px;padding:5px 12px;border-radius:20px;background:var(--green2);border:none;color:#fff;cursor:pointer;font-family:\'DM Sans\',sans-serif">Buy $'+ev.price+'</button>')+
+          '</div>'+
+        '</div>';
+      }).join('');
+    }).catch(function(){list.innerHTML='<div style="color:#fca5a5;padding:10px">Error loading events</div>';});
+}
+
+function showCreateEvent() {
+  document.getElementById('events-list-view').style.display='none';
+  document.getElementById('create-event-view').style.display='block';
+}
+
+function cancelCreateEvent() {
+  document.getElementById('events-list-view').style.display='block';
+  document.getElementById('create-event-view').style.display='none';
+}
+
+function createPaidEvent() {
+  var title = document.getElementById('ev-title').value.trim();
+  var desc  = document.getElementById('ev-desc').value.trim();
+  var date  = document.getElementById('ev-date').value;
+  var price = parseFloat(document.getElementById('ev-price').value)||0;
+  var link  = document.getElementById('ev-link').value.trim();
+  var err   = document.getElementById('ev-err');
+  if (!title){err.textContent='Enter a title';return;}
+  if (!date){err.textContent='Enter event date';return;}
+  if (price<1){err.textContent='Price must be at least $1';return;}
+  err.textContent='';
+
+  db.collection('paid_events').add({
+    title, description:desc, eventDate: new Date(date), price,
+    meetingLink: link,
+    hostId: state.user.uid,
+    hostName: (state.profile&&state.profile.name)||'ZYNCer',
+    hostHandle: (state.profile&&state.profile.handle)||'user',
+    attendees:[], revenue:0,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function() {
+    showToast('🎟 Event created!');
+    cancelCreateEvent();
+    loadPaidEvents();
+  }).catch(function(){err.textContent='Error creating event';});
+}
+
+function buyEventTicket(eventId, eventTitle, price) {
+  if (!state.user){showToast('Login first');return;}
+  if (typeof PaystackPop==='undefined'){showToast('Payment loading');return;}
+  PaystackPop.setup({
+    key:PAYSTACK_KEY, email:state.user.email,
+    amount:price*100, currency:'USD',
+    ref:'ZEVT-'+eventId+'-'+Date.now(),
+    callback:function() {
+      db.collection('paid_events').doc(eventId).update({
+        attendees: firebase.firestore.FieldValue.arrayUnion(state.user.uid),
+        revenue: firebase.firestore.FieldValue.increment(price*(1-0.10))
+      }).then(function(){
+        showToast('🎟 Ticket purchased for "'+eventTitle+'"!');
+        loadPaidEvents();
+      });
+    },
+    onClose:function(){showToast('Purchase cancelled');}
+  }).openIframe();
+}
+
+// ══════════════════════════════════════════════════════════════
+// FEATURE 15: DIGITAL PRODUCTS STORE
+// ══════════════════════════════════════════════════════════════
+function openDigitalStore() {
+  if (!state.user){showToast('Login first');return;}
+  openModal('modal-digital-store');
+  loadDigitalProducts();
+}
+
+function loadDigitalProducts() {
+  var list = document.getElementById('digital-products-list');
+  list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Loading...</div>';
+  db.collection('digital_products').orderBy('createdAt','desc').limit(30).get()
+    .then(function(snap) {
+      if (snap.empty){list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">No products yet.<br>List your first product!</div>';return;}
+      list.innerHTML=snap.docs.map(function(d){
+        var p=d.data();
+        var isOwn=p.sellerId===state.user.uid;
+        return '<div class="sched-item" style="display:flex;gap:10px;align-items:flex-start">'+
+          '<div style="font-size:28px;flex-shrink:0">'+esc(p.emoji||'📦')+'</div>'+
+          '<div style="flex:1">'+
+            '<div style="font-size:13px;font-weight:700;color:var(--moon)">'+esc(p.title||'Product')+'</div>'+
+            '<div style="font-size:11px;color:var(--muted);margin-top:2px">'+esc(p.type||'digital')+' · by @'+esc(p.sellerHandle||'user')+'</div>'+
+            '<div style="font-size:11px;color:var(--moon);margin-top:3px">'+esc((p.description||'').slice(0,80))+'</div>'+
+            '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">'+
+              '<span style="font-size:13px;font-weight:700;color:var(--green3)">$'+p.price+'</span>'+
+              (isOwn?'<span style="font-size:10px;color:var(--muted)">Your product</span>':
+                '<button onclick="buyDigitalProduct(\''+d.id+'\',\''+esc(p.title)+'\','+p.price+',\''+esc(p.downloadUrl||'')+'\',\''+p.sellerId+'\')" style="font-size:10px;padding:5px 12px;border-radius:20px;background:var(--green2);border:none;color:#fff;cursor:pointer;font-family:\'DM Sans\',sans-serif">Buy Now</button>')+
+            '</div>'+
+          '</div>'+
+        '</div>';
+      }).join('');
+    }).catch(function(){list.innerHTML='<div style="color:#fca5a5;padding:10px">Error loading</div>';});
+}
+
+function showListProduct() {
+  document.getElementById('digital-list-view').style.display='none';
+  document.getElementById('digital-create-view').style.display='block';
+}
+function cancelListProduct() {
+  document.getElementById('digital-list-view').style.display='block';
+  document.getElementById('digital-create-view').style.display='none';
+}
+
+function listDigitalProduct() {
+  var title = document.getElementById('dp-title').value.trim();
+  var desc  = document.getElementById('dp-desc').value.trim();
+  var price = parseFloat(document.getElementById('dp-price').value)||0;
+  var type  = document.getElementById('dp-type').value;
+  var url   = document.getElementById('dp-url').value.trim();
+  var emoji = document.getElementById('dp-emoji').value.trim()||'📦';
+  var err   = document.getElementById('dp-err');
+  if (!title){err.textContent='Enter a title';return;}
+  if (price<1){err.textContent='Price must be at least $1';return;}
+  if (!url){err.textContent='Enter a download/delivery URL';return;}
+  err.textContent='';
+
+  db.collection('digital_products').add({
+    title, description:desc, price, type, downloadUrl:url, emoji,
+    sellerId: state.user.uid,
+    sellerName: (state.profile&&state.profile.name)||'ZYNCer',
+    sellerHandle: (state.profile&&state.profile.handle)||'user',
+    sales:0, revenue:0,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function(){
+    showToast('📦 Product listed!');
+    cancelListProduct();
+    loadDigitalProducts();
+  }).catch(function(){err.textContent='Error listing product';});
+}
+
+function buyDigitalProduct(productId, title, price, downloadUrl, sellerId) {
+  if (!state.user){showToast('Login first');return;}
+  if (typeof PaystackPop==='undefined'){showToast('Payment loading');return;}
+  PaystackPop.setup({
+    key:PAYSTACK_KEY, email:state.user.email,
+    amount:price*100, currency:'USD',
+    ref:'ZDP-'+productId+'-'+Date.now(),
+    callback:function(){
+      db.collection('digital_products').doc(productId).update({
+        sales:firebase.firestore.FieldValue.increment(1),
+        revenue:firebase.firestore.FieldValue.increment(price*0.9)
+      });
+      db.collection('purchases').add({
+        buyerId:state.user.uid, buyerEmail:state.user.email,
+        productId, productTitle:title, price,
+        downloadUrl,
+        sellerId,
+        createdAt:firebase.firestore.FieldValue.serverTimestamp()
+      });
+      db.collection('notifications').add({
+        uid:sellerId, type:'sale',
+        text:'💰 Someone bought your product "'+esc(title)+'" for $'+price+'!',
+        createdAt:firebase.firestore.FieldValue.serverTimestamp(), read:false
+      });
+      showToast('✅ Purchase complete!');
+      if (downloadUrl) {
+        setTimeout(function(){
+          if (confirm('Your product is ready! Open download link now?')) window.open(downloadUrl,'_blank');
+        },500);
+      }
+    },
+    onClose:function(){showToast('Purchase cancelled');}
+  }).openIframe();
 }
 
 
