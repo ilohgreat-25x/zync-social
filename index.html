@@ -551,6 +551,8 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
         <button class="nav-item" id="nav-aria"><span class="nav-ic">🤖</span> ARIA AI</button>
         <button class="nav-item" id="nav-ads"><span class="nav-ic">📣</span> Advertise</button>
         <button class="nav-item" id="nav-admin" style="display:none"><span class="nav-ic">👑</span> Admin<span class="admin-badge">OWNER</span></button>
+        <div style="height:1px;background:var(--border);margin:8px 0"></div>
+        <button class="nav-item" id="nav-support" onclick="openSupportModal()"><span class="nav-ic">📧</span> Contact Support</button>
       </nav>
     </aside>
 
@@ -3066,6 +3068,46 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
   </div>
 </div>
 
+<!-- SUPPORT MODAL -->
+<div class="modal-overlay" id="modal-support" style="display:none">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-head">
+      <span style="font-size:16px;font-weight:700">📧 Contact Support</span>
+      <button class="modal-close" onclick="closeModal('modal-support')">✕</button>
+    </div>
+    <div style="padding:18px">
+      <div style="background:var(--deep);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px">
+        <div style="font-size:13px;font-weight:700;color:var(--moon);margin-bottom:6px">🌿 ZYNC Support Team</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.8">
+          We typically respond within <strong style="color:var(--green3)">24 hours</strong>.<br>
+          For urgent issues, describe your problem clearly.
+        </div>
+      </div>
+      <label class="m-label">Your Name</label>
+      <input class="m-input" id="sup-name" placeholder="Your full name" style="margin-bottom:10px">
+      <label class="m-label">Subject</label>
+      <select class="m-input" id="sup-subject" style="margin-bottom:10px">
+        <option value="General Inquiry">General Inquiry</option>
+        <option value="Account Issue">Account Issue</option>
+        <option value="Payment Issue">Payment Issue</option>
+        <option value="Bug Report">Bug Report</option>
+        <option value="Feature Request">Feature Request</option>
+        <option value="Airtime/Data Issue">Airtime/Data Issue</option>
+        <option value="Withdrawal Issue">Withdrawal Issue</option>
+        <option value="Report a User">Report a User</option>
+        <option value="Other">Other</option>
+      </select>
+      <label class="m-label">Message</label>
+      <textarea class="m-input" id="sup-message" placeholder="Describe your issue or question in detail..." style="min-height:100px;resize:vertical;margin-bottom:14px"></textarea>
+      <div class="m-err" id="sup-err"></div>
+      <button class="btn-pay" onclick="submitSupport()">📧 Send Message</button>
+      <div style="text-align:center;margin-top:12px;font-size:11px;color:var(--muted)">
+        Or email us directly at <a href="mailto:zyncofficial@outlook.com" style="color:var(--green3)">zyncofficial@outlook.com</a>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- VIDEO AD OVERLAY -->
 <div class="video-ad-overlay" id="video-ad-overlay">
   <div class="va-countdown" id="va-countdown">AD · SKIP IN 5s</div>
@@ -4995,6 +5037,64 @@ function banUser(userId, username, ban){
     // Send security alert for bans
     if(ban) sendSecurityAlert('brute_force', 'Admin banned user: ' + username + ' (ID: ' + userId + ')');
   }).catch(function(e){ showToast('Error: ' + e.message); });
+}
+
+// ── SUPPORT / CONTACT ──
+function openSupportModal(){
+  // Pre-fill name if logged in
+  if(state.profile && state.profile.name){
+    document.getElementById('sup-name').value = state.profile.name;
+  }
+  document.getElementById('sup-err').textContent = '';
+  document.getElementById('sup-message').value = '';
+  openModal('modal-support');
+}
+
+function submitSupport(){
+  var name = document.getElementById('sup-name').value.trim();
+  var subject = document.getElementById('sup-subject').value;
+  var message = document.getElementById('sup-message').value.trim();
+  var err = document.getElementById('sup-err');
+  
+  if(!name){ err.textContent = 'Please enter your name'; return; }
+  if(!message){ err.textContent = 'Please enter your message'; return; }
+  if(message.length < 10){ err.textContent = 'Message too short — please describe your issue'; return; }
+  
+  // Save to Firestore support_tickets collection
+  var ticket = {
+    name: name,
+    subject: subject,
+    message: message,
+    email: (state.user && state.user.email) || 'Not logged in',
+    uid: (state.user && state.user.uid) || 'anonymous',
+    handle: (state.profile && state.profile.handle) || '',
+    status: 'open',
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+  
+  db.collection('support_tickets').add(ticket).then(function(){
+    // Also send notification to admin
+    db.collection('notifications').add({
+      uid: 'ilohgreat25_admin',
+      type: 'support',
+      text: '📧 New support ticket from ' + name + ': ' + subject,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      read: false
+    }).catch(function(){});
+    
+    closeModal('modal-support');
+    showToast('✅ Message sent! We will reply within 24 hours.');
+    
+    // Also open mailto as backup
+    var mailBody = encodeURIComponent('Name: ' + name + '\nSubject: ' + subject + '\n\n' + message);
+    window.open('mailto:zyncofficial@outlook.com?subject=ZYNC Support: ' + encodeURIComponent(subject) + '&body=' + mailBody);
+  }).catch(function(e){
+    // Even if Firestore fails, open mailto
+    var mailBody = encodeURIComponent('Name: ' + name + '\nSubject: ' + subject + '\n\n' + message);
+    window.open('mailto:zyncofficial@outlook.com?subject=ZYNC Support: ' + encodeURIComponent(subject) + '&body=' + mailBody);
+    closeModal('modal-support');
+    showToast('✅ Opening your email app to send message!');
+  });
 }
 
 function markAllAlertsResolved(){
