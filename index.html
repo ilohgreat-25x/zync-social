@@ -468,8 +468,17 @@ body.light{
 body.light .c-ta{color:#0f2318!important}
 body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{background:#e8f5e0!important;color:#0f2318!important}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 <body>
+
+<script>
+  (function(){
+    if(typeof emailjs !== 'undefined'){
+      emailjs.init({ publicKey: '1SAe2l62JpULmOWYt' });
+    }
+  })();
+</script>
 
 <!-- AUTH -->
 <div id="auth-screen">
@@ -5072,29 +5081,46 @@ function submitSupport(){
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   };
   
-  db.collection('support_tickets').add(ticket).then(function(){
-    // Also send notification to admin
-    db.collection('notifications').add({
-      uid: 'ilohgreat25_admin',
-      type: 'support',
-      text: '📧 New support ticket from ' + name + ': ' + subject,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      read: false
-    }).catch(function(){});
-    
-    closeModal('modal-support');
-    showToast('✅ Message sent! We will reply within 24 hours.');
-    
-    // Also open mailto as backup
+  // Save to Firestore
+  db.collection('support_tickets').add(ticket).catch(function(){});
+  
+  // Send admin notification in ZYNC
+  db.collection('notifications').add({
+    uid: 'ilohgreat25_admin',
+    type: 'support',
+    text: '📧 New support ticket from ' + name + ': ' + subject,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    read: false
+  }).catch(function(){});
+
+  // Send email via EmailJS directly to zyncofficial@outlook.com
+  var templateParams = {
+    from_name: name,
+    from_email: (state.user && state.user.email) || 'Not logged in',
+    handle: (state.profile && state.profile.handle) || 'unknown',
+    subject: subject,
+    message: message
+  };
+
+  if(typeof emailjs !== 'undefined'){
+    emailjs.send('service_spm1gg9', 'template_447t22k', templateParams)
+      .then(function(){
+        closeModal('modal-support');
+        showToast('✅ Message sent! We will reply within 24 hours.');
+      }, function(error){
+        // Fallback to mailto if EmailJS fails
+        var mailBody = encodeURIComponent('Name: ' + name + '\nSubject: ' + subject + '\n\n' + message);
+        window.open('mailto:zyncofficial@outlook.com?subject=ZYNC Support: ' + encodeURIComponent(subject) + '&body=' + mailBody);
+        closeModal('modal-support');
+        showToast('✅ Message sent via email app!');
+      });
+  } else {
+    // Fallback to mailto
     var mailBody = encodeURIComponent('Name: ' + name + '\nSubject: ' + subject + '\n\n' + message);
     window.open('mailto:zyncofficial@outlook.com?subject=ZYNC Support: ' + encodeURIComponent(subject) + '&body=' + mailBody);
-  }).catch(function(e){
-    // Even if Firestore fails, open mailto
-    var mailBody = encodeURIComponent('Name: ' + name + '\nSubject: ' + subject + '\n\n' + message);
-    window.open('mailto:zyncofficial@outlook.com?subject=ZYNC Support: ' + encodeURIComponent(subject) + '&body=' + mailBody);
     closeModal('modal-support');
-    showToast('✅ Opening your email app to send message!');
-  });
+    showToast('✅ Opening your email app!');
+  }
 }
 
 function markAllAlertsResolved(){
