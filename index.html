@@ -518,6 +518,10 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
 .live-chat-inp::placeholder{color:rgba(255,255,255,.4)}
 .live-send-btn{width:36px;height:36px;border-radius:50%;background:var(--green2);border:none;color:#fff;font-size:14px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
 
+
+/* ── WITHDRAWAL TABS ── */
+.wd-tab{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;white-space:nowrap}
+.wd-tab.active{background:var(--green2);color:#fff;border-color:var(--green2)}
 /* ── CALLS ── */
 .call-overlay{position:fixed;inset:0;background:#000;z-index:700;display:none;flex-direction:column;align-items:center;justify-content:center}
 .call-remote-video{width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0}
@@ -844,11 +848,77 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
         <div class="earn-stat"><div class="es-val" id="e-rev">$0.00</div><div class="es-lbl">Revenue Share</div></div>
       </div>
       <div class="e-panel" id="earn-withdraw">
-        <label class="m-label">Account Number</label><input class="m-input" id="wd-acc" placeholder="0000000000">
-        <label class="m-label">Bank Name</label><input class="m-input" id="wd-bank" placeholder="First Bank">
-        <label class="m-label">Amount ($)</label><input class="m-input" id="wd-amt" type="number" placeholder="20">
+        <!-- PAYMENT METHOD TABS -->
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
+          <button class="wd-tab active" id="wdt-bank"    onclick="switchWdTab('bank',this)">🏦 Bank</button>
+          <button class="wd-tab"        id="wdt-crypto"  onclick="switchWdTab('crypto',this)">₿ Crypto</button>
+          <button class="wd-tab"        id="wdt-paypal"  onclick="switchWdTab('paypal',this)">🅿 PayPal</button>
+          <button class="wd-tab"        id="wdt-momo"    onclick="switchWdTab('momo',this)">📱 Mobile Money</button>
+        </div>
+
+        <!-- BANK TRANSFER -->
+        <div id="wd-panel-bank">
+          <label class="m-label">Account Number</label>
+          <input class="m-input" id="wd-acc" placeholder="0000000000" style="margin-bottom:8px">
+          <label class="m-label">Bank Name</label>
+          <input class="m-input" id="wd-bank" placeholder="e.g. First Bank, GTBank" style="margin-bottom:8px">
+          <label class="m-label">Account Name</label>
+          <input class="m-input" id="wd-accname" placeholder="Full name on account" style="margin-bottom:8px">
+        </div>
+
+        <!-- CRYPTO -->
+        <div id="wd-panel-crypto" style="display:none">
+          <label class="m-label">Crypto Currency</label>
+          <select class="m-input" id="wd-crypto-coin" style="margin-bottom:8px">
+            <option value="USDT_TRC20">USDT (TRC20 — Tron)</option>
+            <option value="USDT_ERC20">USDT (ERC20 — Ethereum)</option>
+            <option value="BTC">Bitcoin (BTC)</option>
+            <option value="BNB">BNB (BEP20)</option>
+            <option value="ETH">Ethereum (ETH)</option>
+          </select>
+          <label class="m-label">Wallet Address</label>
+          <input class="m-input" id="wd-wallet" placeholder="Paste your wallet address" style="margin-bottom:8px">
+          <div style="font-size:10px;color:#fbbf24;padding:6px 10px;background:rgba(251,191,36,.1);border-radius:8px;margin-bottom:8px">
+            ⚠️ Double-check your wallet address. Crypto transfers are irreversible.
+          </div>
+        </div>
+
+        <!-- PAYPAL -->
+        <div id="wd-panel-paypal" style="display:none">
+          <label class="m-label">PayPal Email Address</label>
+          <input class="m-input" id="wd-paypal-email" placeholder="yourname@paypal.com" style="margin-bottom:8px">
+          <div style="font-size:10px;color:var(--muted);margin-bottom:8px">Make sure this email is linked to an active PayPal account.</div>
+        </div>
+
+        <!-- MOBILE MONEY -->
+        <div id="wd-panel-momo" style="display:none">
+          <label class="m-label">Mobile Money Provider</label>
+          <select class="m-input" id="wd-momo-provider" style="margin-bottom:8px">
+            <option value="mpesa">M-Pesa</option>
+            <option value="mtn">MTN Mobile Money</option>
+            <option value="airtel">Airtel Money</option>
+            <option value="opay">OPay</option>
+            <option value="palmpay">PalmPay</option>
+          </select>
+          <label class="m-label">Phone Number</label>
+          <input class="m-input" id="wd-momo-phone" placeholder="+234 800 000 0000" style="margin-bottom:8px">
+          <label class="m-label">Full Name on Account</label>
+          <input class="m-input" id="wd-momo-name" placeholder="Full name" style="margin-bottom:8px">
+        </div>
+
+        <!-- AMOUNT (shared) -->
+        <label class="m-label">Amount (USD)</label>
+        <input class="m-input" id="wd-amt" type="number" placeholder="Minimum $20" min="20" style="margin-bottom:4px">
+        <div style="font-size:10px;color:var(--muted);margin-bottom:12px">Min $20 · Your balance: <span id="wd-bal-display" style="color:var(--green3)">$0.00</span></div>
+
         <div class="m-err" id="wd-err"></div>
-        <button class="btn-pay" id="btn-wd">Request Withdrawal</button>
+        <button class="btn-pay" id="btn-wd" onclick="requestWithdrawal()">💸 Request Withdrawal</button>
+
+        <!-- WITHDRAWAL HISTORY -->
+        <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:12px">
+          <div style="font-size:11px;font-weight:700;color:var(--moon);margin-bottom:8px">Withdrawal History</div>
+          <div id="wd-history"><div style="font-size:11px;color:var(--muted)">Loading...</div></div>
+        </div>
       </div>
       <div class="e-panel" id="earn-referral">
         <div style="background:var(--deep);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:12px;font-size:12px;color:var(--muted);line-height:1.7">Share your link and earn $1 per signup!</div>
@@ -4904,26 +4974,37 @@ function doRegister(){
       // Check referral code in URL
       var urlParams = new URLSearchParams(window.location.search);
       var refCode = urlParams.get('ref');
-      if(refCode){
-        // Credit $1 to referrer
-        db.collection('users').doc(refCode).update({
-          earnings: firebase.firestore.FieldValue.increment(1)
-        }).then(function(){
-          // Notify referrer
-          db.collection('notifications').add({
-            to: refCode,
-            type: 'referral',
-            text: 'Someone signed up using your referral link! You earned $1.00 🎉',
-            read: false,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          });
-          // Log referral
-          db.collection('referrals').add({
-            referrerId: refCode,
-            newUserId: auth.currentUser.uid,
-            amount: 1,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          });
+      var newUid = auth.currentUser.uid;
+      // ONE-CHAIN REFERRAL: only the DIRECT referrer earns $1
+      // A refers B → A gets $1. When B refers C → B gets $1, A gets nothing.
+      if(refCode && refCode !== newUid){
+        // Check this new user has never been referred before (prevent abuse)
+        db.collection('referrals').where('newUserId','==',newUid).get().then(function(snap){
+          if(!snap.empty) return; // already referred — do nothing
+          // Check referrer exists
+          db.collection('users').doc(refCode).get().then(function(referrerDoc){
+            if(!referrerDoc.exists) return; // referrer not found
+            // Credit $1 to DIRECT referrer only
+            db.collection('users').doc(refCode).update({
+              earnings: firebase.firestore.FieldValue.increment(1),
+              referralCount: firebase.firestore.FieldValue.increment(1)
+            });
+            db.collection('notifications').add({
+              uid: refCode,
+              type: 'referral',
+              text: '🎉 Someone signed up with your referral link! You earned $1.00',
+              read: false,
+              createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            // Store the referral so this user can never be referred again
+            db.collection('referrals').add({
+              referrerId: refCode,
+              referrerName: referrerDoc.data().name||'ZYNCer',
+              newUserId: newUid,
+              amount: 1,
+              createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+          }).catch(function(){});
         }).catch(function(){});
       }
       return auth.currentUser.updateProfile({displayName:document.getElementById('r-name').value.trim()});
@@ -5230,33 +5311,129 @@ function setTip(amount){ document.getElementById('tip-amt').value=amount; }
 document.getElementById('btn-tip').addEventListener('click',function(){ var amount=parseInt(document.getElementById('tip-amt').value)||0; if(amount<100){ document.getElementById('tip-err').textContent='Minimum tip is $1'; return; } if(!state.user||!state.tipTarget) return; if(typeof PaystackPop==='undefined'){ showToast('Payment loading, try again.'); return; } PaystackPop.setup({key:PAYSTACK_KEY,email:state.user.email,amount:amount*100,currency:'USD',ref:'ZT-'+Date.now(),callback:function(){ db.collection('users').doc(state.tipTarget.id).update({tips:firebase.firestore.FieldValue.increment(amount)}); db.collection('notifications').add({toUid:state.tipTarget.id,fromName:state.profile.name,type:'tip',text:state.profile.name+' tipped you $'+amount.toLocaleString(),read:false,createdAt:firebase.firestore.FieldValue.serverTimestamp()}); closeModal('modal-tip'); showToast('Tip sent! 💝'); },onClose:function(){ showToast('Tip cancelled'); }}).openIframe(); });
 
 function switchTab(group,tab,btn){ document.querySelectorAll('#modal-'+group+' .tab-row .f-pill').forEach(function(b){ b.classList.remove('active'); }); btn.classList.add('active'); document.querySelectorAll('#modal-'+group+' .e-panel').forEach(function(p){ p.classList.remove('active'); }); document.getElementById(group+'-'+tab).classList.add('active'); }
-document.getElementById('btn-wd').addEventListener('click',function(){
-  var acc=document.getElementById('wd-acc').value.trim(),
-      bank=document.getElementById('wd-bank').value.trim(),
-      amt=parseFloat(document.getElementById('wd-amt').value)||0,
-      err=document.getElementById('wd-err');
-  if(!acc||!bank){ err.textContent='Fill in all fields'; return; }
-  if(amt<20){ err.textContent='Minimum withdrawal is $20'; return; }
-  // Get user balance from Firestore
-  var userBalance = parseFloat((state.profile && state.profile.earnings)||0);
-  if(amt > userBalance){
-    err.textContent='Insufficient funds! Your balance is $'+userBalance.toFixed(2);
-    showToast('❌ Insufficient funds! Balance: $'+userBalance.toFixed(2));
-    return;
-  }
-  db.collection('withdrawals').add({
-    uid:state.user.uid,
-    name:state.profile.name,
-    account:acc,
-    bank:bank,
-    amount:amt,
-    status:'pending',
-    requestedAt:firebase.firestore.FieldValue.serverTimestamp()
+// ── WITHDRAWAL SYSTEM ──
+var currentWdMethod = 'bank';
+
+function switchWdTab(method, btn) {
+  currentWdMethod = method;
+  document.querySelectorAll('.wd-tab').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  ['bank','crypto','paypal','momo'].forEach(function(m){
+    var el = document.getElementById('wd-panel-'+m);
+    if(el) el.style.display = m===method ? 'block' : 'none';
   });
+}
+
+function loadWdHistory() {
+  if(!state.user) return;
+  var bal = parseFloat((state.profile&&state.profile.earnings)||0);
+  var balEl = document.getElementById('wd-bal-display');
+  if(balEl) balEl.textContent = '$'+bal.toFixed(2);
+
+  var hist = document.getElementById('wd-history');
+  if(!hist) return;
+  db.collection('withdrawals').where('uid','==',state.user.uid)
+    .orderBy('requestedAt','desc').limit(10).get()
+    .then(function(snap){
+      if(snap.empty){ hist.innerHTML='<div style="font-size:11px;color:var(--muted)">No withdrawals yet</div>'; return; }
+      hist.innerHTML = snap.docs.map(function(d){
+        var w=d.data();
+        var statusColor = w.status==='paid'?'var(--green3)':w.status==='rejected'?'#ef4444':'#fbbf24';
+        var statusIcon  = w.status==='paid'?'✅':w.status==='rejected'?'❌':'⏳';
+        return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">' +
+          '<div><div style="font-size:12px;color:var(--moon)">$'+w.amount.toFixed(2)+' via '+esc(w.method||'Bank')+'</div>' +
+          '<div style="font-size:10px;color:var(--muted)">'+timeAgo(w.requestedAt)+'</div></div>' +
+          '<span style="font-size:11px;color:'+statusColor+'">'+statusIcon+' '+esc(w.status||'pending')+'</span>' +
+        '</div>';
+      }).join('');
+    }).catch(function(){ hist.innerHTML='<div style="font-size:11px;color:var(--muted)">Could not load history</div>'; });
+}
+
+function requestWithdrawal() {
+  var amt = parseFloat(document.getElementById('wd-amt').value)||0;
+  var err = document.getElementById('wd-err');
   err.textContent='';
-  showToast('Withdrawal request submitted! ✓');
-  closeModal('modal-earn');
-});
+
+  if(amt<20){ err.textContent='Minimum withdrawal is $20'; return; }
+  var userBalance = parseFloat((state.profile&&state.profile.earnings)||0);
+  if(amt>userBalance){ err.textContent='Insufficient balance ($'+userBalance.toFixed(2)+' available)'; return; }
+
+  var wdData = {
+    uid: state.user.uid,
+    name: (state.profile&&state.profile.name)||'ZYNCer',
+    email: state.user.email,
+    amount: amt,
+    method: currentWdMethod,
+    status: 'pending',
+    requestedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+
+  if(currentWdMethod==='bank'){
+    var acc  = document.getElementById('wd-acc').value.trim();
+    var bank = document.getElementById('wd-bank').value.trim();
+    var accname = document.getElementById('wd-accname').value.trim();
+    if(!acc||!bank||!accname){ err.textContent='Please fill all bank fields'; return; }
+    wdData.bankAccount = acc;
+    wdData.bankName    = bank;
+    wdData.accountName = accname;
+    wdData.details     = accname+' · '+bank+' · '+acc;
+
+  } else if(currentWdMethod==='crypto'){
+    var wallet = document.getElementById('wd-wallet').value.trim();
+    var coin   = document.getElementById('wd-crypto-coin').value;
+    if(!wallet){ err.textContent='Please enter your wallet address'; return; }
+    if(wallet.length<20){ err.textContent='Wallet address looks too short — check it'; return; }
+    wdData.walletAddress = wallet;
+    wdData.cryptoCoin    = coin;
+    wdData.details       = coin+' · '+wallet.slice(0,12)+'...';
+
+  } else if(currentWdMethod==='paypal'){
+    var ppEmail = document.getElementById('wd-paypal-email').value.trim();
+    if(!ppEmail||ppEmail.indexOf('@')<0){ err.textContent='Enter a valid PayPal email'; return; }
+    wdData.paypalEmail = ppEmail;
+    wdData.details     = 'PayPal · '+ppEmail;
+
+  } else if(currentWdMethod==='momo'){
+    var phone    = document.getElementById('wd-momo-phone').value.trim();
+    var provider = document.getElementById('wd-momo-provider').value;
+    var momoName = document.getElementById('wd-momo-name').value.trim();
+    if(!phone||!momoName){ err.textContent='Please fill all mobile money fields'; return; }
+    wdData.momoPhone    = phone;
+    wdData.momoProvider = provider;
+    wdData.momoName     = momoName;
+    wdData.details      = provider.toUpperCase()+' · '+phone;
+  }
+
+  var btn = document.getElementById('btn-wd');
+  btn.disabled=true; btn.textContent='Submitting...';
+
+  // Deduct balance immediately so user can't double-withdraw
+  db.collection('users').doc(state.user.uid).update({
+    earnings: firebase.firestore.FieldValue.increment(-amt)
+  }).then(function(){
+    return db.collection('withdrawals').add(wdData);
+  }).then(function(){
+    // Notify admin
+    db.collection('notifications').add({
+      uid: 'ilohgreat25@gmail.com',
+      type: 'withdrawal_request',
+      text: '💸 '+esc(wdData.name)+' requested $'+amt.toFixed(2)+' via '+currentWdMethod+' ('+esc(wdData.details)+')',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      read: false
+    }).catch(function(){});
+    btn.disabled=false; btn.textContent='💸 Request Withdrawal';
+    showToast('✅ Withdrawal submitted! Processing in 24-48 hours.');
+    document.getElementById('wd-amt').value='';
+    loadWdHistory();
+    // Refresh balance display
+    if(state.profile) state.profile.earnings = (state.profile.earnings||0) - amt;
+    var balEl = document.getElementById('wd-bal-display');
+    if(balEl) balEl.textContent='$'+Math.max(0,(state.profile&&state.profile.earnings)||0).toFixed(2);
+  }).catch(function(e){
+    btn.disabled=false; btn.textContent='💸 Request Withdrawal';
+    err.textContent='Error submitting request. Try again.';
+  });
+}
 function copyRef(){ var link=document.getElementById('ref-link').value; if(navigator.clipboard){ navigator.clipboard.writeText(link); showToast('Referral link copied!'); } }
 
 function setNetwork(btn,network){ state.network=network; btn.closest('.ntabs').querySelectorAll('.ntab').forEach(function(b){ b.classList.remove('active'); }); btn.classList.add('active'); }
@@ -6678,13 +6855,14 @@ function openLivesList() {
   var container = document.getElementById('lives-list-container');
   container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Loading...</div>';
 
-  db.collection('live_streams').where('live','==',true).orderBy('createdAt','desc').get()
+  db.collection('live_streams').where('live','==',true).get()
     .then(function(snap) {
       if (snap.empty) {
         container.innerHTML = '<div style="text-align:center;padding:30px"><div style="font-size:32px;margin-bottom:10px">📺</div><div style="color:var(--muted)">No one is live right now.<br>Be the first to go live!</div><button class="btn-pay" style="margin-top:14px" onclick="closeModal(\'modal-lives-list\');openGoLive()">🔴 Go Live</button></div>';
         return;
       }
-      container.innerHTML = snap.docs.map(function(d) {
+      var sorted=snap.docs.slice().sort(function(a,b){var ta=a.data().createdAt&&a.data().createdAt.seconds?a.data().createdAt.seconds:0;var tb=b.data().createdAt&&b.data().createdAt.seconds?b.data().createdAt.seconds:0;return tb-ta;});
+      container.innerHTML = sorted.map(function(d) {
         var s = d.data();
         var initial = (s.hostName || 'Z').charAt(0).toUpperCase();
         return '<div class="live-card" onclick="joinStream(\'' + d.id + '\',\'' + esc(s.hostName||'ZYNCer') + '\',\'' + esc(s.hostHandle||'user') + '\',\'' + esc(s.hostColor||COLORS[0]) + '\')">' +
@@ -7614,7 +7792,7 @@ function launchMemoryGame(container) {
 
 function launchTriviaGame(container) {
   var questions = [
-    { q:'What year was ZYNC founded?', opts:['2023','2024','2025','2026'], ans:2 },
+    { q:'What year was ZYNC founded?', opts:['2023','2024','2025','2026'], ans:3 },
     { q:'What does API stand for?', opts:['App Program Interface','Application Programming Interface','Automated Process Integration','Applied Programming Index'], ans:1 },
     { q:'Which protocol powers live video calls?', opts:['HTTP','FTP','WebRTC','WebSocket'], ans:2 },
     { q:'What does CSS stand for?', opts:['Creative Style Sheets','Cascading Style Sheets','Computer Style System','Coded Style Syntax'], ans:1 },
