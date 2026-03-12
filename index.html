@@ -3069,7 +3069,7 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
 </div>
 
 <!-- SUPPORT MODAL -->
-<div class="modal-overlay" id="modal-support" style="display:none">
+<div class="modal-overlay" id="modal-support">
   <div class="modal" style="max-width:420px">
     <div class="modal-head">
       <span style="font-size:16px;font-weight:700">📧 Contact Support</span>
@@ -3102,7 +3102,7 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
       <div class="m-err" id="sup-err"></div>
       <button class="btn-pay" onclick="submitSupport()">📧 Send Message</button>
       <div style="text-align:center;margin-top:12px;font-size:11px;color:var(--muted)">
-        Or email us directly at <a href="mailto:zyncofficial@outlook.com" style="color:var(--green3)">zyncofficial@outlook.com</a>
+        Or email us directly at <a href="/cdn-cgi/l/email-protection#97edeef9f4f8f1f1fef4fef6fbd7f8e2e3fbf8f8fcb9f4f8fa" style="color:var(--green3)"><span class="__cf_email__" data-cfemail="73090a1d101c15151a101a121f331c06071f1c1c185d101c1e">[email&#160;protected]</span></a>
       </div>
     </div>
   </div>
@@ -3298,7 +3298,7 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
 
 <div class="toast" id="toast"></div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 'use strict';
 
 // ═══════════════════════════════════════════════
@@ -5622,9 +5622,8 @@ document.getElementById('aria-img-remove').addEventListener('click', function(){
   document.getElementById('aria-img-btn').style.borderColor = '';
   document.getElementById('aria-img-btn').style.color = '';
 });
-document.getElementById('aria-inp').addEventListener('keydown',function(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); ariaSend(); } });
+document.getElementById('aria-inp').addEventListener('keydown',function(e){ if(e.key==='Enter') ariaSend(); });
+
 </script>
-<script src="https://js.paystack.co/v1/inline.js"></script>
-<script src="https://upload-widget.cloudinary.com/global/all.js"></script></script>
 </body>
 </html>
