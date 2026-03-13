@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%23166534'/><text font-size='62' font-family='Georgia,serif' font-weight='bold' fill='%23fbbf24' x='50' y='50' text-anchor='middle' dominant-baseline='central'>M</text></svg>">
-<link rel="shortcut icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%23166534'/><text font-size='62' font-family='Georgia,serif' font-weight='bold' fill='%23fbbf24' x='50' y='50' text-anchor='middle' dominant-baseline='central'>M</text></svg>">
+<link rel="icon" id="dyn-favicon" type="image/svg+xml" href="">
+<circle cx='50' cy='50' r='50' fill='%23166534'/><text font-size='62' font-family='Georgia,serif' font-weight='bold' fill='%23fbbf24' x='50' y='50' text-anchor='middle' dominant-baseline='central'>M</text></svg>">
+<circle cx='50' cy='50' r='50' fill='%23166534'/><text font-size='62' font-family='Georgia,serif' font-weight='bold' fill='%23fbbf24' x='50' y='50' text-anchor='middle' dominant-baseline='central'>M</text></svg>">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mindvora — Where Minds Connect</title>
 <!-- SECURITY HEADERS -->
@@ -9719,6 +9720,37 @@ document.getElementById('aria-img-remove').addEventListener('click', function(){
   document.getElementById('aria-img-btn').style.color = '';
 });
 document.getElementById('aria-inp').addEventListener('keydown',function(e){ if(e.key==='Enter') ariaSend(); });
+
+
+// ── ANIMATED FAVICON ──────────────────────────────────────────────────────
+(function(){
+  var FAVI_COLORS = [
+    '#166534','#16a34a','#22c55e','#4ade80',
+    '#0ea5e9','#38bdf8','#0284c7','#1d4ed8',
+    '#3b82f6','#6366f1','#8b5cf6','#a855f7',
+    '#d946ef','#ec4899','#f43f5e','#ef4444',
+    '#dc2626','#ea580c','#f97316','#f59e0b',
+    '#eab308','#facc15','#84cc16','#65a30d',
+    '#14b8a6','#06b6d4','#0891b2','#7c3aed',
+    '#be185d','#9f1239','#b45309','#15803d',
+    '#0f766e','#166534'
+  ];
+  var fi = 0;
+  function updateFavicon(){
+    var col = FAVI_COLORS[fi % FAVI_COLORS.length];
+    var enc = encodeURIComponent(col);
+    var svg = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>" +
+      "<circle cx='50' cy='50' r='50' fill='" + enc + "'/>" +
+      "<text font-size='62' font-family='Georgia,serif' font-weight='bold' fill='%23ffffff' " +
+      "x='50' y='50' text-anchor='middle' dominant-baseline='central'>M</text></svg>";
+    var link = document.getElementById('dyn-favicon');
+    if(link) link.href = 'data:image/svg+xml,' + svg;
+    fi++;
+  }
+  updateFavicon();
+  // 12s total / 34 steps = ~353ms per step — matches CSS animation speed
+  setInterval(updateFavicon, 353);
+})();
 
 </script>
 </body>
