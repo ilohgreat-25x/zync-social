@@ -8732,6 +8732,7 @@ if('IntersectionObserver' in window) {
     entries.forEach(function(entry){
       var vid = entry.target;
       if(!vid.dataset || !vid.dataset.vid) return;
+      applySmartBlur(vid);
       if(entry.isIntersecting && entry.intersectionRatio > 0.6) {
         // Only autoplay if no other video is playing
         var anyPlaying = Array.from(document.querySelectorAll('.sk-media-main')).some(function(v){ return !v.paused; });
@@ -8750,13 +8751,59 @@ if('IntersectionObserver' in window) {
   }, { threshold: [0, 0.6] });
 
   // Observe videos as they are added to the feed
+
+// ── SMART BLUR: only apply blurred background when the video
+//    aspect ratio actually needs it (portrait or landscape).
+//    Square-ish videos fill the container naturally → no blur.
+function applySmartBlur(vid) {
+  function decide() {
+    var wrap = vid.closest('.sk-media-wrap');
+    if (!wrap) return;
+    var blur = wrap.querySelector('.sk-media-blur');
+    if (!blur) return;
+
+    var vw = vid.videoWidth;
+    var vh = vid.videoHeight;
+    if (!vw || !vh) return; // metadata not ready yet
+
+    var ratio = vw / vh;
+    var containerW = wrap.offsetWidth || 400;
+    var containerRatio = containerW / 340; // 340 = max-height
+
+    // How much of the container does the video naturally fill?
+    var fillW, fillH;
+    if (ratio > containerRatio) {
+      // video wider than container → letterbox (black top/bottom bars)
+      fillW = 1.0;
+      fillH = (containerRatio / ratio);
+    } else {
+      // video taller than container → pillarbox (black side bars)
+      fillW = (ratio / containerRatio);
+      fillH = 1.0;
+    }
+
+    // If video fills ≥ 92% of both dimensions, it fits naturally → hide blur
+    var needsBlur = fillW < 0.92 || fillH < 0.92;
+
+    blur.style.display   = needsBlur ? 'block' : 'none';
+    // For near-fill videos, use cover so they look sharp edge-to-edge
+    vid.style.objectFit  = needsBlur ? 'contain' : 'cover';
+  }
+
+  if (vid.readyState >= 1 && vid.videoWidth) {
+    decide();
+  } else {
+    vid.addEventListener('loadedmetadata', decide, { once: true });
+  }
+}
+
   var feedMutObs = new MutationObserver(function(mutations){
     mutations.forEach(function(m){
       m.addedNodes.forEach(function(node){
         if(node.nodeType!==1) return;
         var vids = node.querySelectorAll ? node.querySelectorAll('.sk-media-main') : [];
-        vids.forEach(function(v){ vidObserver.observe(v); });
-        if(node.classList && node.classList.contains('sk-media-main')) vidObserver.observe(node);
+        vids.forEach(function(v){ vidObserver.observe(v); applySmartBlur(v); });
+        if(node.classList && node.classList.contains('sk-media-main')){ vidObserver.observe(node); applySmartBlur(node); }
       });
     });
   });
