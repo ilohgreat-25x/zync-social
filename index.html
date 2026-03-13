@@ -5,7 +5,7 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%23166534'/><text font-size='62' font-family='Georgia,serif' font-weight='bold' fill='%23fbbf24' x='50' y='50' text-anchor='middle' dominant-baseline='central'>Z</text></svg>">
 <link rel="shortcut icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%23166534'/><text font-size='62' font-family='Georgia,serif' font-weight='bold' fill='%23fbbf24' x='50' y='50' text-anchor='middle' dominant-baseline='central'>Z</text></svg>">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ZYNC — Where Minds Connect</title>
+<title>Neuralseed — Where Minds Connect</title>
 <!-- SECURITY HEADERS -->
 <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob:; frame-src 'self' https://checkout.paystack.com https://www.google.com https://js.paystack.co https://widget.cloudinary.com https://upload-widget.cloudinary.com https://*.cloudinary.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://paystack.com https://js.paystack.co; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https:; media-src 'self' blob: data: https://*.cloudinary.com https://res.cloudinary.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:;">
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
@@ -21,6 +21,7 @@
 <!-- DOMPurify for XSS sanitization -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script></script>
@@ -46,7 +47,7 @@ button,input,textarea,select{font-family:'DM Sans',sans-serif}
 /* ── AUTH ── */
 #auth-screen{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;background:var(--deep)}
 #auth-screen::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 60% at 50% -5%,rgba(22,163,74,.18),transparent);pointer-events:none}
-.auth-logo{font-family:'DM Serif Display',serif;font-size:56px;color:var(--cream);letter-spacing:-2px;margin-bottom:2px;line-height:1}
+.auth-logo{font-family:'Great Vibes',cursive;font-size:68px;color:var(--cream);letter-spacing:0px;margin-bottom:2px;line-height:1.1}
 .auth-logo span{color:var(--green3)}
 .auth-sub{font-size:11px;color:var(--muted);letter-spacing:4px;text-transform:uppercase;margin-bottom:32px;font-weight:500}
 .auth-box{width:100%;max-width:420px;background:var(--card);border:1px solid var(--border);border-radius:24px;padding:28px 30px;box-shadow:0 40px 100px rgba(0,0,0,.5)}
@@ -74,7 +75,7 @@ button,input,textarea,select{font-family:'DM Sans',sans-serif}
 
 /* ── TOPBAR ── */
 .topbar{height:54px;background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 14px;gap:10px;flex-shrink:0;position:relative;z-index:50}
-.tb-logo{font-family:'DM Serif Display',serif;font-size:24px;color:var(--cream);flex-shrink:0;margin-right:4px;letter-spacing:-1px}
+.tb-logo{font-family:'Great Vibes',cursive;font-size:32px;color:var(--cream);flex-shrink:0;margin-right:4px;letter-spacing:0px}
 .tb-logo span{color:var(--green3)}
 .tb-sw{flex:1;max-width:260px;position:relative}
 .tb-sw input{width:100%;padding:7px 12px 7px 32px;background:var(--deep);border:1px solid var(--border);border-radius:20px;color:var(--white);font-size:12px;outline:none;transition:border-color .2s;font-family:'DM Sans',sans-serif}
@@ -600,12 +601,12 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
 
 <!-- AUTH -->
 <div id="auth-screen">
-  <div class="auth-logo">ZY<span>NC</span></div>
+  <div class="auth-logo"><span style="font-size:90px">N</span>euralseed</div>
   <div class="auth-sub">Where Minds Connect</div>
   <div class="auth-box">
     <div class="auth-tabs">
       <button class="auth-tab active" id="tab-login" onclick="showAuthTab('login')">Sign In</button>
-      <button class="auth-tab" id="tab-reg" onclick="showAuthTab('reg')">Join ZYNC</button>
+      <button class="auth-tab" id="tab-reg" onclick="showAuthTab('reg')">Join Neuralseed</button>
     </div>
     <div class="auth-panel active" id="panel-login">
       <div class="fg"><label>Email</label><input class="fi" id="li-email" type="email" placeholder="you@example.com" autocomplete="email"></div>
@@ -613,7 +614,7 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
         <div class="pw-wrap"><input class="fi" id="li-pass" type="password" placeholder="••••••••" autocomplete="current-password"><button class="eye-btn" type="button" onclick="toggleEye('li-pass','e0')"><span id="e0">👁</span></button></div>
       </div>
       <div class="a-err" id="li-err"></div>
-      <button class="btn-auth" id="btn-login">Enter ZYNC →</button>
+      <button class="btn-auth" id="btn-login">Enter Neuralseed →</button>
     </div>
     <div class="auth-panel" id="panel-reg">
       <div class="fg"><label>Full Name</label><input class="fi" id="r-name" type="text" placeholder="Your name" autocomplete="name"></div>
@@ -634,7 +635,7 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
 <!-- APP -->
 <div id="app-screen">
   <div class="topbar">
-    <div class="tb-logo">ZY<span>NC</span></div>
+    <div class="tb-logo"><span style="font-size:42px">N</span>euralseed</div>
     <div class="tb-sw"><input id="search-inp" type="text" placeholder="Search sparks…"></div>
     <div class="tb-right">
       <button class="tb-pill" onclick="openModal('modal-topup')">📱 Data & Airtime</button>
@@ -744,13 +745,13 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
       <div class="widget">
         <div class="wt">Trending</div>
         <div class="trend-row"><span class="tr-rank">1</span><span class="tr-tag">#AIRevolution</span><span class="tr-cnt">2.4k</span></div>
-        <div class="trend-row"><span class="tr-rank">2</span><span class="tr-tag">#ZYNCLife</span><span class="tr-cnt">1.8k</span></div>
+        <div class="trend-row"><span class="tr-rank">2</span><span class="tr-tag">#NeuralseedLife</span><span class="tr-cnt">1.8k</span></div>
         <div class="trend-row"><span class="tr-rank">3</span><span class="tr-tag">#TechTips</span><span class="tr-cnt">1.2k</span></div>
         <div class="trend-row"><span class="tr-rank">4</span><span class="tr-tag">#MindSpark</span><span class="tr-cnt">980</span></div>
         <div class="trend-row"><span class="tr-rank">5</span><span class="tr-tag">#LearnDaily</span><span class="tr-cnt">754</span></div>
       </div>
       <div class="widget">
-        <div class="wt">Suggested ZYNCs</div>
+        <div class="wt">Suggested Users</div>
         <div class="sugg-row"><div class="sg-av" style="background:linear-gradient(135deg,#166534,#16a34a)">A</div><div style="flex:1"><div class="sg-name">Aria Chen</div><div class="sg-handle">@aria_c</div></div><button class="btn-fol">Follow</button></div>
         <div class="sugg-row"><div class="sg-av" style="background:linear-gradient(135deg,#0f766e,#14b8a6)">K</div><div style="flex:1"><div class="sg-name">Kofi M.</div><div class="sg-handle">@kofi_m</div></div><button class="btn-fol">Follow</button></div>
         <div class="sugg-row"><div class="sg-av" style="background:linear-gradient(135deg,#854d0e,#ca8a04)">L</div><div style="flex:1"><div class="sg-name">Lila Santos</div><div class="sg-handle">@lila_s</div></div><button class="btn-fol">Follow</button></div>
@@ -812,20 +813,20 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
 <!-- PREMIUM MODAL -->
 <div class="modal-overlay" id="modal-prem">
   <div class="modal-box">
-    <div class="m-head"><div class="m-title">ZYNC Premium 💎</div><button class="m-close" onclick="closeModal('modal-prem')">✕</button></div>
+    <div class="m-head"><div class="m-title">Neuralseed Premium 💎</div><button class="m-close" onclick="closeModal('modal-prem')">✕</button></div>
     <div class="m-body">
-      <div class="plan-card sel" id="pc-basic" onclick="selPlan('basic',5,'ZYNC Basic')">
-        <div class="pl-name">ZYNC Basic</div>
+      <div class="plan-card sel" id="pc-basic" onclick="selPlan('basic',5,'Neuralseed Basic')">
+        <div class="pl-name">Neuralseed Basic</div>
         <div class="pl-price">$5<span>/month</span></div>
         <div class="pl-perks">✓ Ad-free &nbsp;✓ Verified badge &nbsp;✓ 500-char posts</div>
       </div>
-      <div class="plan-card" id="pc-pro" onclick="selPlan('pro',10,'ZYNC Pro')">
-        <div class="pl-name">ZYNC Pro ⭐</div>
+      <div class="plan-card" id="pc-pro" onclick="selPlan('pro',10,'Neuralseed Pro')">
+        <div class="pl-name">Neuralseed Pro ⭐</div>
         <div class="pl-price">$10<span>/month</span></div>
         <div class="pl-perks">✓ All Basic &nbsp;✓ Revenue share &nbsp;✓ Priority support</div>
       </div>
-      <div class="plan-card" id="pc-creator" onclick="selPlan('creator',20,'ZYNC Creator')">
-        <div class="pl-name">ZYNC Creator 🎯</div>
+      <div class="plan-card" id="pc-creator" onclick="selPlan('creator',20,'Neuralseed Creator')">
+        <div class="pl-name">Neuralseed Creator 🎯</div>
         <div class="pl-price">$20<span>/month</span></div>
         <div class="pl-perks">✓ All Pro &nbsp;✓ Analytics &nbsp;✓ Creator fund</div>
       </div>
@@ -850,7 +851,7 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
         </button>
       </div>
       <div style="background:var(--deep);border:1px solid var(--borderhi);border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-        <div><div id="co-name" style="font-size:13px;font-weight:700;color:var(--white)">ZYNC Basic</div><div style="font-size:11px;color:var(--muted)">Billed monthly</div></div>
+        <div><div id="co-name" style="font-size:13px;font-weight:700;color:var(--white)">Neuralseed Basic</div><div style="font-size:11px;color:var(--muted)">Billed monthly</div></div>
         <div id="co-price" style="font-family:'DM Serif Display',serif;font-size:24px;color:var(--green3)">$5</div>
       </div>
       <div class="m-err" id="pay-err"></div>
@@ -862,7 +863,7 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
 <!-- EARN MODAL -->
 <div class="modal-overlay" id="modal-earn">
   <div class="modal-box">
-    <div class="m-head"><div class="m-title">Earn on ZYNC 💰</div><button class="m-close" onclick="closeModal('modal-earn')">✕</button></div>
+    <div class="m-head"><div class="m-title">Earn on Neuralseed 💰</div><button class="m-close" onclick="closeModal('modal-earn')">✕</button></div>
     <div class="m-body">
       <div class="tab-row">
         <button class="f-pill active" onclick="switchTab('earn','overview',this)">Overview</button>
@@ -3251,7 +3252,7 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
 <!-- MARKETPLACE MODAL -->
 <div class="modal-overlay" id="modal-market">
   <div class="modal-box" style="max-width:580px">
-    <div class="m-head"><div class="m-title">🛒 ZYNC Marketplace</div><button class="m-close" onclick="closeModal('modal-market')">✕</button></div>
+    <div class="m-head"><div class="m-title">🛒 Neuralseed Marketplace</div><button class="m-close" onclick="closeModal('modal-market')">✕</button></div>
     <div class="m-body">
       <div class="mkt-tabs">
         <button class="f-pill active" onclick="switchMktTab('browse',this)">Browse</button>
@@ -3321,7 +3322,7 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
     </div>
     <div style="padding:18px">
       <div style="background:var(--deep);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px">
-        <div style="font-size:13px;font-weight:700;color:var(--moon);margin-bottom:6px">🌿 ZYNC Support Team</div>
+        <div style="font-size:13px;font-weight:700;color:var(--moon);margin-bottom:6px">🌿 Neuralseed Support Team</div>
         <div style="font-size:12px;color:var(--muted);line-height:1.8">
           We typically respond within <strong style="color:var(--green3)">24 hours</strong>.<br>
           For urgent issues, describe your problem clearly.
@@ -3356,7 +3357,7 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
 <div class="modal-overlay" id="modal-camera">
   <div class="modal" style="max-width:520px;padding:0;overflow:hidden;background:var(--deep)">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border)">
-      <span style="font-size:14px;font-weight:700;color:var(--moon)">📷 ZYNC Camera</span>
+      <span style="font-size:14px;font-weight:700;color:var(--moon)">📷 Neuralseed Camera</span>
       <button class="modal-close" onclick="closeCameraModal()">✕</button>
     </div>
 
@@ -3492,7 +3493,7 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
 <!-- LEADERBOARD MODAL -->
 <div class="modal-overlay" id="modal-leaderboard">
   <div class="modal" style="max-width:420px">
-    <div class="modal-head"><span style="font-size:15px;font-weight:700">🏆 Top ZYNCers</span><button class="modal-close" onclick="closeModal('modal-leaderboard')">✕</button></div>
+    <div class="modal-head"><span style="font-size:15px;font-weight:700">🏆 Top Neuralseeders</span><button class="modal-close" onclick="closeModal('modal-leaderboard')">✕</button></div>
     <div style="padding:16px">
       <div style="display:flex;gap:6px;margin-bottom:14px">
         <button class="f-pill active" id="lb-tab-sparks" onclick="switchLbTab('sparks',this)">✦ Sparks</button>
@@ -3531,7 +3532,7 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
     <div class="modal-head"><span style="font-size:15px;font-weight:700">📱 My QR Code</span><button class="modal-close" onclick="closeModal('modal-qr')">✕</button></div>
     <div style="padding:20px">
       <div class="qr-wrap" id="qr-wrap"><div style="padding:20px;color:#999">Generating...</div></div>
-      <div style="margin-top:12px;font-size:12px;color:var(--muted)">Scan to visit my ZYNC profile</div>
+      <div style="margin-top:12px;font-size:12px;color:var(--muted)">Scan to visit my Neuralseed profile</div>
       <button class="btn-pay" style="margin-top:12px" onclick="downloadQR()">Download QR</button>
     </div>
   </div>
@@ -3685,7 +3686,7 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
       <div id="create-group-view" style="display:none">
         <button onclick="cancelCreateGroup()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:12px;margin-bottom:12px;font-family:'DM Sans',sans-serif">← Back</button>
         <label class="m-label">Group Name</label>
-        <input class="m-input" id="group-name-inp" placeholder="e.g. ZYNC Creators" style="margin-bottom:10px">
+        <input class="m-input" id="group-name-inp" placeholder="e.g. Neuralseed Creators" style="margin-bottom:10px">
         <label class="m-label">Description (optional)</label>
         <input class="m-input" id="group-desc-inp" placeholder="What is this group about?" style="margin-bottom:10px">
         <label class="m-label">Emoji Icon</label>
@@ -3754,7 +3755,7 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
 <!-- GAMES MODAL -->
 <div class="modal-overlay" id="modal-games">
   <div class="modal" style="max-width:420px">
-    <div class="modal-head"><span style="font-size:15px;font-weight:700">🎮 ZYNC Games</span><button class="modal-close" onclick="closeModal('modal-games')">✕</button></div>
+    <div class="modal-head"><span style="font-size:15px;font-weight:700">🎮 Neuralseed Games</span><button class="modal-close" onclick="closeModal('modal-games')">✕</button></div>
     <div style="padding:16px">
       <div style="font-size:11px;color:var(--muted);margin-bottom:14px">Play mini games and challenge your friends!</div>
       <div style="display:flex;gap:10px;flex-wrap:wrap">
@@ -3885,7 +3886,7 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
       <div id="digital-create-view" style="display:none">
         <button onclick="cancelListProduct()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:12px;margin-bottom:12px;font-family:'DM Sans',sans-serif">← Back</button>
         <label class="m-label">Product Title</label>
-        <input class="m-input" id="dp-title" placeholder="e.g. Beginner's Guide to ZYNC" style="margin-bottom:10px">
+        <input class="m-input" id="dp-title" placeholder="e.g. Beginner's Guide to Neuralseed" style="margin-bottom:10px">
         <label class="m-label">Description</label>
         <textarea class="m-input" id="dp-desc" placeholder="What do buyers get?" rows="3" style="resize:none;margin-bottom:10px"></textarea>
         <label class="m-label">Type</label>
@@ -3928,7 +3929,7 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
 <!-- ADS MANAGER MODAL -->
 <div class="modal-overlay" id="modal-ads">
   <div class="modal-box" style="max-width:560px">
-    <div class="m-head"><div class="m-title">📣 Advertise on ZYNC</div><button class="m-close" onclick="closeModal('modal-ads')">✕</button></div>
+    <div class="m-head"><div class="m-title">📣 Advertise on Neuralseed</div><button class="m-close" onclick="closeModal('modal-ads')">✕</button></div>
     <div class="m-body">
       <div class="adm-tabs">
         <button class="f-pill active" onclick="switchAdTab('create',this)">Create Ad</button>
@@ -3938,20 +3939,20 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
 
       <!-- CREATE AD -->
       <div id="ads-create">
-        <div style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.7">Choose your ad type. Free ads appear in the feed for ZYNC users. Paid ads appear between posts AND before every video.</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.7">Choose your ad type. Free ads appear in the feed for Neuralseed users. Paid ads appear between posts AND before every video.</div>
 
         <!-- AD TYPE SELECTION -->
         <div id="ad-type-sel">
           <div class="ad-type-card sel" id="at-free" onclick="selectAdType('free')">
             <div class="at-icon">🆓</div>
             <div class="at-name">Free Ad</div>
-            <div class="at-desc">Promote your post or product to ZYNC users. Shows in the feed between posts. Available to all ZYNC users. Limited to 1 active free ad per user.</div>
+            <div class="at-desc">Promote your post or product to Neuralseed users. Shows in the feed between posts. Available to all Neuralseed users. Limited to 1 active free ad per user.</div>
             <div class="at-price">$0 <span style="font-family:'DM Sans',sans-serif;font-size:11px;color:var(--muted)">forever</span></div>
           </div>
           <div class="ad-type-card" id="at-paid" onclick="selectAdType('paid')">
             <div class="at-icon">⚡</div>
             <div class="at-name">Paid Ad</div>
-            <div class="at-desc">Maximum exposure. Shows between posts in feed AND as a popup before every video/reel plays. For ZYNC users and external businesses.</div>
+            <div class="at-desc">Maximum exposure. Shows between posts in feed AND as a popup before every video/reel plays. For Neuralseed users and external businesses.</div>
             <div class="at-price">From $5 <span style="font-family:'DM Sans',sans-serif;font-size:11px;color:var(--muted)">/campaign</span></div>
           </div>
         </div>
@@ -3975,7 +3976,7 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
 
         <!-- PAID AD FORM -->
         <div class="ad-form" id="form-paid">
-          <div style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:11px 14px;margin-bottom:14px;font-size:11px;color:var(--green3);line-height:1.7">⚡ Paid ads appear between posts AND before every video. Maximum reach across all ZYNC users globally.</div>
+          <div style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:11px 14px;margin-bottom:14px;font-size:11px;color:var(--green3);line-height:1.7">⚡ Paid ads appear between posts AND before every video. Maximum reach across all Neuralseed users globally.</div>
           <label class="m-label">Ad Title</label>
           <input class="m-input" id="paid-ad-title" placeholder="e.g. 50% Off Our New Collection!">
           <label class="m-label">Description</label>
@@ -4068,7 +4069,7 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
       <!-- SECURITY ALERTS -->
       <div id="admin-security" style="display:none">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-          <div style="font-size:12px;color:var(--muted)">Real-time security alerts from ZYNC</div>
+          <div style="font-size:12px;color:var(--muted)">Real-time security alerts from Neuralseed</div>
           <button class="f-pill active" onclick="markAllAlertsResolved()">✅ Mark All Resolved</button>
         </div>
         <div id="security-alerts-list"><div style="text-align:center;padding:30px;color:var(--muted)">Loading alerts…</div></div>
@@ -4076,7 +4077,7 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
 
       <!-- OVERVIEW -->
       <div id="admin-security" style="display:none">
-        <div style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.7">Real-time security alerts from ZYNC. High severity alerts also appear in your notification bell.</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.7">Real-time security alerts from Neuralseed. High severity alerts also appear in your notification bell.</div>
         <div id="security-alerts-list"><div style="text-align:center;padding:20px;color:var(--muted)">Loading alerts…</div></div>
       </div>
       <div id="admin-overview" style="display:none">
@@ -4104,7 +4105,7 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
 'use strict';
 
 // ═══════════════════════════════════════════════
-// ZYNC SECURITY SYSTEM v1.0
+// NEURALSEED SECURITY SYSTEM v1.0
 // ═══════════════════════════════════════════════
 
 // ── INPUT SANITIZER ──
@@ -4226,7 +4227,7 @@ function logAction(type){
   actionLog.push({type:type, time:now});
   actionLog = actionLog.filter(function(a){ return now-a.time < 10000; });
   if(actionLog.length > 30){
-    console.warn('ZYNC Security: Suspicious activity detected');
+    console.warn('Neuralseed Security: Suspicious activity detected');
     return false;
   }
   return true;
@@ -4255,7 +4256,7 @@ setInterval(function(){
   if(window.outerWidth - window.innerWidth > threshold || window.outerHeight - window.innerHeight > threshold){
     if(!devtoolsWarned){
       devtoolsWarned = true;
-      console.log('%c⚠️ ZYNC Security Warning', 'color:red;font-size:20px;font-weight:bold');
+      console.log('%c⚠️ Neuralseed Security Warning', 'color:red;font-size:20px;font-weight:bold');
       console.log('%cDo not paste any code here unless you fully understand what it does.\nThis could allow attackers to steal your account.', 'color:orange;font-size:14px');
     }
   }
@@ -4284,15 +4285,15 @@ function sendSecurityAlert(type, details){
   var alertMessages = {
     'brute_force': '🔴 SECURITY ALERT: Someone tried to break into an account by failing login 5+ times. IP activity logged.',
     'admin_probe': '🔴 SECURITY ALERT: Someone attempted unauthorized access to your Admin Panel.',
-    'suspicious_payment': '🔴 SECURITY ALERT: Unusual payment activity detected on ZYNC.',
+    'suspicious_payment': '🔴 SECURITY ALERT: Unusual payment activity detected on Neuralseed.',
     'rate_limit_exceeded': '🟡 WARNING: Suspicious rapid activity detected — possible bot attack.',
-    'malicious_content': '🔴 SECURITY ALERT: Someone tried to post malicious content on ZYNC.',
+    'malicious_content': '🔴 SECURITY ALERT: Someone tried to post malicious content on Neuralseed.',
     'mass_dm': '🟡 WARNING: Someone is sending an unusual number of messages — possible spam bot.',
     'invalid_ad_url': '🟡 WARNING: Someone tried to submit an ad with a suspicious/malicious URL.',
     'session_hijack': '🔴 SECURITY ALERT: Suspicious session activity detected — possible account hijack attempt.'
   };
 
-  var message = alertMessages[type] || '🔴 SECURITY ALERT: Suspicious activity detected on ZYNC. Type: ' + type;
+  var message = alertMessages[type] || '🔴 SECURITY ALERT: Suspicious activity detected on Neuralseed. Type: ' + type;
   if(details) message += ' Details: ' + details;
 
   // Save to Firestore security_alerts collection
@@ -4304,7 +4305,7 @@ function sendSecurityAlert(type, details){
     resolved: false
   }).catch(function(){});
 
-  // Send notification to owner's ZYNC account
+  // Send notification to owner's Neuralseed account
   db.collection('users').where('email','==',ADMIN_EMAIL).limit(1).get().then(function(snap){
     if(!snap.empty){
       var ownerId = snap.docs[0].id;
@@ -4459,10 +4460,10 @@ if(typeof auth !== 'undefined') auth.onAuthStateChanged(function(u){
   window._zyncUid = u ? u.uid : null;
 });
 
-console.log('%c🔒 ZYNC Security System Active', 'color:#22c55e;font-size:13px;font-weight:bold');
+console.log('%c🔒 Neuralseed Security System Active', 'color:#22c55e;font-size:13px;font-weight:bold');
 
 // ═══════════════════════════════════════════════
-// ZYNC SECURITY ALERT SYSTEM
+// NEURALSEED SECURITY ALERT SYSTEM
 // ═══════════════════════════════════════════════
 
 var OWNER_EMAIL = 'zyncofficial06@gmail.com';
@@ -4495,7 +4496,7 @@ function showSecAlert(title, message, type){
   }
 }
 
-// ── NOTIFY OWNER IN ZYNC + FIRESTORE ──
+// ── NOTIFY OWNER IN Neuralseed + FIRESTORE ──
 function notifyOwner(title, message, severity){
   // Store in Firestore security_alerts collection
   db.collection('security_alerts').add({
@@ -4715,7 +4716,7 @@ function loadSecurityAlertsList(){
 }
 
 // ═══════════════════════════════════════════════
-// ZYNC SECURITY ALERT SYSTEM
+// NEURALSEED SECURITY ALERT SYSTEM
 // ═══════════════════════════════════════════════
 
 var OWNER_ALERT_EMAIL = 'ilohgreat25@gmail.com';
@@ -4769,7 +4770,7 @@ function sendSecurityAlert(type, message, severity){
   }
 
   // Log to console with styling
-  console.warn('%c' + icon + ' ZYNC Security Alert [' + (severity||'medium').toUpperCase() + ']: ' + message,
+  console.warn('%c' + icon + ' Neuralseed Security Alert [' + (severity||'medium').toUpperCase() + ']: ' + message,
     'color:' + (severityColors[severity||'medium']) + ';font-weight:bold');
 }
 
@@ -4912,7 +4913,7 @@ function loadSecurityAlertsPanel(){
   list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Loading…</div>';
   db.collection('security_alerts').limit(50).get().then(function(snap){
     if(snap.empty){
-      list.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)"><div style="font-size:36px;margin-bottom:10px">🛡️</div>No security alerts yet. ZYNC is safe!</div>';
+      list.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)"><div style="font-size:36px;margin-bottom:10px">🛡️</div>No security alerts yet. Neuralseed is safe!</div>';
       return;
     }
     list.innerHTML = snap.docs.map(function(d){
@@ -4950,7 +4951,7 @@ var db   = firebase.firestore();
 var COLORS = ['#166534','#16a34a','#0f766e','#854d0e','#1d4ed8','#7e22ce','#be123c'];
 var PAYSTACK_KEY = 'pk_live_1a3a25c1a562f8a054e34167c4ae1be59b1e4da0';
 var CLOUD_NAME   = 'dk4svvssf';
-var state = { user:null,profile:null,sparks:[],filter:'all',plan:{id:'basic',amount:2000,name:'ZYNC Basic'},tipTarget:null,network:'MTN',selectedPkg:{size:'500MB',dur:'1 Day',price:150},currentSparkId:null,sparksUnsub:null,notifsUnsub:null };
+var state = { user:null,profile:null,sparks:[],filter:'all',plan:{id:'basic',amount:2000,name:'Neuralseed Basic'},tipTarget:null,network:'MTN',selectedPkg:{size:'500MB',dur:'1 Day',price:150},currentSparkId:null,sparksUnsub:null,notifsUnsub:null };
 
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function timeAgo(ts){ if(!ts) return ''; var d=ts.toDate?ts.toDate():new Date(ts),s=Math.floor((Date.now()-d)/1000); if(s<60) return s+'s'; if(s<3600) return Math.floor(s/60)+'m'; if(s<86400) return Math.floor(s/3600)+'h'; return Math.floor(s/86400)+'d'; }
@@ -4982,7 +4983,7 @@ function doLogin(){
         } else {
           err.textContent=authErr(e.code);
           btn.disabled=false;
-          btn.textContent='Enter ZYNC →';
+          btn.textContent='Enter Neuralseed →';
         }
       });
   }
@@ -5039,7 +5040,7 @@ function doRegister(){
             // Store the referral so this user can never be referred again
             db.collection('referrals').add({
               referrerId: refCode,
-              referrerName: referrerDoc.data().name||'ZYNCer',
+              referrerName: referrerDoc.data().name||'Neuralseed user',
               newUserId: newUid,
               amount: 1,
               createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -5078,7 +5079,7 @@ auth.onAuthStateChanged(function(user){
       checkAdminAccess();
       checkPendingAds();
         db.collection('users').doc(user.uid).set(state.profile);
-        showToast('Welcome to ZYNC! 🌿');
+        showToast('Welcome to Neuralseed! 🌿');
       }
       mountApp();
       setTimeout(checkAdminAccess, 500);
@@ -5101,7 +5102,7 @@ function mountApp(){
   var p=state.profile,color=p.color||COLORS[0],init=(p.name||'Z').charAt(0).toUpperCase();
   var grad='linear-gradient(135deg,'+color+','+COLORS[1]+')';
   ['tb-av','sb-av','comp-av','cmt-av'].forEach(function(id){ var el=document.getElementById(id); if(el){ el.textContent=init; el.style.background=grad; } });
-  document.getElementById('sb-name').innerHTML=esc(p.name||'ZYNCer')+(p.isPremium?'<span class="sb-verified">✦ PRO</span>':'');
+  document.getElementById('sb-name').innerHTML=esc(p.name||'Neuralseed user')+(p.isPremium?'<span class="sb-verified">✦ PRO</span>':'');
   document.getElementById('sb-handle').textContent='@'+(p.handle||'user');
   document.getElementById('ref-link').value='https://zync.vercel.app?ref='+state.user.uid;
   if(p.isPremium) document.getElementById('prem-widget').style.display='none';
@@ -5156,7 +5157,7 @@ function buildSparkHTML(s){
   return '<div class="spark-card"'+(s.pinned?' style="border-color:var(--green3)"':'')+'>'+
     '<div class="sk-head">'+
       '<div class="sk-av" style="background:'+esc(s.authorColor||COLORS[0])+'">'+esc((s.authorName||'Z').charAt(0).toUpperCase())+'</div>'+
-      '<div><div class="sk-name">'+esc(s.authorName||'ZYNCer')+vbadge+'<span class="sk-cat">'+esc(s.category||'all')+'</span>'+pinBadge+'</div>'+
+      '<div><div class="sk-name">'+esc(s.authorName||'Neuralseed user')+vbadge+'<span class="sk-cat">'+esc(s.category||'all')+'</span>'+pinBadge+'</div>'+
       '<div class="sk-handle">@'+esc(s.authorHandle||'user')+'</div></div>'+
       '<span class="sk-time">'+timeAgo(s.createdAt)+'</span>'+
     '</div>'+
@@ -5169,7 +5170,7 @@ function buildSparkHTML(s){
       '<button class="s-btn'+(saved?' saved':'')+'" onclick="toggleSave(\''+s.id+'\')">🔖</button>'+
       (isOwn?'':'<button class="s-btn" onclick="openTip(\''+esc(s.authorId)+'\',\''+esc(s.authorName||'Creator')+'\')">💝 Tip</button>')+
       '<button class="s-btn" onclick="shareSpark(\''+s.id+'\')">↗</button>'+
-      '<button class="s-btn" onclick="repostSpark(\''+s.id+'\',\''+esc(s.authorName||'ZYNCer')+'\')">🔁 '+(s.reposts||0)+'</button>'+
+      '<button class="s-btn" onclick="repostSpark(\''+s.id+'\',\''+esc(s.authorName||'Neuralseed user')+'\')">🔁 '+(s.reposts||0)+'</button>'+
       (isOwn?'<button class="s-btn" onclick="pinSpark(\''+s.id+'\','+!!s.pinned+')">📌</button>':'')+
       '<button class="s-btn" onclick="translatePost(\''+s.id+'\',\''+esc(s.text||'')+'\')">🌐</button>'+
       locTag+
@@ -5184,7 +5185,7 @@ document.getElementById('comp-ta').addEventListener('input',function(){ document
 document.getElementById('btn-post').addEventListener('click',function(){ var text=document.getElementById('comp-ta').value.trim(); if(!text&&!pendingMedia){ showToast('Write something first!'); return; } if(containsMalicious(text)){ showToast('❌ Post contains invalid content.'); return; } if(!checkRateLimit('post',5)){ return; } text=sanitize(text); if(!state.user||!state.profile){ showToast('Please sign in first'); return; } var btn=this; btn.disabled=true; btn.textContent='Posting…';
   if(pendingSchedule){
     db.collection('scheduled_posts').add({
-      text:text,authorId:state.user.uid,authorName:state.profile.name||'ZYNCer',
+      text:text,authorId:state.user.uid,authorName:state.profile.name||'Neuralseed user',
       authorHandle:state.profile.handle||'user',authorColor:state.profile.color||COLORS[0],
       isPremium:state.profile.isPremium||false,isVerified:state.profile.isVerified||false,
       category:compCat,scheduledAt:pendingSchedule,
@@ -5197,7 +5198,7 @@ document.getElementById('btn-post').addEventListener('click',function(){ var tex
     }).catch(function(){btn.disabled=false;btn.textContent='✦ Spark';showToast('Error scheduling');});
     return;
   }
-  db.collection('sparks').add({text:text,authorId:state.user.uid,authorName:state.profile.name||'ZYNCer',authorHandle:state.profile.handle||'user',authorColor:state.profile.color||COLORS[0],authorPremium:state.profile.isPremium||false,category:compCat,isPremium:state.profile.isPremium||false,likes:[],saved:[],commentCount:0,mediaUrl:pendingMedia?pendingMedia.url:null,mediaType:pendingMedia?pendingMedia.type:null,poll:pendingPoll||null,location:pendingLocation||null,reposts:0,createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(function(){ document.getElementById('comp-ta').value=''; pendingPoll=null; pendingLocation=null; pendingSchedule=null; document.getElementById('btn-location').style.color=''; document.getElementById('btn-location').style.borderColor=''; document.getElementById('cc').textContent='280'; pendingMedia=null; document.getElementById('media-prev').style.display='none'; document.getElementById('prev-img').style.display='none'; document.getElementById('prev-vid').style.display='none'; btn.disabled=false; btn.textContent='✦ Spark'; db.collection('users').doc(state.user.uid).update({sparksCount:firebase.firestore.FieldValue.increment(1)}); showToast('Spark launched! 🌿'); }).catch(function(e){ showToast('Failed: '+e.message); btn.disabled=false; btn.textContent='✦ Spark'; }); });
+  db.collection('sparks').add({text:text,authorId:state.user.uid,authorName:state.profile.name||'Neuralseed user',authorHandle:state.profile.handle||'user',authorColor:state.profile.color||COLORS[0],authorPremium:state.profile.isPremium||false,category:compCat,isPremium:state.profile.isPremium||false,likes:[],saved:[],commentCount:0,mediaUrl:pendingMedia?pendingMedia.url:null,mediaType:pendingMedia?pendingMedia.type:null,poll:pendingPoll||null,location:pendingLocation||null,reposts:0,createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(function(){ document.getElementById('comp-ta').value=''; pendingPoll=null; pendingLocation=null; pendingSchedule=null; document.getElementById('btn-location').style.color=''; document.getElementById('btn-location').style.borderColor=''; document.getElementById('cc').textContent='280'; pendingMedia=null; document.getElementById('media-prev').style.display='none'; document.getElementById('prev-img').style.display='none'; document.getElementById('prev-vid').style.display='none'; btn.disabled=false; btn.textContent='✦ Spark'; db.collection('users').doc(state.user.uid).update({sparksCount:firebase.firestore.FieldValue.increment(1)}); showToast('Spark launched! 🌿'); }).catch(function(e){ showToast('Failed: '+e.message); btn.disabled=false; btn.textContent='✦ Spark'; }); });
 
 document.getElementById('btn-camera').addEventListener('click', function(){
   openCameraModal();
@@ -5308,12 +5309,12 @@ document.getElementById('nc-btn').addEventListener('click',function(){ if(!state
 function listenNotifs(){ if(!state.user) return; if(state.notifsUnsub) state.notifsUnsub(); state.notifsUnsub=db.collection('notifications').where('toUid','==',state.user.uid).limit(20).onSnapshot(function(snap){ var items=snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); }); document.getElementById('nd').style.display=items.filter(function(x){ return !x.read; }).length?'block':'none'; document.getElementById('notif-list').innerHTML=items.length?items.map(function(n){ return '<div class="n-item'+(n.read?'':' unread')+'" onclick="markRead(\''+n.id+'\')"><span class="n-ico">'+(n.type==='like'?'❤️':n.type==='comment'?'💬':n.type==='tip'?'💝':'🔔')+'</span><div><div class="n-text">'+esc(n.text||'')+'</div><div class="n-time">'+timeAgo(n.createdAt)+'</div></div></div>'; }).join(''):'<div class="n-empty">No notifications yet</div>'; }); }
 function markRead(id){ db.collection('notifications').doc(id).update({read:true}); }
 
-function openComments(sparkId){ state.currentSparkId=sparkId; document.getElementById('cmt-list').innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Loading…</div>'; document.getElementById('cmt-inp').value=''; openModal('modal-comments'); db.collection('sparks').doc(sparkId).collection('comments').orderBy('createdAt','asc').limit(50).get().then(function(snap){ var cmts=snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); }); document.getElementById('cmt-list').innerHTML=cmts.length?cmts.map(function(c){ return '<div class="cmt-item"><div class="cmt-av" style="background:'+(c.authorColor||COLORS[0])+'">'+esc((c.authorName||'Z').charAt(0))+'</div><div><div><span class="cmt-nm">'+esc(c.authorName||'ZYNCer')+'</span><span class="cmt-hdl">@'+esc(c.authorHandle||'user')+'</span></div><div class="cmt-txt">'+esc(c.text||'')+'</div><div class="cmt-tm">'+timeAgo(c.createdAt)+'</div></div></div>'; }).join(''):'<div style="text-align:center;padding:24px;color:var(--muted)">No comments yet. Be first!</div>'; }); }
+function openComments(sparkId){ state.currentSparkId=sparkId; document.getElementById('cmt-list').innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Loading…</div>'; document.getElementById('cmt-inp').value=''; openModal('modal-comments'); db.collection('sparks').doc(sparkId).collection('comments').orderBy('createdAt','asc').limit(50).get().then(function(snap){ var cmts=snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); }); document.getElementById('cmt-list').innerHTML=cmts.length?cmts.map(function(c){ return '<div class="cmt-item"><div class="cmt-av" style="background:'+(c.authorColor||COLORS[0])+'">'+esc((c.authorName||'Z').charAt(0))+'</div><div><div><span class="cmt-nm">'+esc(c.authorName||'Neuralseed user')+'</span><span class="cmt-hdl">@'+esc(c.authorHandle||'user')+'</span></div><div class="cmt-txt">'+esc(c.text||'')+'</div><div class="cmt-tm">'+timeAgo(c.createdAt)+'</div></div></div>'; }).join(''):'<div style="text-align:center;padding:24px;color:var(--muted)">No comments yet. Be first!</div>'; }); }
 document.getElementById('btn-cmt').addEventListener('click',function(){ var text=document.getElementById('cmt-inp').value.trim(); if(!text||!state.user||!state.currentSparkId) return; if(containsMalicious(text)){ showToast('❌ Comment contains invalid content.'); return; } if(!checkRateLimit('comment',10)){ return; } text=sanitize(text); var btn=this; btn.disabled=true; db.collection('sparks').doc(state.currentSparkId).collection('comments').add({text:text,authorId:state.user.uid,authorName:state.profile.name,authorHandle:state.profile.handle,authorColor:state.profile.color,createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(function(){ db.collection('sparks').doc(state.currentSparkId).update({commentCount:firebase.firestore.FieldValue.increment(1)}); document.getElementById('cmt-inp').value=''; btn.disabled=false; openComments(state.currentSparkId); showToast('Comment posted!'); }).catch(function(){ btn.disabled=false; showToast('Failed to post comment'); }); });
 
 function loadStories(){ var cutoff=Date.now()-48*60*60*1000; db.collection('stories').where('expiresAt','>',new Date(cutoff)).limit(20).get().then(function(snap){ var bar=document.getElementById('stories-bar'); bar.innerHTML='<div class="s-add" id="story-add">＋</div>'; snap.docs.forEach(function(d){ var s=d.data(),seen=state.user&&(s.seenBy||[]).indexOf(state.user.uid)>-1; var el=document.createElement('div'); el.className='s-item'; el.innerHTML='<div class="s-ring'+(seen?' seen':'')+'"><div class="s-av">'+esc((s.authorName||'Z').charAt(0).toUpperCase())+'</div></div><div class="s-name">'+esc(s.authorName||'')+'</div>'; el.addEventListener('click',function(){ viewStory(d.id,s); }); bar.appendChild(el); }); document.getElementById('story-add').addEventListener('click',postStory); }); }
 function postStory(){ var text=prompt('Share a story (disappears in 48h):'); if(!text||!text.trim()||!state.user) return; db.collection('stories').add({text:text.trim(),authorId:state.user.uid,authorName:state.profile.name,authorHandle:state.profile.handle,authorColor:state.profile.color,seenBy:[],createdAt:firebase.firestore.FieldValue.serverTimestamp(),expiresAt:new Date(Date.now()+48*60*60*1000)}).then(function(){ showToast('Story posted! 48h ⏱'); loadStories(); }); }
-function viewStory(id,s){ document.getElementById('sv-av').textContent=(s.authorName||'Z').charAt(0).toUpperCase(); document.getElementById('sv-av').style.background=s.authorColor||COLORS[0]; document.getElementById('sv-nm').textContent=s.authorName||'ZYNCer'; document.getElementById('sv-tm').textContent=timeAgo(s.createdAt); document.getElementById('sv-text').textContent=s.text||''; document.getElementById('sv-overlay').classList.add('open'); var fill=document.getElementById('sv-fill'); fill.style.transition='none'; fill.style.width='0%'; setTimeout(function(){ fill.style.transition='width 5s linear'; fill.style.width='100%'; },50); setTimeout(function(){ document.getElementById('sv-overlay').classList.remove('open'); },5100); if(state.user) db.collection('stories').doc(id).update({seenBy:firebase.firestore.FieldValue.arrayUnion(state.user.uid)}); }
+function viewStory(id,s){ document.getElementById('sv-av').textContent=(s.authorName||'Z').charAt(0).toUpperCase(); document.getElementById('sv-av').style.background=s.authorColor||COLORS[0]; document.getElementById('sv-nm').textContent=s.authorName||'Neuralseed user'; document.getElementById('sv-tm').textContent=timeAgo(s.createdAt); document.getElementById('sv-text').textContent=s.text||''; document.getElementById('sv-overlay').classList.add('open'); var fill=document.getElementById('sv-fill'); fill.style.transition='none'; fill.style.width='0%'; setTimeout(function(){ fill.style.transition='width 5s linear'; fill.style.width='100%'; },50); setTimeout(function(){ document.getElementById('sv-overlay').classList.remove('open'); },5100); if(state.user) db.collection('stories').doc(id).update({seenBy:firebase.firestore.FieldValue.arrayUnion(state.user.uid)}); }
 document.getElementById('sv-x').addEventListener('click',function(){ document.getElementById('sv-overlay').classList.remove('open'); });
 
 
@@ -5398,7 +5399,7 @@ function renderDMUserResults(docs) {
     var verified = u.isVerified ? '<span style="color:var(--green3);font-size:11px;margin-left:4px">&#10003;</span>' : '';
     row.innerHTML =
       '<div style="width:36px;height:36px;border-radius:50%;background:'+esc(u.color||COLORS[0])+';display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0">'+esc((u.name||'U').charAt(0).toUpperCase())+'</div>'+
-      '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:var(--moon);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(u.name||'ZYNCer')+verified+'</div><div style="font-size:11px;color:var(--muted)">@'+esc(u.handle||'user')+'</div></div>'+
+      '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:var(--moon);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(u.name||'Neuralseed user')+verified+'</div><div style="font-size:11px;color:var(--muted)">@'+esc(u.handle||'user')+'</div></div>'+
       '<div style="font-size:10px;color:var(--green3);flex-shrink:0">Message</div>';
     var uid = d.id, uname = u.name||'User', ucolor = u.color||COLORS[0];
     row.addEventListener('click', function(){ startDMWithUser(uid, uname, ucolor); });
@@ -5442,12 +5443,12 @@ function buyVerifiedBadge(){
       db.collection('users').doc(state.user.uid).update({ isVerified: true }).then(function(){
         state.profile.isVerified = true;
         closeModal('modal-prem');
-        showToast('🎉 Congratulations! You are now Verified on ZYNC! ✅');
+        showToast('🎉 Congratulations! You are now Verified on Neuralseed! ✅');
         // Send notification to user
         db.collection('notifications').add({
           uid: state.user.uid,
           type: 'verified',
-          text: '✅ Your ZYNC Verified Badge has been activated! Your profile now shows the green checkmark.',
+          text: '✅ Your Neuralseed Verified Badge has been activated! Your profile now shows the green checkmark.',
           createdAt: firebase.firestore.FieldValue.serverTimestamp(),
           read: false
         }).catch(function(){});
@@ -5510,7 +5511,7 @@ function requestWithdrawal() {
 
   var wdData = {
     uid: state.user.uid,
-    name: (state.profile&&state.profile.name)||'ZYNCer',
+    name: (state.profile&&state.profile.name)||'Neuralseed user',
     email: state.user.email,
     amount: amt,
     method: currentWdMethod,
@@ -5749,7 +5750,7 @@ renderFeed = function(){
     var ad = adsToShow[adIdx++];
     var adEl = document.createElement('div');
     adEl.className='ad-banner';
-    adEl.innerHTML='<div class="ad-banner-ph">'+esc(ad.emoji||'📣')+'</div><div class="ad-title">'+esc(ad.title||'')+'</div><div class="ad-desc">'+esc(ad.description||'')+'</div><button class="ad-cta" data-ad-id="'+esc(ad.id)+'" data-ad-url="'+esc(ad.url||'#')+'">'+esc(ad.cta||'Learn More')+' →</button><div class="ad-sponsor">Sponsored by '+esc(ad.advertiserName||'ZYNC User')+'</div>';
+    adEl.innerHTML='<div class="ad-banner-ph">'+esc(ad.emoji||'📣')+'</div><div class="ad-title">'+esc(ad.title||'')+'</div><div class="ad-desc">'+esc(ad.description||'')+'</div><button class="ad-cta" data-ad-id="'+esc(ad.id)+'" data-ad-url="'+esc(ad.url||'#')+'">'+esc(ad.cta||'Learn More')+' →</button><div class="ad-sponsor">Sponsored by '+esc(ad.advertiserName||'Neuralseed User')+'</div>';
     adEl.querySelector('.ad-cta').addEventListener('click',function(){ trackAdClick(this.dataset.adId, this.dataset.adUrl); });
     if(cards[i] && cards[i].parentNode) cards[i].parentNode.insertBefore(adEl, cards[i].nextSibling);
     // Track view
@@ -5949,7 +5950,7 @@ function adminApproveAd(adId){
         db.collection('notifications').add({
           to: d.data().advertiserId,
           type:'ad_approved',
-          text:'Your ad "'+d.data().title+'" has been approved and is now live on ZYNC! 🎉',
+          text:'Your ad "'+d.data().title+'" has been approved and is now live on Neuralseed! 🎉',
           read:false,
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
@@ -5966,7 +5967,7 @@ function adminRejectAd(adId){
     status:'rejected',
     rejectedAt: firebase.firestore.FieldValue.serverTimestamp(),
     rejectedBy: ADMIN_EMAIL,
-    rejectionReason: reason||'Did not meet ZYNC advertising guidelines'
+    rejectionReason: reason||'Did not meet Neuralseed advertising guidelines'
   }).then(function(){
     showToast('❌ Ad rejected');
     loadAdminTab('pending');
@@ -6019,7 +6020,7 @@ function loadSecurityAlertsPanel(){
   list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Loading…</div>';
   db.collection('security_alerts').limit(50).get().then(function(snap){
     if(snap.empty){
-      list.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)"><div style="font-size:36px;margin-bottom:10px">🛡️</div>No security alerts — ZYNC is safe!</div>';
+      list.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)"><div style="font-size:36px;margin-bottom:10px">🛡️</div>No security alerts — Neuralseed is safe!</div>';
       return;
     }
     list.innerHTML = snap.docs.map(function(d){
@@ -6180,7 +6181,7 @@ function banUser(userId, username, ban){
 }
 
 // ── SUPPORT / CONTACT ──
-// ── ZYNC CAMERA ──
+// ── Neuralseed CAMERA ──
 var camStream = null;
 var camFacingMode = 'user';
 var camMediaRecorder = null;
@@ -6641,7 +6642,7 @@ function repostSpark(sparkId,authorName){
     db.collection('sparks').add({
       text:'🔁 Reposted from @'+esc(data.authorHandle||authorName)+':\n\n'+data.text,
       authorId:state.user.uid,
-      authorName:state.profile.name||'ZYNCer',
+      authorName:state.profile.name||'Neuralseed user',
       authorHandle:state.profile.handle||'user',
       authorColor:state.profile.color||COLORS[0],
       isPremium:state.profile.isPremium||false,
@@ -6799,7 +6800,7 @@ function loadLeaderboard(type){
       return '<div class="lb-item">'+
         '<div class="lb-rank">'+(medals[i]||('#'+(i+1)))+'</div>'+
         '<div class="lb-av" style="background:'+(u.color||'var(--green)')+'">'+( u.name||'Z').charAt(0).toUpperCase()+'</div>'+
-        '<div style="flex:1"><div style="font-size:12px;font-weight:700;color:var(--moon)">'+esc(u.name||'ZYNCer')+((u.isPremium||u.isVerified)?'<span class="vbadge" style="margin-left:4px"></span>':'')+'</div>'+
+        '<div style="flex:1"><div style="font-size:12px;font-weight:700;color:var(--moon)">'+esc(u.name||'Neuralseed user')+((u.isPremium||u.isVerified)?'<span class="vbadge" style="margin-left:4px"></span>':'')+'</div>'+
         '<div style="font-size:10px;color:var(--muted)">@'+esc(u.handle||'user')+' · '+val+'</div></div>'+
         '</div>';
     }).join('');
@@ -6839,7 +6840,7 @@ function openStoryViews(storyId){
       views.slice(0,50).map(function(v){
         return '<div class="story-view-item">'+
           '<div style="width:32px;height:32px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0">'+(v.name||'?').charAt(0)+'</div>'+
-          '<div><div style="font-size:12px;color:var(--moon)">'+esc(v.name||'ZYNCer')+'</div>'+
+          '<div><div style="font-size:12px;color:var(--moon)">'+esc(v.name||'Neuralseed user')+'</div>'+
           '<div style="font-size:10px;color:var(--muted)">@'+esc(v.handle||'user')+'</div></div>'+
           '</div>';
       }).join('');
@@ -6850,7 +6851,7 @@ function trackStoryView(storyId){
   if(!state.user||!state.profile)return;
   db.collection('stories').doc(storyId).update({
     views:firebase.firestore.FieldValue.arrayUnion({
-      uid:state.user.uid,name:state.profile.name||'ZYNCer',
+      uid:state.user.uid,name:state.profile.name||'Neuralseed user',
       handle:state.profile.handle||'user',viewedAt:Date.now()
     })
   }).catch(function(){});
@@ -6861,10 +6862,10 @@ function checkBirthday(){
   var today=new Date();
   var bday=new Date(state.profile.birthday);
   if(today.getMonth()===bday.getMonth()&&today.getDate()===bday.getDate()){
-    showToast('🎂 Happy Birthday from ZYNC!');
+    showToast('🎂 Happy Birthday from Neuralseed!');
     db.collection('notifications').add({
       uid:state.user.uid,type:'birthday',
-      text:'🎂 Happy Birthday! ZYNC wishes you an amazing day!',
+      text:'🎂 Happy Birthday! Neuralseed wishes you an amazing day!',
       createdAt:firebase.firestore.FieldValue.serverTimestamp(),read:false
     }).catch(function(){});
   }
@@ -6879,7 +6880,7 @@ function openCreatorSub(creatorId,creatorName,price){
     ref:'ZSUB-'+creatorId+'-'+Date.now(),
     callback:function(){
       db.collection('creator_subs').add({
-        subscriberId:state.user.uid,subscriberName:state.profile.name||'ZYNCer',
+        subscriberId:state.user.uid,subscriberName:state.profile.name||'Neuralseed user',
         creatorId:creatorId,price:price,createdAt:firebase.firestore.FieldValue.serverTimestamp()
       });
       db.collection('notifications').add({
@@ -6895,7 +6896,7 @@ function openCreatorSub(creatorId,creatorName,price){
 
 
 // ══════════════════════════════════════════════════════
-// 🔴 ZYNC LIVE STREAMING — WebRTC + Firestore Signaling
+// 🔴 Neuralseed LIVE STREAMING — WebRTC + Firestore Signaling
 // ══════════════════════════════════════════════════════
 
 var liveState = {
@@ -6954,7 +6955,7 @@ function startLiveStream() {
 
   var liveDoc = {
     hostId:      state.user.uid,
-    hostName:    (state.profile && state.profile.name) || 'ZYNCer',
+    hostName:    (state.profile && state.profile.name) || 'Neuralseed user',
     hostHandle:  (state.profile && state.profile.handle) || 'user',
     hostColor:   (state.profile && state.profile.color) || COLORS[0],
     isPremium:   (state.profile && state.profile.isPremium) || false,
@@ -6978,9 +6979,9 @@ function startLiveStream() {
 
     // Post a spark announcing the live
     db.collection('sparks').add({
-      text: '🔴 ' + esc((state.profile && state.profile.name) || 'ZYNCer') + ' just went LIVE: "' + esc(title) + '" — join now!',
+      text: '🔴 ' + esc((state.profile && state.profile.name) || 'Neuralseed user') + ' just went LIVE: "' + esc(title) + '" — join now!',
       authorId: state.user.uid,
-      authorName: (state.profile && state.profile.name) || 'ZYNCer',
+      authorName: (state.profile && state.profile.name) || 'Neuralseed user',
       authorHandle: (state.profile && state.profile.handle) || 'user',
       authorColor: (state.profile && state.profile.color) || COLORS[0],
       isPremium: (state.profile && state.profile.isPremium) || false,
@@ -7124,7 +7125,7 @@ function openLivesList() {
       container.innerHTML = sorted.map(function(d) {
         var s = d.data();
         var initial = (s.hostName || 'Z').charAt(0).toUpperCase();
-        return '<div class="live-card" onclick="joinStream(\'' + d.id + '\',\'' + esc(s.hostName||'ZYNCer') + '\',\'' + esc(s.hostHandle||'user') + '\',\'' + esc(s.hostColor||COLORS[0]) + '\')">' +
+        return '<div class="live-card" onclick="joinStream(\'' + d.id + '\',\'' + esc(s.hostName||'Neuralseed user') + '\',\'' + esc(s.hostHandle||'user') + '\',\'' + esc(s.hostColor||COLORS[0]) + '\')">' +
           '<div class="live-thumb">' +
             '<div class="live-host-av" style="background:' + esc(s.hostColor||COLORS[0]) + '">' + initial + '</div>' +
             '<span class="live-badge" style="position:absolute;top:8px;left:8px">LIVE</span>' +
@@ -7256,7 +7257,7 @@ function appendLiveChatMsg(containerId, data) {
   if (!container) return;
   var div = document.createElement('div');
   div.className = 'live-chat-bubble';
-  div.innerHTML = '<strong style="color:var(--green3)">' + esc(data.name||'ZYNCer') + '</strong>: ' + esc(data.text||'');
+  div.innerHTML = '<strong style="color:var(--green3)">' + esc(data.name||'Neuralseed user') + '</strong>: ' + esc(data.text||'');
   container.appendChild(div);
   container.scrollTop = container.scrollHeight;
 }
@@ -7268,7 +7269,7 @@ function sendViewerChat() {
   inp.value = '';
   db.collection('live_streams').doc(liveState.currentLiveId).collection('chat').add({
     uid: state.user.uid,
-    name: (state.profile && state.profile.name) || 'ZYNCer',
+    name: (state.profile && state.profile.name) || 'Neuralseed user',
     text: text,
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   }).catch(function() {});
@@ -7325,7 +7326,7 @@ function subscribePush() {
   }).catch(function(e) { console.warn('FCM token error:', e); });
 
   messaging.onMessage(function(payload) {
-    var title = (payload.notification && payload.notification.title) || 'ZYNC';
+    var title = (payload.notification && payload.notification.title) || 'Neuralseed';
     var body  = (payload.notification && payload.notification.body)  || 'New notification';
     showToast('🔔 ' + title + ': ' + body);
     loadNotifications();
@@ -7400,7 +7401,7 @@ function startCall(targetUid, targetName, targetColor, isVideo) {
 
     db.collection('calls').add({
       callerId: state.user.uid,
-      callerName: (state.profile && state.profile.name) || 'ZYNCer',
+      callerName: (state.profile && state.profile.name) || 'Neuralseed user',
       callerColor: (state.profile && state.profile.color) || COLORS[0],
       calleeId: targetUid,
       calleeName: targetName,
@@ -7419,7 +7420,7 @@ function startCall(targetUid, targetName, targetColor, isVideo) {
       // Send notification to callee
       db.collection('notifications').add({
         uid: targetUid, type: 'call',
-        text: '📞 ' + esc((state.profile&&state.profile.name)||'Someone') + ' is calling you! Open ZYNC to answer.',
+        text: '📞 ' + esc((state.profile&&state.profile.name)||'Someone') + ' is calling you! Open Neuralseed to answer.',
         callId: docRef.id, callType: callType,
         createdAt: firebase.firestore.FieldValue.serverTimestamp(), read: false
       }).catch(function(){});
@@ -7458,7 +7459,7 @@ function answerCall(callId) {
       callState.callDocId = callId;
 
       document.getElementById('call-local-video').srcObject = stream;
-      document.getElementById('call-title').textContent = (isVideo?'📹':'📞') + ' ' + esc(data.callerName||'ZYNCer');
+      document.getElementById('call-title').textContent = (isVideo?'📹':'📞') + ' ' + esc(data.callerName||'Neuralseed user');
       document.getElementById('call-avatar').textContent = (data.callerName||'Z').charAt(0).toUpperCase();
       document.getElementById('call-avatar').style.background = data.callerColor || COLORS[0];
       if (isVideo) {
@@ -7621,7 +7622,7 @@ function createGroup() {
     name: name, description: desc, emoji: emoji,
     isPublic: isPublic,
     ownerId: state.user.uid,
-    ownerName: (state.profile&&state.profile.name)||'ZYNCer',
+    ownerName: (state.profile&&state.profile.name)||'Neuralseed user',
     members: [state.user.uid],
     admins: [state.user.uid],
     lastMsg: '', lastActivity: firebase.firestore.FieldValue.serverTimestamp(),
@@ -7657,7 +7658,7 @@ function appendGroupMsg(data) {
   var isOwn = state.user && data.authorId === state.user.uid;
   var div = document.createElement('div');
   div.style.cssText = 'margin-bottom:10px;display:flex;flex-direction:column;align-items:'+(isOwn?'flex-end':'flex-start');
-  div.innerHTML = (!isOwn?'<div style="font-size:10px;color:var(--muted);margin-bottom:2px">'+esc(data.authorName||'ZYNCer')+'</div>':'')+
+  div.innerHTML = (!isOwn?'<div style="font-size:10px;color:var(--muted);margin-bottom:2px">'+esc(data.authorName||'Neuralseed user')+'</div>':'')+
     '<div style="max-width:75%;background:'+(isOwn?'var(--green2)':'var(--deep)')+';border:1px solid var(--border);border-radius:'+(isOwn?'16px 4px 16px 16px':'4px 16px 16px 16px')+';padding:8px 12px;font-size:12px;color:'+(isOwn?'#fff':'var(--moon)')+'">'+esc(data.text||'')+'</div>'+
     '<div style="font-size:9px;color:var(--muted);margin-top:2px">'+timeAgo(data.createdAt)+'</div>';
   c2.appendChild(div);
@@ -7671,7 +7672,7 @@ function sendGroupMessage() {
   inp.value = '';
   var msg = {
     authorId: state.user.uid,
-    authorName: (state.profile&&state.profile.name)||'ZYNCer',
+    authorName: (state.profile&&state.profile.name)||'Neuralseed user',
     authorColor: (state.profile&&state.profile.color)||COLORS[0],
     text: text,
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -7776,7 +7777,7 @@ function runAdvancedSearch() {
       if (item.type === 'user') {
         return '<div class="search-result-item" onclick="openProfileModal(\''+item.id+'\')">'+
           '<div style="width:36px;height:36px;border-radius:50%;background:'+(item.data.color||'var(--green)')+';display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0">'+(item.data.name||'Z').charAt(0)+'</div>'+
-          '<div><div style="font-size:13px;font-weight:700;color:var(--moon)">'+esc(item.data.name||'ZYNCer')+'</div>'+
+          '<div><div style="font-size:13px;font-weight:700;color:var(--moon)">'+esc(item.data.name||'Neuralseed user')+'</div>'+
           '<div style="font-size:11px;color:var(--muted)">@'+esc(item.data.handle||'user')+' · 👤 User</div></div>'+
         '</div>';
       } else {
@@ -7874,7 +7875,7 @@ function patchSendCommentForThreads(sparkId, text) {
   if (!state.user || !text) return;
   var commentData = {
     authorId: state.user.uid,
-    authorName: (state.profile&&state.profile.name)||'ZYNCer',
+    authorName: (state.profile&&state.profile.name)||'Neuralseed user',
     authorHandle: (state.profile&&state.profile.handle)||'user',
     authorColor: (state.profile&&state.profile.color)||COLORS[0],
     text: text,
@@ -7909,9 +7910,9 @@ function searchCollabUser() {
       if (snap.empty) { res.innerHTML = '<div style="color:var(--muted);font-size:12px;padding:6px 0">No users found</div>'; return; }
       res.innerHTML = snap.docs.filter(function(d){return d.id!==state.user.uid;}).map(function(d) {
         var u = d.data();
-        return '<div class="search-result-item" onclick="selectCollabUser(\''+d.id+'\',\''+esc(u.name||'ZYNCer')+'\',\''+esc(u.color||COLORS[0])+'\')">'+
+        return '<div class="search-result-item" onclick="selectCollabUser(\''+d.id+'\',\''+esc(u.name||'Neuralseed user')+'\',\''+esc(u.color||COLORS[0])+'\')">'+
           '<div style="width:32px;height:32px;border-radius:50%;background:'+(u.color||'var(--green)')+';display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff">'+(u.name||'Z').charAt(0)+'</div>'+
-          '<div style="font-size:12px;color:var(--moon)">'+esc(u.name||'ZYNCer')+'<br><span style="font-size:10px;color:var(--muted)">@'+esc(u.handle||'user')+'</span></div>'+
+          '<div style="font-size:12px;color:var(--moon)">'+esc(u.name||'Neuralseed user')+'<br><span style="font-size:10px;color:var(--muted)">@'+esc(u.handle||'user')+'</span></div>'+
         '</div>';
       }).join('');
     });
@@ -7931,7 +7932,7 @@ function postCollabSpark() {
   db.collection('sparks').add({
     text: text,
     authorId: state.user.uid,
-    authorName: (state.profile&&state.profile.name)||'ZYNCer',
+    authorName: (state.profile&&state.profile.name)||'Neuralseed user',
     authorHandle: (state.profile&&state.profile.handle)||'user',
     authorColor: (state.profile&&state.profile.color)||COLORS[0],
     isPremium: (state.profile&&state.profile.isPremium)||false,
@@ -7981,30 +7982,121 @@ function closeGame() {
 }
 
 function launchTypingGame(container) {
-  var words = ['social','media','zync','connect','community','spark','creator','stream','follow','friend','live','post','like','comment','share'];
-  var score = 0, timeLeft = 30, currentWord = '', interval;
-  function newWord() { currentWord = words[Math.floor(Math.random()*words.length)]; document.getElementById('tg-word').textContent = currentWord; document.getElementById('tg-inp').value = ''; document.getElementById('tg-inp').focus(); }
-  container.innerHTML = '<div style="text-align:center;padding:20px"><div style="font-size:13px;font-weight:700;color:var(--moon);margin-bottom:4px">⌨️ Typing Speed</div><div style="font-size:11px;color:var(--muted);margin-bottom:16px">Type the word as fast as you can!</div><div style="display:flex;justify-content:space-between;margin-bottom:16px"><span style="font-size:14px;color:var(--green3)">Score: <b id="tg-score">0</b></span><span style="font-size:14px;color:var(--moon)">Time: <b id="tg-time">30</b>s</span></div><div id="tg-word" style="font-size:28px;font-weight:900;color:var(--green3);margin-bottom:16px;letter-spacing:2px">Press Start</div><input id="tg-inp" class="m-input" placeholder="Type here..." style="margin-bottom:10px" disabled><button class="btn-pay" onclick="startTypingGame()">▶ Start</button></div>';
+  var PASSAGES = [
+    "The quick brown fox jumps over the lazy dog. A journey of a thousand miles begins with a single step. Every day is a new opportunity to grow and become a better version of yourself. Success is not final and failure is not fatal. It is the courage to continue that truly counts in life.",
+    "Happiness does not come from what you have but from who you are and what you give. The best time to plant a tree was twenty years ago and the second best time is right now. Work hard in silence and let your success make all the noise you ever needed.",
+    "Dream big work hard stay focused and surround yourself with good people who push you forward. Technology is changing the world every single day and those who learn fast will always lead the way. Share your ideas speak your truth and connect with minds that challenge and inspire you daily.",
+    "Every great story begins with a single brave decision to try something new and unknown. The world belongs to those who believe in the beauty of their dreams and work tirelessly toward them. Be kind be bold be curious and never stop learning because knowledge opens every door in life.",
+    "Life is short so make it count by doing things that matter and being with people who care. The strongest people are not those who show strength every day but those who fight through hard times. Believe in yourself even when nobody else does because your faith will carry you far.",
+    "Innovation starts with a question that nobody else thought to ask before. The greatest minds in history were simply ordinary people who refused to give up on extraordinary ideas. Read more listen more think more and you will grow into someone the world truly needs right now.",
+    "Connections are the currency of the modern world and every conversation is a chance to learn something new. Be present in every moment because time moves fast and the people you love deserve your full attention every day. Gratitude turns what you have into more than enough for a great life."
+  ];
+
+  var currentPassage = '';
+  var timeLeft = 60;
+  var interval = null;
+  var started = false;
+
+  container.innerHTML =
+    '<div style="padding:16px">' +
+      '<div style="font-size:13px;font-weight:700;color:var(--moon);margin-bottom:2px;text-align:center">⌨️ Typing Speed Test</div>' +
+      '<div style="font-size:11px;color:var(--muted);text-align:center;margin-bottom:12px">Type the passage below as the timer counts down</div>' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">' +
+        '<span style="font-size:13px;color:var(--green3)">Words: <b id="tg-score">0</b></span>' +
+        '<span style="font-size:13px;color:var(--moon)">Time: <b id="tg-time">60</b>s</span>' +
+        '<span style="font-size:13px;color:var(--muted)">WPM: <b id="tg-wpm">0</b></span>' +
+      '</div>' +
+      '<div id="tg-passage" style="font-size:13px;line-height:1.8;color:var(--muted);background:var(--deep);border-radius:10px;padding:12px;margin-bottom:10px;min-height:80px;letter-spacing:0.3px;border:1px solid var(--border)"></div>' +
+      '<textarea id="tg-inp" placeholder="Press Start then type here..." rows="4" ' +
+        'style="width:100%;box-sizing:border-box;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px;color:var(--moon);font-size:13px;font-family:DM Sans,sans-serif;resize:none;outline:none;margin-bottom:10px" disabled></textarea>' +
+      '<button class="btn-pay" id="tg-start-btn" onclick="startTypingGame()">▶ Start</button>' +
+    '</div>';
+
   window.startTypingGame = function() {
-    score=0; timeLeft=30;
-    document.getElementById('tg-inp').disabled=false;
-    newWord();
-    document.getElementById('tg-inp').addEventListener('input', function() {
-      if (this.value.trim().toLowerCase() === currentWord) { score++; document.getElementById('tg-score').textContent=score; newWord(); }
-    });
+    var idx2 = Math.floor(Math.random() * PASSAGES.length);
+    currentPassage = PASSAGES[idx2];
+    started = true;
+    timeLeft = 60;
+
+    // Render passage with span per word for highlight
+    var words2 = currentPassage.split(' ');
+    document.getElementById('tg-passage').innerHTML = words2.map(function(w, i) {
+      return '<span id="tw-' + i + '" style="padding:1px 2px;border-radius:3px">' + w + ' </span>';
+    }).join('');
+
+    var inp = document.getElementById('tg-inp');
+    inp.value = '';
+    inp.disabled = false;
+    inp.focus();
+
+    document.getElementById('tg-start-btn').textContent = '↺ Restart';
+    document.getElementById('tg-score').textContent = '0';
+    document.getElementById('tg-wpm').textContent = '0';
+
+    var wordIndex = 0;
+    var passageWords = currentPassage.split(' ');
+    var totalTyped = 0;
+
+    function highlightWord(i) {
+      passageWords.forEach(function(_, j) {
+        var el = document.getElementById('tw-' + j);
+        if (!el) return;
+        if (j < i) { el.style.color = 'var(--green3)'; el.style.background = 'transparent'; }
+        else if (j === i) { el.style.background = 'rgba(34,197,94,0.2)'; el.style.color = 'var(--moon)'; }
+        else { el.style.color = 'var(--muted)'; el.style.background = 'transparent'; }
+      });
+    }
+    highlightWord(0);
+
+    inp.oninput = function() {
+      if (!started || timeLeft <= 0) return;
+      var typed = inp.value;
+      var typedWords = typed.split(' ');
+      var currentTyped = typedWords[typedWords.length - 1];
+      var completedWords = typedWords.length - 1;
+
+      // Check if user pressed space — word submitted
+      if (typed.endsWith(' ')) {
+        var submittedWord = typedWords[typedWords.length - 2];
+        if (submittedWord === passageWords[wordIndex]) {
+          document.getElementById('tw-' + wordIndex).style.color = 'var(--green3)';
+          wordIndex++;
+          totalTyped++;
+          document.getElementById('tg-score').textContent = totalTyped;
+          var elapsed = 60 - timeLeft;
+          document.getElementById('tg-wpm').textContent = elapsed > 0 ? Math.round(totalTyped / (elapsed / 60)) : 0;
+          highlightWord(wordIndex);
+          if (wordIndex >= passageWords.length) {
+            // Finished passage
+            clearInterval(interval);
+            started = false;
+            inp.disabled = true;
+            showToast('🎉 Passage complete! ' + totalTyped + ' words in ' + (60 - timeLeft) + 's');
+          }
+        } else {
+          // Wrong word — highlight red
+          var el = document.getElementById('tw-' + wordIndex);
+          if (el) { el.style.background = 'rgba(239,68,68,0.2)'; el.style.color = '#fca5a5'; }
+        }
+      }
+    };
+
+    if (interval) clearInterval(interval);
     interval = setInterval(function() {
       timeLeft--;
-      document.getElementById('tg-time') && (document.getElementById('tg-time').textContent = timeLeft);
+      var el = document.getElementById('tg-time');
+      if (el) el.textContent = timeLeft;
+      if (timeLeft <= 10) { if (el) el.style.color = '#fca5a5'; }
       if (timeLeft <= 0) {
         clearInterval(interval);
-        document.getElementById('tg-inp').disabled=true;
-        document.getElementById('tg-word').textContent = 'Time\'s up!';
-        showToast('⌨️ Score: '+score+' words! '+( score>10?'Amazing!':score>5?'Good job!':'Keep practicing!'));
-        db.collection('users').doc(state.user.uid).update({ typingHighScore: firebase.firestore.FieldValue.increment(0) }).then(function() {
-          db.collection('users').doc(state.user.uid).get().then(function(d) {
-            var best = (d.data()&&d.data().typingHighScore)||0;
-            if (score > best) db.collection('users').doc(state.user.uid).update({ typingHighScore: score });
-          });
+        started = false;
+        inp.disabled = true;
+        var wpm = Math.round(totalTyped / 1);
+        document.getElementById('tg-wpm').textContent = wpm;
+        showToast('⌨️ ' + totalTyped + ' words! WPM: ' + wpm + ' — ' + (wpm > 50 ? 'Outstanding! 🔥' : wpm > 30 ? 'Great job! 👏' : wpm > 15 ? 'Good effort! 💪' : 'Keep practicing! 🌱'));
+        db.collection('users').doc(state.user.uid).get().then(function(d) {
+          var best = (d.data() && d.data().typingHighScore) || 0;
+          if (totalTyped > best) db.collection('users').doc(state.user.uid).update({ typingHighScore: totalTyped });
         }).catch(function(){});
       }
     }, 1000);
@@ -8128,7 +8220,7 @@ var TRIVIA_LOCAL = [
   {q:"What is the most used programming language in 2024?",opts:["Java","C++","Python","JavaScript"],ans:3,cat:"🌐 Tech"},
   {q:"Which company makes the PlayStation?",opts:["Microsoft","Nintendo","Sega","Sony"],ans:3,cat:"🌐 Tech"},
   {q:"What does Wi-Fi stand for?",opts:["Wireless Fidelity","Wide Field","Wireless Frequency","Wire-Free Internet"],ans:0,cat:"🌐 Tech"},
-  {q:"What year was ZYNC founded?",opts:["2023","2024","2025","2026"],ans:3,cat:"🌐 Tech"},
+  {q:"What year was Neuralseed founded?",opts:["2023","2024","2025","2026"],ans:3,cat:"🌐 Tech"},
   {q:"What does URL stand for?",opts:["Universal Resource Locator","Uniform Resource Locator","Universal Record Link","Uniform Redirect Locator"],ans:1,cat:"🌐 Tech"}
 ];
 
@@ -8311,7 +8403,7 @@ function sendNewsletter() {
     return batch.commit().then(function() {
       return db.collection('newsletters').add({
         authorId: state.user.uid,
-        authorName: (state.profile&&state.profile.name)||'ZYNCer',
+        authorName: (state.profile&&state.profile.name)||'Neuralseed user',
         subject: subject, body: body,
         recipientCount: fans.length,
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -8370,7 +8462,7 @@ function sendGift(idx) {
       // Record gift
       db.collection('gifts').add({
         senderId: state.user.uid,
-        senderName: (state.profile&&state.profile.name)||'ZYNCer',
+        senderName: (state.profile&&state.profile.name)||'Neuralseed user',
         hostId: hostId, liveId: liveId,
         gift: gift.name, emoji: gift.emoji, amount: gift.price,
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -8385,7 +8477,7 @@ function sendGift(idx) {
       if (liveId) {
         db.collection('live_streams').doc(liveId).collection('chat').add({
           uid: state.user.uid,
-          name: (state.profile&&state.profile.name)||'ZYNCer',
+          name: (state.profile&&state.profile.name)||'Neuralseed user',
           text: gift.emoji+' sent a '+gift.name+'!',
           isGift:true,
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -8511,7 +8603,7 @@ function postCarousel() {
     return db.collection('sparks').add({
       text: caption,
       authorId: state.user.uid,
-      authorName: (state.profile&&state.profile.name)||'ZYNCer',
+      authorName: (state.profile&&state.profile.name)||'Neuralseed user',
       authorHandle: (state.profile&&state.profile.handle)||'user',
       authorColor: (state.profile&&state.profile.color)||COLORS[0],
       isPremium: (state.profile&&state.profile.isPremium)||false,
@@ -8600,7 +8692,7 @@ function createPaidEvent() {
     title, description:desc, eventDate: new Date(date), price,
     meetingLink: link,
     hostId: state.user.uid,
-    hostName: (state.profile&&state.profile.name)||'ZYNCer',
+    hostName: (state.profile&&state.profile.name)||'Neuralseed user',
     hostHandle: (state.profile&&state.profile.handle)||'user',
     attendees:[], revenue:0,
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -8691,7 +8783,7 @@ function listDigitalProduct() {
   db.collection('digital_products').add({
     title, description:desc, price, type, downloadUrl:url, emoji,
     sellerId: state.user.uid,
-    sellerName: (state.profile&&state.profile.name)||'ZYNCer',
+    sellerName: (state.profile&&state.profile.name)||'Neuralseed user',
     sellerHandle: (state.profile&&state.profile.handle)||'user',
     sales:0, revenue:0,
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -8969,7 +9061,7 @@ function submitSupport(){
   // Save to Firestore
   db.collection('support_tickets').add(ticket).catch(function(){});
   
-  // Send admin notification in ZYNC
+  // Send admin notification in Neuralseed
   db.collection('notifications').add({
     uid: 'ilohgreat25_admin',
     type: 'support',
@@ -8995,14 +9087,14 @@ function submitSupport(){
       }, function(error){
         // Fallback to mailto if EmailJS fails
         var mailBody = encodeURIComponent('Name: ' + name + '\nSubject: ' + subject + '\n\n' + message);
-        window.open('mailto:zyncofficial@outlook.com?subject=ZYNC Support: ' + encodeURIComponent(subject) + '&body=' + mailBody);
+        window.open('mailto:zyncofficial@outlook.com?subject=Neuralseed Support: ' + encodeURIComponent(subject) + '&body=' + mailBody);
         closeModal('modal-support');
         showToast('✅ Message sent via email app!');
       });
   } else {
     // Fallback to mailto
     var mailBody = encodeURIComponent('Name: ' + name + '\nSubject: ' + subject + '\n\n' + message);
-    window.open('mailto:zyncofficial@outlook.com?subject=ZYNC Support: ' + encodeURIComponent(subject) + '&body=' + mailBody);
+    window.open('mailto:zyncofficial@outlook.com?subject=Neuralseed Support: ' + encodeURIComponent(subject) + '&body=' + mailBody);
     closeModal('modal-support');
     showToast('✅ Opening your email app!');
   }
@@ -9094,10 +9186,10 @@ function loadReels(){
       return tb-ta;
     });
     grid.innerHTML=reelDocs.map(function(s,i){
-      return '<div class="reel-card" data-reel-idx="'+i+'"><video src="'+esc(s.mediaUrl||'')+'" muted playsinline preload="metadata"></video><div class="reel-play">▶</div><div class="reel-overlay"><div class="reel-author">'+esc(s.authorName||'ZYNCer')+'</div><div class="reel-likes">❤️ '+(s.likes||[]).length+'</div></div></div>';
+      return '<div class="reel-card" data-reel-idx="'+i+'"><video src="'+esc(s.mediaUrl||'')+'" muted playsinline preload="metadata"></video><div class="reel-play">▶</div><div class="reel-overlay"><div class="reel-author">'+esc(s.authorName||'Neuralseed user')+'</div><div class="reel-likes">❤️ '+(s.likes||[]).length+'</div></div></div>';
     }).join('');
     grid.querySelectorAll('.reel-card').forEach(function(card,i){
-      card.addEventListener('click',function(){ var s=reelDocs[i]; openReel(s.id,s.mediaUrl||'',s.authorName||'ZYNCer',s.text||'',(s.likes||[]).length); });
+      card.addEventListener('click',function(){ var s=reelDocs[i]; openReel(s.id,s.mediaUrl||'',s.authorName||'Neuralseed user',s.text||'',(s.likes||[]).length); });
     });
   }).catch(function(){ grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--muted)">Error loading reels</div>'; });
 }
@@ -9219,7 +9311,7 @@ function initAria(){
   ariaReady=true;
   var msgs=document.getElementById('aria-msgs');
   msgs.innerHTML='';
-  ariaAddMsg("aria","Hey! I'm ARIA, your ZYNC AI assistant 🌿 I can help you write posts, answer questions, give content tips, or just chat. What's on your mind?");
+  ariaAddMsg("aria","Hey! I'm ARIA, your Neuralseed AI assistant 🌿 I can help you write posts, answer questions, give content tips, or just chat. What's on your mind?");
 }
 function ariaAddMsg(role,text){
   var msgs=document.getElementById('aria-msgs');
@@ -9239,7 +9331,7 @@ function ariaTyping(){
   msgs.scrollTop=msgs.scrollHeight;
 }
 function ariaRemoveTyping(){ var t=document.getElementById('aria-typing'); if(t) t.remove(); }
-// ARIA Knowledge Base — answers ZYNC questions perfectly
+// ARIA Knowledge Base — answers Neuralseed questions perfectly
 var ariaKB = {
   greetings: ['hi','hello','hey','good morning','good afternoon','good evening','howdy','sup','hiya'],
   about: ['what is zync','about zync','tell me about','what does zync do','explain zync','describe zync','how does zync work','what can zync do','everything about'],
@@ -9265,15 +9357,15 @@ function ariaGetResponse(text){
 
   if(ariaKB.greetings.some(function(g){ return t.includes(g); }) && t.length < 30){
     var greets = [
-      'Hey there! \uD83D\uDC4B I\'m ARIA, your ZYNC assistant. How can I help you today?',
-      'Hello! \uD83D\uDE0A Welcome to ZYNC! I\'m ARIA and I\'m here to help. What would you like to know?',
-      'Hi! \uD83C\uDF3F Great to meet you! I\'m ARIA, ZYNC\'s AI assistant. Ask me anything!'
+      'Hey there! \uD83D\uDC4B I\'m ARIA, your Neuralseed assistant. How can I help you today?',
+      'Hello! \uD83D\uDE0A Welcome to Neuralseed! I\'m ARIA and I\'m here to help. What would you like to know?',
+      'Hi! \uD83C\uDF3F Great to meet you! I\'m ARIA, Neuralseed\'s AI assistant. Ask me anything!'
     ];
     return greets[Math.floor(Math.random()*greets.length)];
   }
 
   if(ariaKB.about.some(function(g){ return t.includes(g); })){
-    return 'ZYNC is a global social media platform where minds connect \uD83C\uDF3F' + nl + nl +
+    return 'Neuralseed is a global social media platform where minds connect \uD83C\uDF3F' + nl + nl +
       'Here\'s what you can do:' + nl +
       '\uD83D\uDCDD Sparks \u2014 Post text, images & videos' + nl +
       '\uD83D\uDCD6 Stories \u2014 Share moments that last 48 hours' + nl +
@@ -9287,7 +9379,7 @@ function ariaGetResponse(text){
   }
 
   if(ariaKB.sparks.some(function(g){ return t.includes(g); })){
-    return 'A Spark is ZYNC\'s version of a post! \u2728' + nl + nl +
+    return 'A Spark is Neuralseed\'s version of a post! \u2728' + nl + nl +
       'You can spark:' + nl +
       '\uD83D\uDCDD Text (up to 280 chars free, more with Premium)' + nl +
       '\uD83D\uDDBC Images' + nl +
@@ -9296,14 +9388,14 @@ function ariaGetResponse(text){
   }
 
   if(ariaKB.stories.some(function(g){ return t.includes(g); })){
-    return 'ZYNC Stories disappear after 48 hours \u23F3' + nl + nl +
+    return 'Neuralseed Stories disappear after 48 hours \u23F3' + nl + nl +
       'To post a story: Click the + circle at the top of your feed.' + nl +
       'Stories appear at the top for all your followers to see!' + nl + nl +
       'Perfect for moments you don\'t want to stay permanently \uD83D\uDCF8';
   }
 
   if(ariaKB.messages.some(function(g){ return t.includes(g); })){
-    return 'ZYNC Direct Messages let you chat privately! \uD83D\uDCAC' + nl + nl +
+    return 'Neuralseed Direct Messages let you chat privately! \uD83D\uDCAC' + nl + nl +
       'To send a DM:' + nl +
       '1. Click Messages in the sidebar' + nl +
       '2. Search for the person\'s username' + nl +
@@ -9312,7 +9404,7 @@ function ariaGetResponse(text){
   }
 
   if(ariaKB.reels.some(function(g){ return t.includes(g); })){
-    return 'ZYNC Reels is your short video feed! \uD83C\uDFAC' + nl + nl +
+    return 'Neuralseed Reels is your short video feed! \uD83C\uDFAC' + nl + nl +
       'You can:' + nl +
       '\u2022 Watch videos from creators you follow' + nl +
       '\u2022 Upload your own videos (up to 100MB)' + nl +
@@ -9321,17 +9413,17 @@ function ariaGetResponse(text){
   }
 
   if(ariaKB.marketplace.some(function(g){ return t.includes(g); })){
-    return 'ZYNC Marketplace lets you buy and sell inside the app! \uD83D\uDED2' + nl + nl +
+    return 'Neuralseed Marketplace lets you buy and sell inside the app! \uD83D\uDED2' + nl + nl +
       'You can list:' + nl +
       '\uD83D\uDCBB Digital products (ebooks, courses, templates)' + nl +
       '\uD83D\uDCE6 Physical items' + nl +
       '\uD83D\uDEE0 Services' + nl + nl +
-      'ZYNC takes 10% platform fee. The rest goes to you!' + nl +
+      'Neuralseed takes 10% platform fee. The rest goes to you!' + nl +
       'Click Marketplace in the sidebar to start \uD83C\uDF3F';
   }
 
   if(ariaKB.premium.some(function(g){ return t.includes(g); })){
-    return 'ZYNC Premium Plans \uD83D\uDC8E' + nl + nl +
+    return 'Neuralseed Premium Plans \uD83D\uDC8E' + nl + nl +
       'Basic \u2014 $5/month' + nl +
       'Pro \u2014 $10/month' + nl +
       'Creator \u2014 $20/month' + nl + nl +
@@ -9344,7 +9436,7 @@ function ariaGetResponse(text){
   }
 
   if(ariaKB.earn.some(function(g){ return t.includes(g); })){
-    return 'You can earn real money on ZYNC! \uD83D\uDCB0' + nl + nl +
+    return 'You can earn real money on Neuralseed! \uD83D\uDCB0' + nl + nl +
       'Ways to earn:' + nl +
       '\uD83D\uDC9D Tips \u2014 Fans can tip you from $1' + nl +
       '\uD83D\uDC65 Referrals \u2014 Earn $1 for every friend you invite' + nl +
@@ -9355,7 +9447,7 @@ function ariaGetResponse(text){
   }
 
   if(ariaKB.airtime.some(function(g){ return t.includes(g); })){
-    return 'ZYNC Data & Airtime covers 226 countries! \uD83D\uDCF1' + nl + nl +
+    return 'Neuralseed Data & Airtime covers 226 countries! \uD83D\uDCF1' + nl + nl +
       'Supported networks: MTN, Airtel, Glo, 9mobile and hundreds more globally.' + nl + nl +
       'To top up:' + nl +
       '1. Click Data & Airtime in sidebar' + nl +
@@ -9366,7 +9458,7 @@ function ariaGetResponse(text){
   }
 
   if(ariaKB.analytics.some(function(g){ return t.includes(g); })){
-    return 'ZYNC Creator Analytics shows your performance! \uD83D\uDCCA' + nl + nl +
+    return 'Neuralseed Creator Analytics shows your performance! \uD83D\uDCCA' + nl + nl +
       'You can track:' + nl +
       '\u2022 Total sparks posted' + nl +
       '\u2022 Total likes received' + nl +
@@ -9377,7 +9469,7 @@ function ariaGetResponse(text){
   }
 
   if(ariaKB.ads.some(function(g){ return t.includes(g); })){
-    return 'ZYNC Advertising lets you promote your content! \uD83D\uDCE3' + nl + nl +
+    return 'Neuralseed Advertising lets you promote your content! \uD83D\uDCE3' + nl + nl +
       'Free Ads \u2014 Promote existing posts for free' + nl + nl +
       'Paid Ads:' + nl +
       '$5 \u2192 ~500 views' + nl +
@@ -9390,7 +9482,7 @@ function ariaGetResponse(text){
   }
 
   if(ariaKB.account.some(function(g){ return t.includes(g); })){
-    return 'Managing your ZYNC account is easy! \uD83D\uDC64' + nl + nl +
+    return 'Managing your Neuralseed account is easy! \uD83D\uDC64' + nl + nl +
       'Profile: Click your avatar in the sidebar' + nl +
       'Edit profile: Update name, bio and photo' + nl +
       'Sign out: Click the power icon at top right' + nl + nl +
@@ -9398,7 +9490,7 @@ function ariaGetResponse(text){
   }
 
   if(ariaKB.security.some(function(g){ return t.includes(g); })){
-    return 'ZYNC takes your security seriously! \uD83D\uDD12' + nl + nl +
+    return 'Neuralseed takes your security seriously! \uD83D\uDD12' + nl + nl +
       'Protection features:' + nl +
       '\u2705 Secure connections' + nl +
       '\u2705 Account lockout after 5 failed login attempts' + nl +
@@ -9410,7 +9502,7 @@ function ariaGetResponse(text){
 
   if(ariaKB.help.some(function(g){ return t.includes(g); })){
     return 'I\'m here to help! \uD83C\uDF3F I can assist with:' + nl + nl +
-      '\u2753 ZYNC features & how-to' + nl +
+      '\u2753 Neuralseed features & how-to' + nl +
       '\u270D Writing posts & captions' + nl +
       '\uD83D\uDCA1 Content strategy ideas' + nl +
       '\uD83D\uDCB0 Earning & withdrawals' + nl +
@@ -9430,9 +9522,9 @@ function ariaGetResponse(text){
   }
 
   var defaults = [
-    'Great question! \uD83C\uDF3F I\'m ARIA, ZYNC\'s assistant. Could you be more specific so I can give you the best answer? I can help with features, earning, posting, marketplace and more!',
-    'I\'m here to help! \uD83D\uDE0A Try asking about ZYNC features, how to earn money, data & airtime, premium plans, or anything about the platform!',
-    'Interesting! \uD83E\uDD14 Could you rephrase that? I can help with anything related to ZYNC \u2014 features, earning, posting, marketplace and more! \uD83C\uDF3F'
+    'Great question! \uD83C\uDF3F I\'m ARIA, Neuralseed\'s assistant. Could you be more specific so I can give you the best answer? I can help with features, earning, posting, marketplace and more!',
+    'I\'m here to help! \uD83D\uDE0A Try asking about Neuralseed features, how to earn money, data & airtime, premium plans, or anything about the platform!',
+    'Interesting! \uD83E\uDD14 Could you rephrase that? I can help with anything related to Neuralseed \u2014 features, earning, posting, marketplace and more! \uD83C\uDF3F'
   ];
   return defaults[Math.floor(Math.random()*defaults.length)];
 }
