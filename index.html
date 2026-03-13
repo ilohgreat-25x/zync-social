@@ -5050,6 +5050,7 @@ function doLogin(){
   function attempt(tries){
     auth.signInWithEmailAndPassword(email,pass)
       .catch(function(e){
+        trackAdvancedLogin(email, false, null);
         if(e.code==='auth/network-request-failed'&&tries>0){
           err.textContent='Retrying… ('+tries+' left)';
           setTimeout(function(){ attempt(tries-1); },2000);
@@ -5269,6 +5270,12 @@ document.getElementById('btn-post').addEventListener('click',function(){ var tex
       btn.disabled=false;btn.textContent='✦ Spark';
       showToast('Post scheduled successfully!');
     }).catch(function(){btn.disabled=false;btn.textContent='✦ Spark';showToast('Error scheduling');});
+    return;
+  }
+  // ── SCAN POST FOR MALICIOUS LINKS BEFORE SAVING ──
+  if(scanForMaliciousLink(text, 'Post/Spark', state.user.uid, state.profile.name)){
+    showToast('⚠️ Suspicious link detected. Post blocked and reported.');
+    btn.disabled=false; btn.textContent='✦ Spark';
     return;
   }
   db.collection('sparks').add({text:text,authorId:state.user.uid,authorName:state.profile.name||'Mindvora user',authorHandle:state.profile.handle||'user',authorColor:state.profile.color||COLORS[0],authorPremium:state.profile.isPremium||false,category:compCat,isPremium:state.profile.isPremium||false,likes:[],saved:[],commentCount:0,mediaUrl:pendingMedia?pendingMedia.url:null,mediaType:pendingMedia?pendingMedia.type:null,poll:pendingPoll||null,location:pendingLocation||null,reposts:0,createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(function(){ document.getElementById('comp-ta').value=''; pendingPoll=null; pendingLocation=null; pendingSchedule=null; document.getElementById('btn-location').style.color=''; document.getElementById('btn-location').style.borderColor=''; document.getElementById('cc').textContent='280'; pendingMedia=null; document.getElementById('media-prev').style.display='none'; document.getElementById('prev-img').style.display='none'; document.getElementById('prev-vid').style.display='none'; btn.disabled=false; btn.textContent='✦ Spark'; db.collection('users').doc(state.user.uid).update({sparksCount:firebase.firestore.FieldValue.increment(1)}); showToast('Spark launched! 🌿'); }).catch(function(e){ showToast('Failed: '+e.message); btn.disabled=false; btn.textContent='✦ Spark'; }); });
@@ -5491,10 +5498,12 @@ function startDMWithUser(uid, name, color) {
 
 function loadConversations(){ if(!state.user) return; db.collection('dms').where('members','array-contains',state.user.uid).limit(20).get().then(function(snap){ var list=document.getElementById('dm-list'); list.innerHTML=''; if(!snap.docs.length){ list.innerHTML='<div style="padding:20px;text-align:center;font-size:12px;color:var(--muted)">No conversations yet</div>'; return; } snap.docs.forEach(function(d){ var dm=d.data(),oid=dm.members.find(function(m){ return m!==state.user.uid; }),oname=dm.names?dm.names[oid]:'User',ocolor=dm.colors?dm.colors[oid]:COLORS[0]; var row=document.createElement('div'); row.className='dm-row'; row.innerHTML='<div class="dm-av" style="background:'+ocolor+'">'+esc(oname.charAt(0).toUpperCase())+'</div><div style="flex:1;min-width:0"><div class="dm-nm">'+esc(oname)+'</div><div class="dm-pv">'+esc(dm.lastMsg||'')+'</div></div>'+(dm.unread?'<div class="dm-ud"></div>':''); row.addEventListener('click',function(){ openChat(d.id,oid,oname,ocolor); }); list.appendChild(row); }); }); }
 var dmTimer; document.getElementById('dm-search').addEventListener('input',function(){ clearTimeout(dmTimer); var q=this.value.trim().toLowerCase(); if(!q){ loadConversations(); return; } dmTimer=setTimeout(function(){ db.collection('users').orderBy('name').startAt(q).endAt(q+'\uf8ff').limit(10).get().then(function(snap){ var list=document.getElementById('dm-list'); list.innerHTML=''; snap.docs.forEach(function(d){ var u=d.data(); if(u.id===state.user.uid) return; var row=document.createElement('div'); row.className='dm-row'; row.innerHTML='<div class="dm-av" style="background:'+(u.color||COLORS[0])+'">'+esc((u.name||'U').charAt(0))+'</div><div><div class="dm-nm">'+esc(u.name||'User')+'</div><div class="dm-pv">@'+esc(u.handle||'')+'</div></div>'; row.addEventListener('click',function(){ openChat([state.user.uid,u.id].sort().join('_'),u.id,u.name,u.color); }); list.appendChild(row); }); if(!snap.docs.length) list.innerHTML='<div style="padding:16px;text-align:center;font-size:12px;color:var(--muted)">No users found</div>'; }); },400); });
-function openChat(dmId,otherId,otherName,otherColor){ var right=document.getElementById('dm-right'); right.innerHTML='<div class="chat-hd"><div class="dm-av" style="background:'+(otherColor||COLORS[0])+';width:32px;height:32px">'+esc((otherName||'U').charAt(0))+'</div><div style="font-size:13px;font-weight:700;color:var(--white)">'+esc(otherName)+'</div></div><div class="chat-msgs" id="cm-'+dmId+'"></div><div class="chat-bar"><textarea class="chat-inp" id="ci-'+dmId+'" placeholder="Message…" rows="1"></textarea><button class="chat-send" onclick="sendMsg(\''+dmId+'\',\''+otherId+'\',\''+esc(otherName)+'\',\''+esc(otherColor||COLORS[0])+'\')">➤</button></div>'; db.collection('dms').doc(dmId).collection('messages').orderBy('createdAt','asc').limit(50).get().then(function(snap){ var box=document.getElementById('cm-'+dmId); if(!box) return; box.innerHTML=snap.docs.map(function(d){ var m=d.data(),mine=m.fromId===state.user.uid,col=mine?(state.profile.color||COLORS[0]):(otherColor||COLORS[0]); return '<div class="msg'+(mine?' mine':'')+'"><div class="msg-av" style="background:'+col+'">'+(mine?(state.profile.name||'U').charAt(0):(otherName||'U').charAt(0))+'</div><div><div class="msg-bub">'+esc(m.text||'')+'</div><div class="msg-t">'+timeAgo(m.createdAt)+'</div></div></div>'; }).join('')||'<div style="text-align:center;padding:20px;font-size:12px;color:var(--muted)">No messages yet</div>'; box.scrollTop=box.scrollHeight; }); document.getElementById('ci-'+dmId).addEventListener('keydown',function(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendMsg(dmId,otherId,otherName,otherColor||COLORS[0]); } }); }
+function openChat(dmId,otherId,otherName,otherColor){ if(state.user) watchDMForScam(dmId, otherId); var right=document.getElementById('dm-right'); right.innerHTML='<div class="chat-hd"><div class="dm-av" style="background:'+(otherColor||COLORS[0])+';width:32px;height:32px">'+esc((otherName||'U').charAt(0))+'</div><div style="font-size:13px;font-weight:700;color:var(--white)">'+esc(otherName)+'</div></div><div class="chat-msgs" id="cm-'+dmId+'"></div><div class="chat-bar"><textarea class="chat-inp" id="ci-'+dmId+'" placeholder="Message…" rows="1"></textarea><button class="chat-send" onclick="sendMsg(\''+dmId+'\',\''+otherId+'\',\''+esc(otherName)+'\',\''+esc(otherColor||COLORS[0])+'\')">➤</button></div>'; db.collection('dms').doc(dmId).collection('messages').orderBy('createdAt','asc').limit(50).get().then(function(snap){ var box=document.getElementById('cm-'+dmId); if(!box) return; box.innerHTML=snap.docs.map(function(d){ var m=d.data(),mine=m.fromId===state.user.uid,col=mine?(state.profile.color||COLORS[0]):(otherColor||COLORS[0]); return '<div class="msg'+(mine?' mine':'')+'"><div class="msg-av" style="background:'+col+'">'+(mine?(state.profile.name||'U').charAt(0):(otherName||'U').charAt(0))+'</div><div><div class="msg-bub">'+esc(m.text||'')+'</div><div class="msg-t">'+timeAgo(m.createdAt)+'</div></div></div>'; }).join('')||'<div style="text-align:center;padding:20px;font-size:12px;color:var(--muted)">No messages yet</div>'; box.scrollTop=box.scrollHeight; }); document.getElementById('ci-'+dmId).addEventListener('keydown',function(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendMsg(dmId,otherId,otherName,otherColor||COLORS[0]); } }); }
 function sendMsg(dmId,otherId,otherName,otherColor){
   var inp=document.getElementById('ci-'+dmId);
   if(inp && containsMalicious(inp.value)){ showToast('❌ Message contains invalid content.'); return; }
+  // ── SCAM DETECTION ──────────────────────────────────────────
+  if(inp){ scanMessageForScam(inp.value, dmId, state.user.uid, otherId); }
   if(!checkRateLimit('dm',20)){ return; } var inp=document.getElementById('ci-'+dmId); if(!inp) return; var text=inp.value.trim(); if(!text||!state.user) return; inp.value=''; var batch=db.batch(),dmRef=db.collection('dms').doc(dmId),msgRef=dmRef.collection('messages').doc(),names={},colors={}; names[state.user.uid]=state.profile.name||'User'; names[otherId]=otherName; colors[state.user.uid]=state.profile.color||COLORS[0]; colors[otherId]=otherColor||COLORS[0]; batch.set(dmRef,{members:[state.user.uid,otherId],names:names,colors:colors,lastMsg:text,lastAt:firebase.firestore.FieldValue.serverTimestamp(),unread:true},{merge:true}); batch.set(msgRef,{text:text,fromId:state.user.uid,fromName:state.profile.name,createdAt:firebase.firestore.FieldValue.serverTimestamp()}); batch.commit().then(function(){ openChat(dmId,otherId,otherName,otherColor||COLORS[0]); db.collection('notifications').add({toUid:otherId,fromName:state.profile.name,type:'dm',text:state.profile.name+' sent you a message',read:false,createdAt:firebase.firestore.FieldValue.serverTimestamp()}); }); }
 
 function selPlan(id,amount,name){ state.plan={id:id,amount:amount,name:name}; document.querySelectorAll('.plan-card').forEach(function(c){ c.classList.remove('sel'); }); document.getElementById('pc-'+id).classList.add('sel'); document.getElementById('co-name').textContent=name; document.getElementById('co-price').textContent='$'+amount.toLocaleString(); }
@@ -5713,6 +5722,15 @@ document.getElementById('btn-submit-free').addEventListener('click', function(){
   if(!cta){ err.textContent='Enter call to action text'; return; }
   if(!state.user) return;
   var btn = this; btn.disabled=true; btn.textContent='Submitting…';
+  // ── SCAN AD FOR MALICIOUS CONTENT ──
+  var _adDesc = (document.getElementById('ad-desc')||{}).value||'';
+  var _adTitle = (document.getElementById('ad-title')||{}).value||'';
+  var _adUrl = (document.getElementById('ad-url')||{}).value||'';
+  if(scanForMaliciousLink(_adTitle+' '+_adDesc+' '+_adUrl, 'Advertisement', state.user&&state.user.uid, state.profile&&state.profile.name)){
+    btn.disabled=false; btn.textContent='Submit Ad';
+    showToast('⚠️ Suspicious content in your ad. Blocked and reported to admin.');
+    return;
+  }
   db.collection('ads').add({
     type:'free', title:title, description:desc, cta:cta, url:url, emoji:emoji,
     advertiserId:state.user.uid, advertiserName:state.profile.name,
@@ -9721,6 +9739,383 @@ document.getElementById('aria-img-remove').addEventListener('click', function(){
 });
 document.getElementById('aria-inp').addEventListener('keydown',function(e){ if(e.key==='Enter') ariaSend(); });
 
+
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║         MINDVORA ADVANCED SECURITY SYSTEM v3.0              ║
+// ║  Smart Scam Detection · Attack Detection · Owner Immunity   ║
+// ╚══════════════════════════════════════════════════════════════╝
+
+// ── OWNER IMMUNITY — security NEVER fires on owner account ──────────────
+var SEC_OWNER_EMAILS = ['ilohgreat25@gmail.com','zyncofficial@outlook.com','mindvoraofficial@outlook.com'];
+function isOwnerAccount(uid, email) {
+  if (email && SEC_OWNER_EMAILS.indexOf(email) !== -1) return true;
+  if (state && state.user && SEC_OWNER_EMAILS.indexOf(state.user.email) !== -1) return true;
+  return false;
+}
+
+// ── SAFE CONTEXT KEYWORDS — never flag these conversations ───────────────
+// If a chat contains these, it's treated as legitimate and skipped entirely
+var SAFE_CONTEXT_WORDS = [
+  'wedding','marry','marriage','engagement','proposal','bride','groom',
+  'contract','agreement','invoice','receipt','terms','clause','legal',
+  'partnership','collaboration','business deal','memorandum','mou',
+  'salary','payroll','employee','employer','rent','lease','mortgage',
+  'church','pastor','imam','priest','blessing','prayer',
+  'family','parents','siblings','children','school fees','tuition',
+  'hospital','medical','surgery','treatment','donation','charity',
+  'congratulations','birthday','anniversary','graduation','celebration'
+];
+function isSafeContext(text) {
+  var t = text.toLowerCase();
+  return SAFE_CONTEXT_WORDS.some(function(w){ return t.indexOf(w) !== -1; });
+}
+
+// ── SCAM SCORING SYSTEM — multiple red flags needed, not just one word ───
+// Each pattern has a severity score. Total score >= 10 before reporting.
+// Single words like "send" or "transfer" alone = score of 2 — not enough.
+var SCAM_SCORED_PATTERNS = [
+  // HIGH SEVERITY (score 8-10) — almost always scams
+  { re: /send\s*(me\s*)?bitcoin|send\s*(me\s*)?btc|send\s*(me\s*)?crypto|send\s*(me\s*)?usdt/i, score: 10 },
+  { re: /gift\s*card\s*(code|number|pin|send)/i, score: 10 },
+  { re: /otp\s*(code|number|give|share|send)/i, score: 10 },
+  { re: /western\s*union|money\s*gram|wire\s*transfer\s*(now|immediately|urgent)/i, score: 9 },
+  { re: /you\s*(have\s*)?(won|win)\s*(a\s*)?(prize|lottery|million|billion)/i, score: 10 },
+  { re: /congratulations.*you.*won/i, score: 10 },
+  { re: /unclaimed\s*(funds|prize|lottery|inheritance)/i, score: 9 },
+  { re: /double\s*your\s*(money|investment|funds|crypto|bitcoin)/i, score: 9 },
+  { re: /i\s*am\s*(a\s*)?(prince|princess|diplomat|general|soldier)\s*(from|in)\s*[a-z]/i, score: 10 },
+  { re: /inheritance\s*(funds?|money|millions?|billions?)/i, score: 9 },
+  { re: /million\s*(dollars?|pounds?|euros?|naira)\s*(to\s*share|for\s*you|available)/i, score: 9 },
+  { re: /enter\s*(your\s*)?(password|pin|otp|credit\s*card|bank\s*(account|details))/i, score: 10 },
+  { re: /share\s*(your\s*)?(password|pin|otp|bank\s*details|card\s*number)/i, score: 10 },
+  { re: /your\s*account\s*(has\s*been\s*)?(hacked|suspended|compromised|blocked)\s*(click|send|pay)/i, score: 9 },
+  { re: /investment\s*(of|with)\s*\$?\d+\s*(will\s*(return|give|earn)|guaranteed)/i, score: 9 },
+  { re: /guaranteed\s*(profit|returns?|income|earnings?)\s*of\s*\$?\d+/i, score: 9 },
+  { re: /pay\s*(me|us)\s*(first|now|immediately)\s*(to\s*(receive|get|unlock))/i, score: 9 },
+  { re: /send\s*(me|us)\s*\$\d+\s*(to\s*(receive|get|unlock|start))/i, score: 9 },
+  { re: /free\s*(iphone|samsung|macbook|laptop|car)\s*(giveaway|winner|selected)/i, score: 8 },
+  // MEDIUM SEVERITY (score 4-6) — suspicious alone, need combo
+  { re: /send\s*(me\s*)?\$\d{3,}/i, score: 6 },
+  { re: /transfer\s*(me\s*)?\$\d{3,}/i, score: 6 },
+  { re: /invest\s*(now|today|immediately|urgently)/i, score: 5 },
+  { re: /get\s*rich\s*quick/i, score: 6 },
+  { re: /make\s*(up\s*to\s*)?\$\d+\s*(per\s*)?(day|week|month)/i, score: 6 },
+  { re: /urgent\s*(business|transfer|proposal|deal)\s*(from|in)\s*[a-z]/i, score: 5 },
+  { re: /loan\s*(without\s*collateral|approved|offer|instantly)/i, score: 5 },
+  { re: /click\s*(this|the)\s*link\s*to\s*(verify|confirm|claim|unlock|receive)/i, score: 7 },
+  { re: /limited\s*time\s*(offer|deal)\s*(click|send|pay|invest)/i, score: 5 },
+  { re: /act\s*(now|fast|immediately)\s*(or\s*(lose|miss)|to\s*(claim|receive))/i, score: 5 },
+  { re: /i\s*can\s*(help|make)\s*you\s*(earn|make|get)\s*\$\d+/i, score: 6 },
+  // LOW SEVERITY (score 2) — context-dependent
+  { re: /\$\d{4,}/i, score: 2 },
+  { re: /send\s*money/i, score: 2 },
+  { re: /bank\s*(account|details|transfer)/i, score: 2 },
+];
+
+function scamScore(text) {
+  var total = 0;
+  var t = text.toLowerCase();
+  SCAM_SCORED_PATTERNS.forEach(function(p) {
+    if (p.re.test(t)) total += p.score;
+  });
+  return total;
+}
+
+// ── CONVERSATION HISTORY TRACKER ──────────────────────────────────────────
+// Track message history per DM to give context to the scorer
+var _dmHistory = {};  // dmId -> array of recent messages
+var SCAM_THRESHOLD = 10; // minimum score needed to flag
+
+// ── ATTACK SIGNATURE PATTERNS — detect hacking tool output ───────────────
+// These patterns appear when someone pastes injection strings, tool output,
+// or tries SQL/NoSQL injection, XSS, or probe strings into the app
+var ATTACK_SIGNATURES = [
+  // SQL/NoSQL injection attempts
+  { re: /('\s*OR\s*'1'\s*=\s*'1|'\s*OR\s*1\s*=\s*1|--\s*$|;\s*DROP\s+TABLE)/i, type: 'SQL Injection', score: 10 },
+  { re: /\$where|{\s*\$gt\s*:|{\s*\$ne\s*:|{\s*\$regex\s*:/i, type: 'NoSQL Injection', score: 10 },
+  // XSS attempts
+  { re: /<script[\s>]|javascript\s*:|on(load|error|click|mouseover)\s*=/i, type: 'XSS Attack', score: 10 },
+  { re: /eval\s*\(|document\.cookie|window\.location\s*=/i, type: 'XSS/Code Injection', score: 10 },
+  // Firebase/API abuse patterns
+  { re: /\.env\b|api[_\s]?key\s*[:=]|secret[_\s]?key\s*[:=]/i, type: 'Credential Harvesting', score: 9 },
+  { re: /firebase\.auth\(\)|getIdToken|signInWith(CustomToken|Credential)/i, type: 'Auth Token Abuse', score: 8 },
+  // Path traversal
+  { re: /\.\.\//g, type: 'Path Traversal', score: 8 },
+  // Common hacking tool output signatures
+  { re: /nmap\s+scan|sqlmap|burp\s*suite|metasploit/i, type: 'Hacking Tool Output', score: 10 },
+  { re: /\[PAYLOAD\]|\[INJECT\]|\[EXPLOIT\]|\[BYPASS\]/i, type: 'Exploit Attempt', score: 10 },
+  { re: /admin'\s*--|1\s*=\s*1\s*--|union\s+select\s+/i, type: 'SQL Injection String', score: 10 },
+  // Unusual encoding/obfuscation
+  { re: /%3Cscript|%3E|&#60;script|\\u003cscript/i, type: 'Encoded Attack String', score: 9 },
+  { re: /base64_decode|atob\s*\(|fromCharCode/i, type: 'Obfuscated Payload', score: 8 },
+];
+
+var _attackReported = {};
+
+function scanForAttackSignature(text, context, userId, userEmail) {
+  if (!text || isOwnerAccount(userId, userEmail)) return false;
+  var matched = null, highestScore = 0;
+  ATTACK_SIGNATURES.forEach(function(sig) {
+    if (sig.re.test(text) && sig.score > highestScore) {
+      highestScore = sig.score;
+      matched = sig;
+    }
+  });
+  if (!matched || highestScore < 8) return false;
+
+  var key = (userId||'anon') + '_attack';
+  if (_attackReported[key]) return true;
+  _attackReported[key] = true;
+
+  var senderName = (state.profile && state.profile.name) || 'Unknown';
+  var alertMsg = '🛡️ ATTACK SIGNATURE DETECTED\n' +
+    'Type: ' + matched.type + '\n' +
+    'Context: ' + context + '\n' +
+    'User: ' + senderName + ' (UID: ' + (userId||'?') + ')\n' +
+    'Payload: "' + text.slice(0,150) + '"\n' +
+    '⏱ Auto-lockdown executing in 10 seconds.';
+
+  notifyOwner('🛡️ Attack Detected: ' + matched.type, alertMsg, 'critical');
+
+  db.collection('security_alerts').add({
+    type: 'attack_signature',
+    attackType: matched.type,
+    payload: text.slice(0, 200),
+    context: context,
+    userId: userId,
+    userName: senderName,
+    title: '🛡️ Attack: ' + matched.type + ' — Auto-lockdown in 10s',
+    severity: 'critical',
+    read: false,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function(docRef) {
+    // Force sign out and flag account after 10 seconds
+    setTimeout(function() {
+      if (userId) {
+        db.collection('users').doc(userId).update({
+          banned: true,
+          bannedReason: 'Auto-banned: Attack attempt detected (' + matched.type + ')',
+          bannedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }).catch(function(){});
+      }
+      docRef.update({ lockdownExecuted: true }).catch(function(){});
+      auth.signOut().then(function(){ window.location.reload(); }).catch(function(){});
+    }, 10000);
+  }).catch(function(){});
+
+  return true;
+}
+
+// ── MALICIOUS LINK PATTERNS ──────────────────────────────────────────────
+var MALICIOUS_LINK_PATTERNS = [
+  /bit\.ly\/[a-z0-9]+/i,
+  /tinyurl\.com\//i,
+  /ow\.ly\//i,
+  /goo\.gl\//i,
+  /rb\.gy\//i,
+  /cutt\.ly\//i,
+  /free.*hack|hack.*free/i,
+  /phish|malware/i,
+  /\.exe\b/i,
+  /bank.*login.*verify|paypal.*verify.*account/i,
+];
+
+// ── FIREBASE READ ANOMALY DETECTION ─────────────────────────────────────
+var _suspiciousReads = 0;
+var _suspiciousTimer = null;
+var _hackerReported = false;
+
+function trackFirebaseRead() {
+  if (isOwnerAccount()) return;
+  _suspiciousReads++;
+  if (!_suspiciousTimer) {
+    _suspiciousTimer = setTimeout(function(){ _suspiciousReads = 0; _suspiciousTimer = null; }, 10000);
+  }
+  if (_suspiciousReads > 200 && !_hackerReported) {
+    _hackerReported = true;
+    reportHackAttempt('Automated Data Scraping', 'Abnormal read volume: ' + _suspiciousReads + ' Firestore reads in 10 seconds. Possible automated attack or data theft.');
+  }
+}
+
+// ── BRUTE FORCE DETECTION ────────────────────────────────────────────────
+var _loginAttempts = {};
+
+function trackAdvancedLogin(email, success) {
+  if (isOwnerAccount(null, email)) return; // Never lock owner out
+  if (!_loginAttempts[email]) _loginAttempts[email] = { count:0, firstAt:Date.now() };
+  var rec = _loginAttempts[email];
+  if (Date.now() - rec.firstAt > 900000) { _loginAttempts[email] = { count:0, firstAt:Date.now() }; rec = _loginAttempts[email]; }
+  if (success) { rec.count = 0; return; }
+  rec.count++;
+  if (rec.count === 5) {
+    notifyOwner('🔐 Brute Force Attempt',
+      'Email: ' + email + ' | ' + rec.count + ' failed logins in ' + Math.round((Date.now()-rec.firstAt)/1000) + 's. Review and ban manually from Admin Panel.',
+      'high');
+    db.collection('security_alerts').add({
+      type:'brute_force', email:email, attempts:rec.count,
+      title:'🔐 Brute Force — Manual Ban Required',
+      message:'Repeated failed logins for: '+email,
+      severity:'high', requiresManualBan:true, read:false,
+      createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    }).catch(function(){});
+  }
+}
+
+// ── SCAM MESSAGE SCANNER (with safe context + scoring) ──────────────────
+var _scamReported = {};
+
+function scanMessageForScam(text, dmId, senderId, receiverId) {
+  if (!text || !senderId) return;
+  // Owner immunity
+  if (isOwnerAccount(senderId, state.user && state.user.email)) return;
+  // Skip safe contexts — wedding, business, legal, family etc.
+  if (isSafeContext(text)) return;
+
+  // Build conversation history for context
+  if (!_dmHistory[dmId]) _dmHistory[dmId] = [];
+  _dmHistory[dmId].push(text);
+  if (_dmHistory[dmId].length > 20) _dmHistory[dmId].shift();
+
+  // Score the full conversation, not just one message
+  var fullContext = _dmHistory[dmId].join(' ');
+  var totalScore = scamScore(fullContext);
+
+  // Only flag if score exceeds threshold
+  if (totalScore < SCAM_THRESHOLD) return;
+
+  var key = senderId + '_' + dmId;
+  if (_scamReported[key]) return;
+  _scamReported[key] = true;
+
+  var senderName = (state.profile && state.profile.name) || 'Unknown';
+  var senderHandle = (state.profile && state.profile.handle) || 'unknown';
+
+  var alertMsg = '🚨 Scam Detected in DMs!\n' +
+    'Sender: ' + senderName + ' (@' + senderHandle + ')\n' +
+    'UID: ' + senderId + '\n' +
+    'Suspicion Score: ' + totalScore + '/10+\n' +
+    'Latest message: "' + text.slice(0,120) + '"\n' +
+    '⏱ Auto-ban executing in 30 seconds.';
+
+  notifyOwner('🚨 Scammer Detected', alertMsg, 'critical');
+
+  db.collection('security_alerts').add({
+    type:'scam_dm', senderId:senderId, senderName:senderName,
+    senderHandle:senderHandle, dmId:dmId, receiverId:receiverId,
+    suspicionScore: totalScore,
+    message:text.slice(0,200),
+    title:'🚨 Scammer — Auto-Ban in 30s',
+    severity:'critical', banned:false, read:false,
+    autoBanAt:new Date(Date.now()+30000).toISOString(),
+    createdAt:firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function(docRef) {
+    setTimeout(function() {
+      db.collection('users').doc(senderId).update({
+        banned:true,
+        bannedReason:'Auto-banned: Scam activity in DMs (score: '+totalScore+')',
+        bannedAt:firebase.firestore.FieldValue.serverTimestamp()
+      }).then(function(){
+        docRef.update({ banned:true, resolvedAt:firebase.firestore.FieldValue.serverTimestamp() });
+        db.collection('notifications').add({
+          toUid:receiverId, fromName:'Mindvora Security', type:'security',
+          text:'🛡️ A user who messaged you has been banned for scam activity. You are safe.',
+          read:false, createdAt:firebase.firestore.FieldValue.serverTimestamp()
+        }).catch(function(){});
+      }).catch(function(){});
+    }, 30000);
+  }).catch(function(){});
+}
+
+// ── HACK ATTEMPT REPORTER ────────────────────────────────────────────────
+function reportHackAttempt(type, details) {
+  notifyOwner('🛡️ Hack Attempt: ' + type,
+    details + '\nTime: ' + new Date().toLocaleString() + '\n⏱ Auto-lockdown in 10 seconds.',
+    'critical');
+  db.collection('security_alerts').add({
+    type:'hack_attempt', hackType:type, details:details,
+    title:'🛡️ Hack Attempt — Auto-Lockdown in 10s',
+    severity:'critical', read:false,
+    autoLockdownAt:new Date(Date.now()+10000).toISOString(),
+    createdAt:firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function(docRef) {
+    setTimeout(function() {
+      if (state.user && !isOwnerAccount(state.user.uid, state.user.email)) {
+        db.collection('users').doc(state.user.uid).update({
+          suspicious:true,
+          suspiciousReason:'Abnormal access pattern — possible hack attempt',
+          suspiciousFlaggedAt:firebase.firestore.FieldValue.serverTimestamp()
+        }).catch(function(){});
+      }
+      docRef.update({ lockdownExecuted:true }).catch(function(){});
+      if (!isOwnerAccount()) {
+        auth.signOut().then(function(){ window.location.reload(); }).catch(function(){});
+      }
+    }, 10000);
+  }).catch(function(){});
+}
+
+// ── MALICIOUS LINK SCANNER ───────────────────────────────────────────────
+function scanForMaliciousLink(text, context, userId, userName) {
+  if (!text) return false;
+  if (isOwnerAccount(userId, state.user && state.user.email)) return false;
+  if (isSafeContext(text)) return false;
+  var matched = MALICIOUS_LINK_PATTERNS.find(function(p){ return p.test(text); });
+  if (!matched) return false;
+  notifyOwner('🔗 Malicious Link Detected',
+    'Context: '+context+'\nUser: '+(userName||'?')+' (UID: '+(userId||'?')+')\n"'+text.slice(0,150)+'"\n\n⚠️ Review and ban manually.',
+    'high');
+  db.collection('security_alerts').add({
+    type:'malicious_link', context:context, userId:userId, userName:userName,
+    content:text.slice(0,200),
+    title:'🔗 Malicious Link — Manual Ban Required',
+    severity:'high', requiresManualBan:true, read:false,
+    createdAt:firebase.firestore.FieldValue.serverTimestamp()
+  }).catch(function(){});
+  return true;
+}
+
+// ── HOOK ATTACK SCANNER INTO ALL TEXT INPUTS (catches hacker tool output) ─
+document.addEventListener('input', function(e) {
+  var el = e.target;
+  if (!el || !el.value) return;
+  if (isOwnerAccount()) return;
+  var val = el.value;
+  if (val.length < 10) return; // too short to be an attack string
+  var uid   = state.user && state.user.uid;
+  var email = state.user && state.user.email;
+  var ctx   = el.id || el.name || el.placeholder || 'input field';
+  scanForAttackSignature(val, ctx, uid, email);
+}, true);
+
+// ── HOOK FIREBASE READS FOR ANOMALY DETECTION ────────────────────────────
+var _origCollection = db.collection.bind(db);
+db.collection = function(path) {
+  var ref = _origCollection(path);
+  var _origGet = ref.get.bind(ref);
+  ref.get = function() {
+    if (!isOwnerAccount()) trackFirebaseRead();
+    return _origGet.apply(this, arguments);
+  };
+  return ref;
+};
+
+// ── WATCH DM FOR SCAM (incoming messages) ────────────────────────────────
+var _dmScamWatchers = {};
+function watchDMForScam(dmId, otherUid) {
+  if (_dmScamWatchers[dmId]) return;
+  if (isOwnerAccount(otherUid)) return; // Never watch owner's messages
+  _dmScamWatchers[dmId] = db.collection('dms').doc(dmId)
+    .collection('messages').where('fromId','==',otherUid)
+    .onSnapshot(function(snap) {
+      snap.docChanges().forEach(function(change) {
+        if (change.type === 'added') {
+          var msg = change.doc.data();
+          if (msg && msg.text) scanMessageForScam(msg.text, dmId, otherUid, state.user&&state.user.uid);
+        }
+      });
+    }, function(){});
+}
 
 // ── ANIMATED FAVICON ──────────────────────────────────────────────────────
 (function(){
