@@ -497,6 +497,20 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
 .reactions-bar{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;padding:0 0 4px}
 .reaction-btn{background:var(--deep);border:1px solid var(--border);border-radius:20px;padding:3px 8px;font-size:11px;cursor:pointer;display:flex;align-items:center;gap:3px;color:var(--muted);transition:all .2s;font-family:'DM Sans',sans-serif}
 .reaction-btn:hover,.reaction-btn.reacted{border-color:var(--green3);color:var(--green3);background:rgba(34,197,94,.08)}
+.reaction-picker-full{position:fixed;background:var(--card);border:1px solid var(--border);border-radius:16px;z-index:9999;width:310px;box-shadow:0 12px 40px rgba(0,0,0,.55);overflow:hidden;display:flex;flex-direction:column}
+.rxpick-quick{display:flex;gap:3px;padding:8px 10px 7px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.rxpick-quick button{background:none;border:none;font-size:22px;cursor:pointer;padding:2px 3px;border-radius:6px;transition:transform .15s;line-height:1}
+.rxpick-quick button:hover{transform:scale(1.35);background:var(--deep)}
+.rxpick-search{padding:6px 10px;border-bottom:1px solid var(--border)}
+.rxpick-search input{width:100%;background:var(--deep);border:1px solid var(--border);border-radius:8px;padding:5px 10px;color:var(--moon);font-size:12px;font-family:'DM Sans',sans-serif;outline:none;box-sizing:border-box}
+.rxpick-tabs{display:flex;gap:3px;padding:5px 8px;overflow-x:auto;border-bottom:1px solid var(--border);scrollbar-width:none}
+.rxpick-tabs::-webkit-scrollbar{display:none}
+.rxpick-tab{background:transparent;border:1px solid var(--border);border-radius:20px;padding:3px 7px;font-size:14px;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .2s;color:var(--muted)}
+.rxpick-tab.active{background:var(--green2);border-color:var(--green2);color:#fff}
+.rxpick-body{height:190px;overflow-y:auto;padding:6px 8px;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.rxpick-grid{display:flex;flex-wrap:wrap;gap:1px}
+.rxpick-grid button{background:none;border:none;font-size:20px;cursor:pointer;padding:3px;border-radius:6px;width:34px;height:34px;text-align:center;transition:all .12s;line-height:1}
+.rxpick-grid button:hover{background:var(--deep);transform:scale(1.25)}
 .reaction-picker{position:absolute;bottom:100%;left:0;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:8px;display:flex;gap:6px;z-index:100;box-shadow:0 4px 20px rgba(0,0,0,.3)}
 /* ── STORY VIEWS ── */
 .story-view-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
@@ -6439,7 +6453,23 @@ function buildPollHTML(s){
 }
 
 // ── BUILD REACTIONS HTML ──
-var REACTIONS=['❤️','😂','😮','😢','🔥','👏','🎉','💯'];
+// Quick reactions bar (top picks)
+var REACTIONS=['❤️','😂','😮','😢','🔥','👏','🎉','💯','😍','🤣','😭','😱','🥰','👍','💪','🙏'];
+
+// Full emoji library by category
+var EMOJI_CATS=[
+  {icon:'😀',name:'Smileys',emojis:['😀','😃','😄','😁','😆','😅','🤣','😂','🙂','😊','😇','🥰','😍','🤩','😘','😗','😚','😙','🥲','😋','😛','😜','🤪','😝','🤑','🤗','🤭','🤫','🤔','🫡','🤐','🤨','😐','😑','😶','😏','😒','🙄','😬','🤥','😌','😔','😪','🤤','😴','😷','🤒','🤕','🤢','🤮','🤧','🥵','🥶','🥴','😵','🤯','🤠','🥳','🥸','😎','🤓','🧐','😕','🫤','😟','🙁','☹️','😮','😯','😲','😳','🥺','🫣','😦','😧','😨','😰','😥','😢','😭','😱','😖','😣','😞','😓','😩','😫','🥱','😤','😡','😠','🤬','😈','👿','💀','☠️','💩','🤡','👹','👺','👻','👽','👾','🤖']},
+  {icon:'👋',name:'Gestures',emojis:['👋','🤚','🖐','✋','🖖','🫱','🫲','🫳','🫴','👌','🤌','🤏','✌️','🤞','🫰','🤟','🤘','🤙','👈','👉','👆','🖕','👇','☝️','🫵','👍','👎','✊','👊','🤛','🤜','👏','🙌','🫶','👐','🤲','🤝','🙏','✍️','💅','🤳','💪','🦾','🦿','🦵','🦶','👂','🦻','👃','🫀','🫁','🧠','🦷','🦴','👀','👁','👅','👄','🫦','💋']},
+  {icon:'👨',name:'People',emojis:['👶','🧒','👦','👧','🧑','👱','👨','🧔','👩','🧓','👴','👵','🙍','🙎','🙅','🙆','💁','🙋','🧏','🙇','🤦','🤷','👮','🕵️','💂','🥷','👷','🤴','👸','👳','👲','🧕','🤵','👰','🤰','🫃','🫄','🤱','👼','🎅','🤶','🦸','🦹','🧙','🧚','🧛','🧜','🧝','🧞','🧟','🧌','💆','💇','🚶','🧍','🧎','🏃','💃','🕺','🕴','👯','🧖','🧗','🤺','🏇','⛷️','🏂','🪂','🏋️','🤼','🤸','🤾','🏌️','🏄','🚣','🧘','🛀','🛌']},
+  {icon:'❤️',name:'Hearts',emojis:['❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','❤️‍🔥','❤️‍🩹','💔','💕','💞','💓','💗','💖','💘','💝','💟','💌','💋','💍','💎','👑','🎀','🎁','🎊','🎉','🎈','🎆','🎇','✨','⭐','🌟','💫','⚡','🔥','🌈','☀️','🌙','❄️','🌊','🌸','🌺','🌻','🌹','🌷','🌼']},
+  {icon:'🐶',name:'Animals',emojis:['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐽','🐸','🐵','🙈','🙉','🙊','🐒','🐔','🐧','🐦','🐤','🐣','🐥','🦆','🦅','🦉','🦇','🐺','🐗','🐴','🦄','🐝','🪱','🐛','🦋','🐌','🐞','🐜','🪲','🦟','🦗','🪳','🕷','🦂','🐢','🐍','🦎','🦖','🦕','🐙','🦑','🦐','🦞','🦀','🐡','🐠','🐟','🐬','🐳','🐋','🦈','🐊','🐅','🐆','🦓','🦍','🦧','🦣','🐘','🦛','🦏','🐪','🐫','🦒','🦘','🦬','🐃','🐂','🐄','🐎','🐖','🐏','🐑','🦙','🐐','🦌','🐕','🐩','🦮','🐕‍🦺','🐈','🐈‍⬛','🐓','🦃','🦤','🦚','🦜','🦢','🦩','🕊','🐇','🦝','🦨','🦡','🦫','🦦','🦥','🐁','🐀','🐿','🦔']},
+  {icon:'🌸',name:'Nature',emojis:['🌵','🎄','🌲','🌳','🌴','🪵','🌱','🌿','☘️','🍀','🎍','🎋','🍃','🍂','🍁','🪺','🪹','🍄','🌾','💐','🌷','🌹','🥀','🪷','🌺','🌸','🌼','🌻','🌞','🌝','🌛','🌜','🌚','🌕','🌖','🌗','🌘','🌑','🌒','🌓','🌔','🌙','🌟','⭐','🌠','🌌','☀️','🌤','⛅','🌥','☁️','🌦','🌧','⛈','🌩','🌨','❄️','☃️','⛄','🌬','💨','🌀','🌈','🌂','☂️','☔','⛱','⚡','🔥','💧','🌊','🌍','🌎','🌏','🪐','🌋','🗻','🏔','⛰','🏕','🏖','🏜','🏝','🏞']},
+  {icon:'🍕',name:'Food',emojis:['🍎','🍊','🍋','🍌','🍉','🍇','🍓','🫐','🍈','🍒','🍑','🥭','🍍','🥥','🥝','🍅','🍆','🥑','🥦','🥬','🥒','🌶','🫑','🧄','🧅','🥔','🍠','🥐','🥯','🍞','🥖','🥨','🧀','🥚','🍳','🧈','🥞','🧇','🥓','🥩','🍗','🍖','🌭','🍔','🍟','🍕','🫓','🥪','🥙','🧆','🌮','🌯','🫔','🥗','🥘','🫕','🥫','🍝','🍜','🍲','🍛','🍣','🍱','🥟','🦪','🍤','🍙','🍚','🍘','🍥','🥮','🍢','🧁','🍰','🎂','🍮','🍭','🍬','🍫','🍿','🍩','🍪','🌰','🥜','🍯','🧃','🥤','🧋','☕','🫖','🍵','🍺','🍻','🥂','🍷','🥃','🍸','🍹','🧊']},
+  {icon:'⚽',name:'Sports',emojis:['⚽','🏀','🏈','⚾','🥎','🎾','🏐','🏉','🥏','🎱','🏓','🏸','🏒','🏑','🥍','🏏','🪃','🥅','⛳','🪁','🎣','🤿','🎽','🎿','🛷','🥌','🎯','🎮','🕹','🎲','♟','🏆','🥇','🥈','🥉','🏅','🎖','🏵','🎪','🎭','🎨','🎠','🎡','🎢','🎰','🚗','🚕','🚙','🏎','🚓','🚑','🚒','🚀','🛸','🛩','✈️','🚁','⛵','🚤','🛥','🚢','🚲','🛴','🛹','🏍','🛵']},
+  {icon:'🏠',name:'Places',emojis:['🏠','🏡','🏢','🏣','🏤','🏥','🏦','🏨','🏩','🏪','🏫','🏬','🏭','🏯','🏰','💒','🗼','🗽','⛪','🕌','🛕','🕍','⛩','🕋','⛲','⛺','🌁','🌃','🏙','🌄','🌅','🌆','🌇','🌉','🗺','🗾','🧭','🏔','⛰','🌋','🗻','🏕','🏖','🏜','🏝','🏞','🛣','🛤','🌐']},
+  {icon:'💡',name:'Objects',emojis:['⌚','📱','💻','⌨️','🖥','🖨','🖱','💾','💿','📀','📷','📸','📹','🎥','📽','🎞','☎️','📞','📟','📠','📺','📻','🎙','🎚','🎛','📡','🔋','🔌','💡','🔦','🕯','🪔','💰','💳','🪙','📈','📉','📊','📋','📆','📅','📌','📍','✂️','📎','🖊','🖋','✒️','🖌','🖍','📝','✏️','🔍','🔎','🔏','🔐','🔒','🔓','🗑','🛢','💸','🏧','🚪','🪞','🪟','🛋','🪑','🚽','🚿','🛁','🧴','🧷','🧹','🧺','🧻','🧼','🫧','🪣','🧽','🪤','🪒','🧲','🪜','🧰','🔧','🔨','⚒','🛠','⛏','🔩','🪛','🔫','🪃','🏹','🛡','🪚','🔪','🗡','⚔️','🛑','🚧','⚓','🪝','🧲','🔮','🪄','🧿','🪬','🎭','🎨','🖼','🎪','🎤','🎧','🎼','🎵','🎶','🎷','🪗','🎸','🎹','🎺','🎻','🪘','🥁','🪩']},
+  {icon:'🔤',name:'Symbols',emojis:['‼️','⁉️','❓','❔','❕','❗','💯','🔞','📵','🚫','⛔','🆘','♻️','✅','☑️','🔃','🔄','🔙','🔚','🔛','🔜','🔝','🆔','📳','📴','📶','🔅','🔆','🎦','🔱','⭕','✳️','❇️','💠','Ⓜ️','🌀','💤','🏧','🚮','🚰','♿','🚹','🚺','🚻','🚼','🚾','⚠️','🚸','🚳','🚭','🚯','🚱','🚷','☢️','☣️','⬆️','↗️','➡️','↘️','⬇️','↙️','⬅️','↖️','↕️','↔️','↩️','↪️','⤴️','⤵️','🔀','🔁','🔂','▶️','⏩','⏭️','⏯️','◀️','⏪','⏮️','🔼','⏫','🔽','⏬','⏸️','⏹️','⏺️','🔔','🔕','🎵','🎶','✔️','🔲','🔳','🔘','🔴','🟠','🟡','🟢','🔵','🟣','⚫','⚪','🟤','🔶','🔷','🔸','🔹','🔺','🔻','💠','🔘']}
+];
 function buildReactionsHTML(s){
   var uid=state.user?state.user.uid:'';
   var rxs=s.reactions||{};
@@ -6454,26 +6484,119 @@ function buildReactionsHTML(s){
   return html;
 }
 
-function showReactionPicker(sparkId,btn){
-  var existing=document.getElementById('rxpicker-'+sparkId);
-  if(existing){existing.remove();return;}
-  var picker=document.createElement('div');
-  picker.className='reaction-picker';
-  picker.id='rxpicker-'+sparkId;
-  REACTIONS.forEach(function(em){
-    var b=document.createElement('button');
-    b.textContent=em;
-    b.style.cssText='background:none;border:none;font-size:20px;cursor:pointer;padding:2px';
-    b.onclick=function(){toggleReaction(sparkId,em);picker.remove();};
-    picker.appendChild(b);
+function showReactionPicker(sparkId, btn) {
+  // Remove any existing picker
+  var existing = document.getElementById('rxpicker-' + sparkId);
+  if (existing) { existing.remove(); return; }
+  document.querySelectorAll('.reaction-picker-full').forEach(function(p){ p.remove(); });
+
+  var picker = document.createElement('div');
+  picker.className = 'reaction-picker-full';
+  picker.id = 'rxpicker-' + sparkId;
+
+  // ── Quick reactions row ──
+  var quickDiv = document.createElement('div');
+  quickDiv.className = 'rxpick-quick';
+  REACTIONS.forEach(function(em) {
+    var b = document.createElement('button');
+    b.textContent = em;
+    b.title = 'React ' + em;
+    b.onclick = function(e){ e.stopPropagation(); toggleReaction(sparkId, em); picker.remove(); };
+    quickDiv.appendChild(b);
   });
-  btn.parentNode.style.position='relative';
-  btn.parentNode.insertBefore(picker,btn);
-  setTimeout(function(){
-    document.addEventListener('click',function h(e){
-      if(!picker.contains(e.target)){picker.remove();document.removeEventListener('click',h);}
+  picker.appendChild(quickDiv);
+
+  // ── Search bar ──
+  var searchDiv = document.createElement('div');
+  searchDiv.className = 'rxpick-search';
+  var searchInp = document.createElement('input');
+  searchInp.placeholder = '🔍 Search all emojis...';
+  searchInp.autocomplete = 'off';
+  searchDiv.appendChild(searchInp);
+  picker.appendChild(searchDiv);
+
+  // ── Category tabs ──
+  var tabsDiv = document.createElement('div');
+  tabsDiv.className = 'rxpick-tabs';
+  EMOJI_CATS.forEach(function(cat, i) {
+    var tab = document.createElement('button');
+    tab.className = 'rxpick-tab' + (i === 0 ? ' active' : '');
+    tab.textContent = cat.icon;
+    tab.title = cat.name;
+    tab.dataset.idx = i;
+    tab.onclick = function(e){
+      e.stopPropagation();
+      tabsDiv.querySelectorAll('.rxpick-tab').forEach(function(t){ t.classList.remove('active'); });
+      tab.classList.add('active');
+      renderCat(i);
+      searchInp.value = '';
+    };
+    tabsDiv.appendChild(tab);
+  });
+  picker.appendChild(tabsDiv);
+
+  // ── Emoji body ──
+  var body = document.createElement('div');
+  body.className = 'rxpick-body';
+  picker.appendChild(body);
+
+  function renderCat(idx) {
+    var grid = document.createElement('div');
+    grid.className = 'rxpick-grid';
+    EMOJI_CATS[idx].emojis.forEach(function(em) {
+      var b = document.createElement('button');
+      b.textContent = em;
+      b.onclick = function(e){ e.stopPropagation(); toggleReaction(sparkId, em); picker.remove(); };
+      grid.appendChild(b);
     });
-  },100);
+    body.innerHTML = '';
+    body.appendChild(grid);
+  }
+  renderCat(0);
+
+  // ── Search logic ──
+  searchInp.oninput = function() {
+    var q = this.value.trim().toLowerCase();
+    tabsDiv.querySelectorAll('.rxpick-tab').forEach(function(t){ t.classList.remove('active'); });
+    if (!q) { renderCat(0); tabsDiv.querySelector('.rxpick-tab').classList.add('active'); return; }
+    var grid = document.createElement('div');
+    grid.className = 'rxpick-grid';
+    var count = 0;
+    EMOJI_CATS.forEach(function(cat) {
+      cat.emojis.forEach(function(em) {
+        // Show all emojis when searching (user scans visually)
+        var b = document.createElement('button');
+        b.textContent = em;
+        b.onclick = function(e){ e.stopPropagation(); toggleReaction(sparkId, em); picker.remove(); };
+        grid.appendChild(b);
+        count++;
+      });
+    });
+    body.innerHTML = '';
+    if (count) body.appendChild(grid);
+    else body.innerHTML = '<div style="color:var(--muted);font-size:12px;padding:10px;text-align:center">No emojis</div>';
+  };
+
+  // ── Position ──
+  document.body.appendChild(picker);
+  var rect = btn.getBoundingClientRect();
+  var top = rect.top - 340;
+  if (top < 8) top = rect.bottom + 6;
+  var left = Math.min(rect.left, window.innerWidth - 318);
+  if (left < 6) left = 6;
+  picker.style.top  = top + 'px';
+  picker.style.left = left + 'px';
+
+  // ── Auto-close ──
+  setTimeout(function() {
+    function closeHandler(e) {
+      if (!picker.contains(e.target) && e.target !== btn) {
+        picker.remove();
+        document.removeEventListener('click', closeHandler);
+      }
+    }
+    document.addEventListener('click', closeHandler);
+  }, 120);
 }
 
 function toggleReaction(sparkId,emoji){
