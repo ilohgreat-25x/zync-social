@@ -13,6 +13,8 @@
 <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
 <!-- EmailJS for security alert emails -->
+<script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"></script>
+<script src="https://js.paystack.co/v1/inline.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 <!-- EmailJS for security alerts -->
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
@@ -3148,8 +3150,21 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
 <div class="modal-overlay" id="modal-dm">
   <div class="modal-box dm-wrap">
     <div class="dm-left">
-      <div class="dm-lh"><span style="font-family:'DM Serif Display',serif;font-size:15px;color:var(--white)">Messages</span><button class="m-close" onclick="closeModal('modal-dm')">✕</button></div>
-      <input class="dm-search" id="dm-search" placeholder="Search users…" type="text">
+      <div class="dm-lh" style="display:flex;align-items:center;justify-content:space-between">
+        <span style="font-family:'DM Serif Display',serif;font-size:15px;color:var(--white)">Messages</span>
+        <div style="display:flex;gap:6px;align-items:center">
+          <button onclick="toggleNewMessage()" title="New Message" style="background:var(--green2);border:none;border-radius:50%;width:28px;height:28px;color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center">✏️</button>
+          <button class="m-close" onclick="closeModal('modal-dm')">✕</button>
+        </div>
+      </div>
+      <div id="dm-new-msg-panel" style="display:none;padding:8px 0">
+        <input class="dm-search" id="dm-user-search" placeholder="Search by name or @handle…" type="text" oninput="searchUsersForDM(this.value)" style="margin-bottom:6px">
+        <div id="dm-user-results" style="max-height:200px;overflow-y:auto"></div>
+        <div style="border-top:1px solid var(--border);margin-top:6px;padding-top:6px">
+          <div style="font-size:10px;color:var(--muted);padding:0 4px;margin-bottom:4px">Recent conversations</div>
+        </div>
+      </div>
+      <input class="dm-search" id="dm-search" placeholder="Search conversations…" type="text">
       <div class="dm-list" id="dm-list"></div>
     </div>
     <div class="dm-right" id="dm-right">
@@ -5253,18 +5268,117 @@ document.getElementById('nav-prem').addEventListener('click',function(){ setNav(
 document.getElementById('notif-btn').addEventListener('click',function(e){ e.stopPropagation(); document.getElementById('notif-drop').classList.toggle('open'); });
 document.addEventListener('click',function(){ document.getElementById('notif-drop').classList.remove('open'); });
 document.getElementById('nc-btn').addEventListener('click',function(){ if(!state.user) return; db.collection('notifications').where('toUid','==',state.user.uid).get().then(function(snap){ snap.docs.forEach(function(d){ d.ref.delete(); }); }); document.getElementById('notif-list').innerHTML='<div class="n-empty">No notifications yet</div>'; document.getElementById('nd').style.display='none'; });
-function listenNotifs(){ if(!state.user) return; if(state.notifsUnsub) state.notifsUnsub(); state.notifsUnsub=db.collection('notifications').where('toUid','==',state.user.uid).orderBy('createdAt','desc').limit(20).onSnapshot(function(snap){ var items=snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); }); document.getElementById('nd').style.display=items.filter(function(x){ return !x.read; }).length?'block':'none'; document.getElementById('notif-list').innerHTML=items.length?items.map(function(n){ return '<div class="n-item'+(n.read?'':' unread')+'" onclick="markRead(\''+n.id+'\')"><span class="n-ico">'+(n.type==='like'?'❤️':n.type==='comment'?'💬':n.type==='tip'?'💝':'🔔')+'</span><div><div class="n-text">'+esc(n.text||'')+'</div><div class="n-time">'+timeAgo(n.createdAt)+'</div></div></div>'; }).join(''):'<div class="n-empty">No notifications yet</div>'; }); }
+function listenNotifs(){ if(!state.user) return; if(state.notifsUnsub) state.notifsUnsub(); state.notifsUnsub=db.collection('notifications').where('toUid','==',state.user.uid).limit(20).onSnapshot(function(snap){ var items=snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); }); document.getElementById('nd').style.display=items.filter(function(x){ return !x.read; }).length?'block':'none'; document.getElementById('notif-list').innerHTML=items.length?items.map(function(n){ return '<div class="n-item'+(n.read?'':' unread')+'" onclick="markRead(\''+n.id+'\')"><span class="n-ico">'+(n.type==='like'?'❤️':n.type==='comment'?'💬':n.type==='tip'?'💝':'🔔')+'</span><div><div class="n-text">'+esc(n.text||'')+'</div><div class="n-time">'+timeAgo(n.createdAt)+'</div></div></div>'; }).join(''):'<div class="n-empty">No notifications yet</div>'; }); }
 function markRead(id){ db.collection('notifications').doc(id).update({read:true}); }
 
 function openComments(sparkId){ state.currentSparkId=sparkId; document.getElementById('cmt-list').innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Loading…</div>'; document.getElementById('cmt-inp').value=''; openModal('modal-comments'); db.collection('sparks').doc(sparkId).collection('comments').orderBy('createdAt','asc').limit(50).get().then(function(snap){ var cmts=snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); }); document.getElementById('cmt-list').innerHTML=cmts.length?cmts.map(function(c){ return '<div class="cmt-item"><div class="cmt-av" style="background:'+(c.authorColor||COLORS[0])+'">'+esc((c.authorName||'Z').charAt(0))+'</div><div><div><span class="cmt-nm">'+esc(c.authorName||'ZYNCer')+'</span><span class="cmt-hdl">@'+esc(c.authorHandle||'user')+'</span></div><div class="cmt-txt">'+esc(c.text||'')+'</div><div class="cmt-tm">'+timeAgo(c.createdAt)+'</div></div></div>'; }).join(''):'<div style="text-align:center;padding:24px;color:var(--muted)">No comments yet. Be first!</div>'; }); }
 document.getElementById('btn-cmt').addEventListener('click',function(){ var text=document.getElementById('cmt-inp').value.trim(); if(!text||!state.user||!state.currentSparkId) return; if(containsMalicious(text)){ showToast('❌ Comment contains invalid content.'); return; } if(!checkRateLimit('comment',10)){ return; } text=sanitize(text); var btn=this; btn.disabled=true; db.collection('sparks').doc(state.currentSparkId).collection('comments').add({text:text,authorId:state.user.uid,authorName:state.profile.name,authorHandle:state.profile.handle,authorColor:state.profile.color,createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(function(){ db.collection('sparks').doc(state.currentSparkId).update({commentCount:firebase.firestore.FieldValue.increment(1)}); document.getElementById('cmt-inp').value=''; btn.disabled=false; openComments(state.currentSparkId); showToast('Comment posted!'); }).catch(function(){ btn.disabled=false; showToast('Failed to post comment'); }); });
 
-function loadStories(){ var cutoff=Date.now()-48*60*60*1000; db.collection('stories').where('expiresAt','>',new Date(cutoff)).orderBy('expiresAt','desc').limit(20).get().then(function(snap){ var bar=document.getElementById('stories-bar'); bar.innerHTML='<div class="s-add" id="story-add">＋</div>'; snap.docs.forEach(function(d){ var s=d.data(),seen=state.user&&(s.seenBy||[]).indexOf(state.user.uid)>-1; var el=document.createElement('div'); el.className='s-item'; el.innerHTML='<div class="s-ring'+(seen?' seen':'')+'"><div class="s-av">'+esc((s.authorName||'Z').charAt(0).toUpperCase())+'</div></div><div class="s-name">'+esc(s.authorName||'')+'</div>'; el.addEventListener('click',function(){ viewStory(d.id,s); }); bar.appendChild(el); }); document.getElementById('story-add').addEventListener('click',postStory); }); }
+function loadStories(){ var cutoff=Date.now()-48*60*60*1000; db.collection('stories').where('expiresAt','>',new Date(cutoff)).limit(20).get().then(function(snap){ var bar=document.getElementById('stories-bar'); bar.innerHTML='<div class="s-add" id="story-add">＋</div>'; snap.docs.forEach(function(d){ var s=d.data(),seen=state.user&&(s.seenBy||[]).indexOf(state.user.uid)>-1; var el=document.createElement('div'); el.className='s-item'; el.innerHTML='<div class="s-ring'+(seen?' seen':'')+'"><div class="s-av">'+esc((s.authorName||'Z').charAt(0).toUpperCase())+'</div></div><div class="s-name">'+esc(s.authorName||'')+'</div>'; el.addEventListener('click',function(){ viewStory(d.id,s); }); bar.appendChild(el); }); document.getElementById('story-add').addEventListener('click',postStory); }); }
 function postStory(){ var text=prompt('Share a story (disappears in 48h):'); if(!text||!text.trim()||!state.user) return; db.collection('stories').add({text:text.trim(),authorId:state.user.uid,authorName:state.profile.name,authorHandle:state.profile.handle,authorColor:state.profile.color,seenBy:[],createdAt:firebase.firestore.FieldValue.serverTimestamp(),expiresAt:new Date(Date.now()+48*60*60*1000)}).then(function(){ showToast('Story posted! 48h ⏱'); loadStories(); }); }
 function viewStory(id,s){ document.getElementById('sv-av').textContent=(s.authorName||'Z').charAt(0).toUpperCase(); document.getElementById('sv-av').style.background=s.authorColor||COLORS[0]; document.getElementById('sv-nm').textContent=s.authorName||'ZYNCer'; document.getElementById('sv-tm').textContent=timeAgo(s.createdAt); document.getElementById('sv-text').textContent=s.text||''; document.getElementById('sv-overlay').classList.add('open'); var fill=document.getElementById('sv-fill'); fill.style.transition='none'; fill.style.width='0%'; setTimeout(function(){ fill.style.transition='width 5s linear'; fill.style.width='100%'; },50); setTimeout(function(){ document.getElementById('sv-overlay').classList.remove('open'); },5100); if(state.user) db.collection('stories').doc(id).update({seenBy:firebase.firestore.FieldValue.arrayUnion(state.user.uid)}); }
 document.getElementById('sv-x').addEventListener('click',function(){ document.getElementById('sv-overlay').classList.remove('open'); });
 
-function loadConversations(){ if(!state.user) return; db.collection('dms').where('members','array-contains',state.user.uid).orderBy('lastAt','desc').limit(20).get().then(function(snap){ var list=document.getElementById('dm-list'); list.innerHTML=''; if(!snap.docs.length){ list.innerHTML='<div style="padding:20px;text-align:center;font-size:12px;color:var(--muted)">No conversations yet</div>'; return; } snap.docs.forEach(function(d){ var dm=d.data(),oid=dm.members.find(function(m){ return m!==state.user.uid; }),oname=dm.names?dm.names[oid]:'User',ocolor=dm.colors?dm.colors[oid]:COLORS[0]; var row=document.createElement('div'); row.className='dm-row'; row.innerHTML='<div class="dm-av" style="background:'+ocolor+'">'+esc(oname.charAt(0).toUpperCase())+'</div><div style="flex:1;min-width:0"><div class="dm-nm">'+esc(oname)+'</div><div class="dm-pv">'+esc(dm.lastMsg||'')+'</div></div>'+(dm.unread?'<div class="dm-ud"></div>':''); row.addEventListener('click',function(){ openChat(d.id,oid,oname,ocolor); }); list.appendChild(row); }); }); }
+
+// ── DM USER SEARCH ──
+var dmNewMsgOpen = false;
+
+function toggleNewMessage() {
+  dmNewMsgOpen = !dmNewMsgOpen;
+  var panel = document.getElementById('dm-new-msg-panel');
+  if (panel) {
+    panel.style.display = dmNewMsgOpen ? 'block' : 'none';
+    if (dmNewMsgOpen) {
+      setTimeout(function(){ 
+        var inp = document.getElementById('dm-user-search');
+        if (inp) { inp.value = ''; inp.focus(); }
+        document.getElementById('dm-user-results').innerHTML = '';
+        showAllUsers();
+      }, 100);
+    }
+  }
+}
+
+function showAllUsers() {
+  // Show recent/popular users on open before any typing
+  if (!state.user) return;
+  var res = document.getElementById('dm-user-results');
+  res.innerHTML = '<div style="font-size:10px;color:var(--muted);padding:4px">Loading users...</div>';
+  db.collection('users').limit(20).get().then(function(snap) {
+    renderDMUserResults(snap.docs);
+  }).catch(function(){ res.innerHTML=''; });
+}
+
+function searchUsersForDM(q) {
+  var res = document.getElementById('dm-user-results');
+  q = (q||'').trim().toLowerCase();
+  // Strip leading @ if user types @handle
+  if (q.startsWith('@')) q = q.slice(1);
+  
+  if (!q) { showAllUsers(); return; }
+  res.innerHTML = '<div style="font-size:10px;color:var(--muted);padding:4px">Searching...</div>';
+
+  // Search by name AND handle simultaneously
+  var byName   = db.collection('users').orderBy('name').startAt(q).endAt(q+'').limit(8).get();
+  var byHandle = db.collection('users').orderBy('handle').startAt(q).endAt(q+'').limit(8).get();
+
+  Promise.all([byName, byHandle]).then(function(results) {
+    // Merge and deduplicate
+    var seen = {};
+    var docs = [];
+    results.forEach(function(snap) {
+      snap.docs.forEach(function(d) {
+        if (!seen[d.id] && d.id !== state.user.uid) {
+          seen[d.id] = true;
+          docs.push(d);
+        }
+      });
+    });
+    if (!docs.length) {
+      res.innerHTML = '<div style="font-size:11px;color:var(--muted);padding:8px 4px;text-align:center">No users found for "'+esc(q)+'"</div>';
+      return;
+    }
+    renderDMUserResults(docs);
+  }).catch(function() {
+    res.innerHTML = '<div style="font-size:11px;color:#fca5a5;padding:4px">Search failed</div>';
+  });
+}
+
+function renderDMUserResults(docs) {
+  var res = document.getElementById('dm-user-results');
+  res.innerHTML = '';
+  var filtered = docs.filter(function(d){ return d.id !== (state.user&&state.user.uid); });
+  if (!filtered.length) {
+    res.innerHTML = '<div style="font-size:11px;color:var(--muted);padding:8px 4px;text-align:center">No users yet</div>';
+    return;
+  }
+  filtered.forEach(function(d) {
+    var u = d.data();
+    var row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:8px 6px;border-radius:10px;cursor:pointer;transition:background .15s';
+    row.onmouseover = function(){ this.style.background='var(--deep)'; };
+    row.onmouseout  = function(){ this.style.background='transparent'; };
+    var verified = u.isVerified ? '<span style="color:var(--green3);font-size:11px;margin-left:4px">&#10003;</span>' : '';
+    row.innerHTML =
+      '<div style="width:36px;height:36px;border-radius:50%;background:'+esc(u.color||COLORS[0])+';display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0">'+esc((u.name||'U').charAt(0).toUpperCase())+'</div>'+
+      '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:var(--moon);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(u.name||'ZYNCer')+verified+'</div><div style="font-size:11px;color:var(--muted)">@'+esc(u.handle||'user')+'</div></div>'+
+      '<div style="font-size:10px;color:var(--green3);flex-shrink:0">Message</div>';
+    var uid = d.id, uname = u.name||'User', ucolor = u.color||COLORS[0];
+    row.addEventListener('click', function(){ startDMWithUser(uid, uname, ucolor); });
+    res.appendChild(row);
+  });
+}
+function startDMWithUser(uid, name, color) {
+  // Close new message panel
+  dmNewMsgOpen = false;
+  var panel = document.getElementById('dm-new-msg-panel');
+  if (panel) panel.style.display = 'none';
+  // Open chat
+  var dmId = [state.user.uid, uid].sort().join('_');
+  openChat(dmId, uid, name, color);
+}
+
+function loadConversations(){ if(!state.user) return; db.collection('dms').where('members','array-contains',state.user.uid).limit(20).get().then(function(snap){ var list=document.getElementById('dm-list'); list.innerHTML=''; if(!snap.docs.length){ list.innerHTML='<div style="padding:20px;text-align:center;font-size:12px;color:var(--muted)">No conversations yet</div>'; return; } snap.docs.forEach(function(d){ var dm=d.data(),oid=dm.members.find(function(m){ return m!==state.user.uid; }),oname=dm.names?dm.names[oid]:'User',ocolor=dm.colors?dm.colors[oid]:COLORS[0]; var row=document.createElement('div'); row.className='dm-row'; row.innerHTML='<div class="dm-av" style="background:'+ocolor+'">'+esc(oname.charAt(0).toUpperCase())+'</div><div style="flex:1;min-width:0"><div class="dm-nm">'+esc(oname)+'</div><div class="dm-pv">'+esc(dm.lastMsg||'')+'</div></div>'+(dm.unread?'<div class="dm-ud"></div>':''); row.addEventListener('click',function(){ openChat(d.id,oid,oname,ocolor); }); list.appendChild(row); }); }); }
 var dmTimer; document.getElementById('dm-search').addEventListener('input',function(){ clearTimeout(dmTimer); var q=this.value.trim().toLowerCase(); if(!q){ loadConversations(); return; } dmTimer=setTimeout(function(){ db.collection('users').orderBy('name').startAt(q).endAt(q+'\uf8ff').limit(10).get().then(function(snap){ var list=document.getElementById('dm-list'); list.innerHTML=''; snap.docs.forEach(function(d){ var u=d.data(); if(u.id===state.user.uid) return; var row=document.createElement('div'); row.className='dm-row'; row.innerHTML='<div class="dm-av" style="background:'+(u.color||COLORS[0])+'">'+esc((u.name||'U').charAt(0))+'</div><div><div class="dm-nm">'+esc(u.name||'User')+'</div><div class="dm-pv">@'+esc(u.handle||'')+'</div></div>'; row.addEventListener('click',function(){ openChat([state.user.uid,u.id].sort().join('_'),u.id,u.name,u.color); }); list.appendChild(row); }); if(!snap.docs.length) list.innerHTML='<div style="padding:16px;text-align:center;font-size:12px;color:var(--muted)">No users found</div>'; }); },400); });
 function openChat(dmId,otherId,otherName,otherColor){ var right=document.getElementById('dm-right'); right.innerHTML='<div class="chat-hd"><div class="dm-av" style="background:'+(otherColor||COLORS[0])+';width:32px;height:32px">'+esc((otherName||'U').charAt(0))+'</div><div style="font-size:13px;font-weight:700;color:var(--white)">'+esc(otherName)+'</div></div><div class="chat-msgs" id="cm-'+dmId+'"></div><div class="chat-bar"><textarea class="chat-inp" id="ci-'+dmId+'" placeholder="Message…" rows="1"></textarea><button class="chat-send" onclick="sendMsg(\''+dmId+'\',\''+otherId+'\',\''+esc(otherName)+'\',\''+esc(otherColor||COLORS[0])+'\')">➤</button></div>'; db.collection('dms').doc(dmId).collection('messages').orderBy('createdAt','asc').limit(50).get().then(function(snap){ var box=document.getElementById('cm-'+dmId); if(!box) return; box.innerHTML=snap.docs.map(function(d){ var m=d.data(),mine=m.fromId===state.user.uid,col=mine?(state.profile.color||COLORS[0]):(otherColor||COLORS[0]); return '<div class="msg'+(mine?' mine':'')+'"><div class="msg-av" style="background:'+col+'">'+(mine?(state.profile.name||'U').charAt(0):(otherName||'U').charAt(0))+'</div><div><div class="msg-bub">'+esc(m.text||'')+'</div><div class="msg-t">'+timeAgo(m.createdAt)+'</div></div></div>'; }).join('')||'<div style="text-align:center;padding:20px;font-size:12px;color:var(--muted)">No messages yet</div>'; box.scrollTop=box.scrollHeight; }); document.getElementById('ci-'+dmId).addEventListener('keydown',function(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendMsg(dmId,otherId,otherName,otherColor||COLORS[0]); } }); }
 function sendMsg(dmId,otherId,otherName,otherColor){
@@ -5332,8 +5446,7 @@ function loadWdHistory() {
 
   var hist = document.getElementById('wd-history');
   if(!hist) return;
-  db.collection('withdrawals').where('uid','==',state.user.uid)
-    .orderBy('requestedAt','desc').limit(10).get()
+  db.collection('withdrawals').where('uid','==',state.user.uid).limit(10).get()
     .then(function(snap){
       if(snap.empty){ hist.innerHTML='<div style="font-size:11px;color:var(--muted)">No withdrawals yet</div>'; return; }
       hist.innerHTML = snap.docs.map(function(d){
@@ -5560,7 +5673,7 @@ function loadAds(){
 function loadMyAds(){
   if(!state.user) return;
   var list = document.getElementById('my-ads-list');
-  db.collection('ads').where('advertiserId','==',state.user.uid).orderBy('createdAt','desc').get().then(function(snap){
+  db.collection('ads').where('advertiserId','==',state.user.uid).get().then(function(snap){
     if(snap.empty){ list.innerHTML='<div style="text-align:center;padding:30px;color:var(--muted)"><div style="font-size:36px;margin-bottom:10px">📣</div>You have no ads yet</div>'; return; }
     list.innerHTML = snap.docs.map(function(d){
       var ad=Object.assign({id:d.id},d.data());
@@ -5733,7 +5846,7 @@ function loadAdminAds(status, listId){
   var list = document.getElementById(listId);
   if(!list) return;
   list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Loading…</div>';
-  db.collection('ads').where('status','==',status).orderBy('createdAt','desc').get().then(function(snap){
+  db.collection('ads').where('status','==',status).get().then(function(snap){
     if(snap.empty){
       var label = status==='pending'?'pending ads to review':status==='active'?'approved ads':'rejected ads';
       list.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)"><div style="font-size:36px;margin-bottom:10px">'+(status==='pending'?'🎉':status==='active'?'✅':'❌')+'</div>No '+label+'</div>';
@@ -7040,7 +7153,7 @@ function sendLiveTip() {
 // FEATURE 1: PUSH NOTIFICATIONS (FCM)
 // ══════════════════════════════════════════════════════════════
 var messaging = null;
-var VAPID_KEY = 'BE41egfg4EvNNlM_ZepYdR1TQ460QNYCkQmgEGJ8SvsUHtDNw4pOpGW7bo0wSu9w9YWM_GxrW71lpAi5IZf5QKA'; // placeholder - user must replace
+var VAPID_KEY = 'BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDkBWseIkuokgHpwjefpYuToPNi9oJq3DFsT6VJxMqI8'; // placeholder - user must replace
 
 function initPushNotifications() {
   if (!state.user) return;
@@ -7320,8 +7433,7 @@ function openGroups() {
 function loadMyGroups() {
   var list = document.getElementById('groups-list');
   list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Loading...</div>';
-  db.collection('groups').where('members','array-contains',state.user.uid)
-    .orderBy('lastActivity','desc').limit(30).get()
+  db.collection('groups').where('members','array-contains',state.user.uid).limit(30).get()
     .then(function(snap) {
       if (snap.empty) {
         list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">No groups yet.<br>Create one or join one!</div>';
@@ -7440,7 +7552,7 @@ function loadGroupMembers(groupId) {
 function discoverGroups() {
   var list = document.getElementById('groups-list');
   list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Loading public groups...</div>';
-  db.collection('groups').where('isPublic','==',true).orderBy('lastActivity','desc').limit(20).get()
+  db.collection('groups').where('isPublic','==',true).limit(20).get()
     .then(function(snap) {
       if (snap.empty) { list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">No public groups yet</div>'; return; }
       list.innerHTML = snap.docs.map(function(d) {
@@ -8018,7 +8130,7 @@ function openNewsletter() {
 
 function loadMyNewsletters() {
   var list = document.getElementById('newsletter-list');
-  db.collection('newsletters').where('authorId','==',state.user.uid).orderBy('createdAt','desc').limit(10).get()
+  db.collection('newsletters').where('authorId','==',state.user.uid).limit(10).get()
     .then(function(snap) {
       if (snap.empty) { list.innerHTML = '<div style="text-align:center;padding:16px;color:var(--muted)">No newsletters sent yet.</div>'; return; }
       list.innerHTML = snap.docs.map(function(d) {
@@ -8290,7 +8402,7 @@ function openPaidEvents() {
 function loadPaidEvents() {
   var list = document.getElementById('paid-events-list');
   list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Loading events...</div>';
-  db.collection('paid_events').where('eventDate','>',new Date()).orderBy('eventDate','asc').limit(20).get()
+  db.collection('paid_events').limit(30).get()
     .then(function(snap) {
       if (snap.empty) { list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">No upcoming events.<br>Create one!</div>'; return; }
       list.innerHTML = snap.docs.map(function(d) {
@@ -8313,7 +8425,7 @@ function loadPaidEvents() {
           '</div>'+
         '</div>';
       }).join('');
-    }).catch(function(){list.innerHTML='<div style="color:#fca5a5;padding:10px">Error loading events</div>';});
+    }).catch(function(e){console.warn('Events error:',e);list.innerHTML='<div style="color:#fca5a5;padding:10px">Error loading events</div>';});
 }
 
 function showCreateEvent() {
@@ -8385,7 +8497,7 @@ function openDigitalStore() {
 function loadDigitalProducts() {
   var list = document.getElementById('digital-products-list');
   list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Loading...</div>';
-  db.collection('digital_products').orderBy('createdAt','desc').limit(30).get()
+  db.collection('digital_products').limit(30).get()
     .then(function(snap) {
       if (snap.empty){list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">No products yet.<br>List your first product!</div>';return;}
       list.innerHTML=snap.docs.map(function(d){
@@ -8632,9 +8744,13 @@ var currentReel=null;
 function loadReels(){
   var grid=document.getElementById('reel-grid');
   grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--muted)">Loading…</div>';
-  db.collection('sparks').where('mediaType','==','video').orderBy('createdAt','desc').limit(30).get().then(function(snap){
+  db.collection('sparks').where('mediaType','==','video').limit(30).get().then(function(snap){
     if(snap.empty){ grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:30px;color:var(--muted)"><div style="font-size:36px;margin-bottom:10px">🎥</div><div>No reels yet. Be the first!</div></div>'; return; }
-    var reelDocs=snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); });
+    var reelDocs=snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); }).sort(function(a,b){
+      var ta=a.createdAt&&a.createdAt.seconds?a.createdAt.seconds:0;
+      var tb=b.createdAt&&b.createdAt.seconds?b.createdAt.seconds:0;
+      return tb-ta;
+    });
     grid.innerHTML=reelDocs.map(function(s,i){
       return '<div class="reel-card" data-reel-idx="'+i+'"><video src="'+esc(s.mediaUrl||'')+'" muted playsinline preload="metadata"></video><div class="reel-play">▶</div><div class="reel-overlay"><div class="reel-author">'+esc(s.authorName||'ZYNCer')+'</div><div class="reel-likes">❤️ '+(s.likes||[]).length+'</div></div></div>';
     }).join('');
@@ -8654,18 +8770,31 @@ function openReel(id,url,author,text,likes){
 function closeReel(){ document.getElementById('reel-viewer').classList.remove('open'); document.getElementById('rv-video').pause(); document.getElementById('rv-video').src=''; currentReel=null; }
 document.getElementById('rv-like').addEventListener('click',function(){ if(!currentReel||!state.user) return; toggleLike(currentReel); showToast('❤️ Liked!'); });
 document.getElementById('btn-upload-reel').addEventListener('click',function(){
-  if(typeof cloudinary==='undefined'){ showToast('Upload widget loading, try again.'); return; }
-  cloudinary.createUploadWidget({cloudName:CLOUD_NAME,uploadPreset:'ml_default',sources:['local','camera'],multiple:false,maxFileSize:104857600},function(err,result){
-    if(err){ showToast('Upload error'); return; }
-    if(result&&result.event==='success'){
-      var r=result.info;
-      if(r.resource_type!=='video'){ showToast('Please upload a video file'); return; }
+  // Use direct file input — works without Cloudinary widget CDN
+  var fileInp = document.createElement('input');
+  fileInp.type='file'; fileInp.accept='video/*';
+  fileInp.onchange = function(){
+    var file = fileInp.files[0];
+    if(!file){ return; }
+    if(!file.type.startsWith('video/')){ showToast('Please pick a video file'); return; }
+    if(file.size > 200*1024*1024){ showToast('File too large (max 200MB)'); return; }
+    showToast('⏫ Uploading reel...');
+    var fd=new FormData();
+    fd.append('file',file);
+    fd.append('upload_preset','ml_default');
+    fetch('https://api.cloudinary.com/v1_1/'+CLOUD_NAME+'/video/upload',{method:'POST',body:fd})
+      .then(function(r){return r.json();})
+      .then(function(result){
+        var r=result;
+        if(!r.secure_url){ showToast('Upload failed — check Cloudinary preset'); return; }
       db.collection('sparks').add({text:'',authorId:state.user.uid,authorName:state.profile.name,authorHandle:state.profile.handle,authorColor:state.profile.color||COLORS[0],isPremium:state.profile.isPremium||false,category:'fun',likes:[],saved:[],commentCount:0,mediaUrl:r.secure_url,mediaType:'video',createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(function(){
         showToast('Reel uploaded! 🎥'); loadReels();
         db.collection('users').doc(state.user.uid).update({sparksCount:firebase.firestore.FieldValue.increment(1)});
       });
-    }
-  }).open();
+    })
+    .catch(function(){ showToast('Upload failed. Check your connection.'); });
+  };
+  fileInp.click();
 });
 
 // ── MARKETPLACE ──
@@ -8674,10 +8803,14 @@ function loadMarket(filter){
   mktFilter=filter;
   var grid=document.getElementById('mkt-grid');
   grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--muted)">Loading…</div>';
-  var q=filter==='all'?db.collection('marketplace').orderBy('createdAt','desc').limit(40):db.collection('marketplace').where('category','==',filter).orderBy('createdAt','desc').limit(40);
+  var q=filter==='all'?db.collection('marketplace').limit(40):db.collection('marketplace').where('category','==',filter).limit(40);
   q.get().then(function(snap){
     if(snap.empty){ grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:30px;color:var(--muted)"><div style="font-size:36px;margin-bottom:10px">🛒</div><div>No items yet. Be the first to sell!</div></div>'; return; }
-    var mktDocs=snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); });
+    var mktDocs=snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); }).sort(function(a,b){
+      var ta=a.createdAt&&a.createdAt.seconds?a.createdAt.seconds:0;
+      var tb=b.createdAt&&b.createdAt.seconds?b.createdAt.seconds:0;
+      return tb-ta;
+    });
     grid.innerHTML=mktDocs.map(function(item,i){
       return '<div class="mkt-card" data-mkt-idx="'+i+'"><div class="mkt-img-ph">'+esc(item.emoji||'📦')+'</div><div class="mkt-info"><div class="mkt-name">'+esc(item.name||'Item')+'</div><div class="mkt-seller">by '+esc(item.sellerName||'Seller')+'</div><div class="mkt-price">$'+parseFloat(item.price||0).toFixed(2)+'</div><button class="mkt-buy" data-mkt-buy="'+i+'">Buy Now →</button></div></div>';
     }).join('');
