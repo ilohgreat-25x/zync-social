@@ -171,7 +171,18 @@ button,input,textarea,select{font-family:'DM Sans',sans-serif}
 .sk-time{font-size:10px;color:var(--muted);margin-left:auto}
 .sk-cat{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:20px;background:var(--cdim);color:var(--green3);border:1px solid var(--border);margin-left:5px}
 .sk-body{font-size:13px;color:var(--moon);line-height:1.75;margin-bottom:11px;word-break:break-word}
-.sk-media{width:100%;height:auto;max-height:500px;border-radius:10px;object-fit:contain;background:#000;margin-bottom:11px;border:1px solid var(--border);display:block;min-height:200px}
+.sk-media{width:100%;height:auto;max-height:500px;border-radius:12px;object-fit:cover;display:block}
+.sk-media-wrap{position:relative;width:100%;border-radius:12px;overflow:hidden;margin-bottom:11px;background:#000;border:1px solid var(--border)}
+.sk-media-blur{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:blur(22px) brightness(.45) saturate(1.4);transform:scale(1.08);z-index:0;pointer-events:none}
+.sk-media-main{position:relative;z-index:1;width:100%;max-height:520px;object-fit:contain;display:block;margin:0 auto}
+.sk-media-img-wrap{position:relative;width:100%;border-radius:12px;overflow:hidden;margin-bottom:11px;border:1px solid var(--border)}
+.sk-vid-controls{position:absolute;bottom:0;left:0;right:0;z-index:2;padding:10px 12px;background:linear-gradient(transparent,rgba(0,0,0,.55));display:flex;align-items:center;gap:10px;opacity:0;transition:opacity .25s}
+.sk-media-wrap:hover .sk-vid-controls,.sk-media-wrap:focus-within .sk-vid-controls{opacity:1}
+.sk-vid-play{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.2);border:none;color:#fff;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.sk-vid-prog{flex:1;height:3px;background:rgba(255,255,255,.3);border-radius:2px;cursor:pointer;position:relative;overflow:hidden}
+.sk-vid-prog-fill{height:100%;background:var(--green3);border-radius:2px;width:0%;transition:width .1s linear;pointer-events:none}
+.sk-vid-mute{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.15);border:none;color:#fff;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.sk-vid-dur{font-size:10px;color:rgba(255,255,255,.8);white-space:nowrap}
 .sk-actions{display:flex;gap:5px;flex-wrap:wrap}
 .s-btn{display:flex;align-items:center;gap:4px;padding:5px 11px;background:var(--deep);border:1px solid var(--border);border-radius:20px;color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif}
 .s-btn:hover{border-color:rgba(34,197,94,.3);color:var(--moon)}
@@ -5108,8 +5119,20 @@ function buildSparkHTML(s){
   var isOwn=state.user&&s.authorId===state.user.uid;
   var vbadge=(s.isPremium||s.isVerified)?'<span class="vbadge" title="Verified"></span>':'';
   var media='';
-  if(s.mediaUrl&&s.mediaType==='image') media='<img class="sk-media" src="'+esc(s.mediaUrl)+'" loading="lazy">';
-  if(s.mediaUrl&&s.mediaType==='video') media='<video class="sk-media" src="'+esc(s.mediaUrl)+'" controls></video>';
+  if(s.mediaUrl&&s.mediaType==='image') media='<div class="sk-media-img-wrap"><img class="sk-media" src="'+esc(s.mediaUrl)+'" loading="lazy" style="width:100%;max-height:520px;object-fit:cover;display:block;border-radius:12px"></div>';
+  if(s.mediaUrl&&s.mediaType==='video'){
+    var vid_id = 'vid-'+s.id;
+    media = '<div class="sk-media-wrap" id="wrap-'+esc(s.id)+'">' +
+      '<video class="sk-media-blur" src="'+esc(s.mediaUrl)+'" muted playsinline preload="metadata" tabindex="-1" aria-hidden="true"></video>' +
+      '<video class="sk-media-main" id="'+vid_id+'" src="'+esc(s.mediaUrl)+'" playsinline preload="metadata" data-vid="'+vid_id+'" style="cursor:pointer"></video>' +
+      '<div class="sk-vid-controls">' +
+        '<button class="sk-vid-play" id="pbtn-'+esc(s.id)+'" data-vid="'+vid_id+'" data-action="play">&#9654;</button>' +
+        '<div class="sk-vid-prog" data-vid="'+vid_id+'" data-action="seek"><div class="sk-vid-prog-fill" id="prog-'+esc(s.id)+'"></div></div>' +
+        '<span class="sk-vid-dur" id="dur-'+esc(s.id)+'">0:00</span>' +
+        '<button class="sk-vid-mute" data-vid="'+vid_id+'" data-sid="'+esc(s.id)+'" data-action="mute">&#128266;</button>' +
+      '</div>' +
+    '</div>';
+  }
   var pinBadge=s.pinned?'<span style="font-size:10px;color:var(--green3);margin-left:4px">📌</span>':'';
   var locTag=s.location?'<span class="s-btn" style="cursor:default">📍 '+esc(s.location)+'</span>':'';
   var pollHTML=s.poll?buildPollHTML(s):'';
@@ -8591,6 +8614,155 @@ function buyDigitalProduct(productId, title, price, downloadUrl, sellerId) {
   }).openIframe();
 }
 
+
+
+// ══════════════════════════════════════════════════════════
+// VIDEO PLAYER — blurred background + custom controls
+// ══════════════════════════════════════════════════════════
+function toggleVidPlay(vidId) {
+  var vid = document.getElementById(vidId);
+  if (!vid) return;
+  var wrap = vid.closest('.sk-media-wrap');
+  var blur = wrap && wrap.querySelector('.sk-media-blur');
+  if (vid.paused) {
+    // Pause all other videos first
+    document.querySelectorAll('.sk-media-main').forEach(function(v){
+      if(v.id !== vidId && !v.paused){ v.pause(); syncVidBg(v); updateVidBtn(v); }
+    });
+    vid.play().then(function(){
+      if(blur){ blur.play && blur.play(); }
+      updateVidBtn(vid);
+    }).catch(function(){});
+  } else {
+    vid.pause();
+    if(blur) blur.pause && blur.pause();
+    updateVidBtn(vid);
+  }
+}
+
+function updateVidBtn(vid) {
+  var sid = vid.id.replace('vid-','');
+  var btn = document.getElementById('pbtn-'+sid);
+  if(btn) btn.innerHTML = vid.paused ? '&#9654;' : '&#9646;&#9646;';
+}
+
+function syncVidBg(vid) {
+  var wrap = vid.closest && vid.closest('.sk-media-wrap');
+  if(!wrap) return;
+  var blur = wrap.querySelector('.sk-media-blur');
+  if(blur && blur.pause) blur.pause();
+}
+
+function seekVid(e, vidId) {
+  var vid = document.getElementById(vidId);
+  if(!vid || !vid.duration) return;
+  var bar = e.currentTarget;
+  var rect = bar.getBoundingClientRect();
+  var pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+  vid.currentTime = pct * vid.duration;
+}
+
+function toggleVidMute(vidId, sid) {
+  var vid = document.getElementById(vidId);
+  if(!vid) return;
+  vid.muted = !vid.muted;
+  var btn = document.querySelector('[data-vid="'+vidId+'"][data-action="mute"]');
+  if(btn) btn.innerHTML = vid.muted ? '&#128263;' : '&#128266;';
+}
+
+function fmtVidTime(s) {
+  var m = Math.floor(s/60);
+  var sec = Math.floor(s%60);
+  return m+':'+(sec<10?'0':'')+sec;
+}
+
+// Delegated click handler for feed container
+document.addEventListener('click', function(e) {
+  // Video main click
+  var vidMain = e.target.closest('[data-vid][data-action="play"], .sk-media-main[data-vid]');
+  if(vidMain) {
+    var vid = vidMain.dataset && vidMain.dataset.vid;
+    if(vid) toggleVidPlay(vid);
+    return;
+  }
+  // Play button
+  var playBtn = e.target.closest('[data-action="play"]');
+  if(playBtn && playBtn.dataset.vid) { toggleVidPlay(playBtn.dataset.vid); return; }
+  // Seek bar
+  var seekBar = e.target.closest('[data-action="seek"]');
+  if(seekBar && seekBar.dataset.vid) { seekVid(e, seekBar.dataset.vid); return; }
+  // Mute button
+  var muteBtn = e.target.closest('[data-action="mute"]');
+  if(muteBtn && muteBtn.dataset.vid) { toggleVidMute(muteBtn.dataset.vid, muteBtn.dataset.sid); return; }
+}, false);
+
+// Update progress bar + duration + blur sync using timeupdate
+document.addEventListener('timeupdate', function(e) {
+  if(!e.target || !e.target.classList || !e.target.classList.contains('sk-media-main')) return;
+  var vid = e.target;
+  var sid = vid.id.replace('vid-','');
+  var dur = vid.duration||0;
+  var cur = vid.currentTime||0;
+  var prog = document.getElementById('prog-'+sid);
+  var durEl = document.getElementById('dur-'+sid);
+  if(prog && dur) prog.style.width = (cur/dur*100)+'%';
+  if(durEl) durEl.textContent = fmtVidTime(cur)+' / '+fmtVidTime(dur);
+  // keep blur video in sync (within 0.5s tolerance)
+  var wrap = vid.closest('.sk-media-wrap');
+  var blur = wrap && wrap.querySelector('.sk-media-blur');
+  if(blur && Math.abs(blur.currentTime - cur) > 0.5) blur.currentTime = cur;
+}, true);
+
+// Auto-reveal controls on touch (mobile)
+document.addEventListener('touchstart', function(e) {
+  var wrap = e.target.closest('.sk-media-wrap');
+  if(wrap) {
+    var ctrl = wrap.querySelector('.sk-vid-controls');
+    if(ctrl) {
+      ctrl.style.opacity='1';
+      clearTimeout(wrap._ctrlTimer);
+      wrap._ctrlTimer = setTimeout(function(){ ctrl.style.opacity=''; }, 3000);
+    }
+  }
+}, {passive:true});
+
+// IntersectionObserver: autoplay when scrolled into view, pause when out
+if('IntersectionObserver' in window) {
+  var vidObserver = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      var vid = entry.target;
+      if(!vid.dataset || !vid.dataset.vid) return;
+      if(entry.isIntersecting && entry.intersectionRatio > 0.6) {
+        // Only autoplay if no other video is playing
+        var anyPlaying = Array.from(document.querySelectorAll('.sk-media-main')).some(function(v){ return !v.paused; });
+        if(!anyPlaying) {
+          vid.muted = true; // autoplay requires muted
+          vid.play().catch(function(){});
+          updateVidBtn(vid);
+          var wrap = vid.closest('.sk-media-wrap');
+          var blur = wrap && wrap.querySelector('.sk-media-blur');
+          if(blur) { blur.currentTime=0; blur.play && blur.play(); }
+        }
+      } else if(!entry.isIntersecting) {
+        if(!vid.paused){ vid.pause(); updateVidBtn(vid); syncVidBg(vid); }
+      }
+    });
+  }, { threshold: [0, 0.6] });
+
+  // Observe videos as they are added to the feed
+  var feedMutObs = new MutationObserver(function(mutations){
+    mutations.forEach(function(m){
+      m.addedNodes.forEach(function(node){
+        if(node.nodeType!==1) return;
+        var vids = node.querySelectorAll ? node.querySelectorAll('.sk-media-main') : [];
+        vids.forEach(function(v){ vidObserver.observe(v); });
+        if(node.classList && node.classList.contains('sk-media-main')) vidObserver.observe(node);
+      });
+    });
+  });
+  var feedCont = document.getElementById('feed-cont');
+  if(feedCont) feedMutObs.observe(feedCont, { childList:true, subtree:true });
+}
 
 function openSupportModal(){
   // Pre-fill name if logged in
