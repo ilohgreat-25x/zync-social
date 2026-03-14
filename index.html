@@ -767,6 +767,12 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
         <button class="nav-item" onclick="openLeaderboard()"><span class="nav-ic">🏆</span> Leaderboard</button>
         <button class="nav-item" onclick="openScheduled()"><span class="nav-ic">🌙</span> Scheduled</button>
         <button class="nav-item" onclick="openQRCode()"><span class="nav-ic">📱</span> My QR Code</button>
+        <button class="nav-item" onclick="openMoodStatus()"><span class="nav-ic">😊</span> Mood Status</button>
+        <button class="nav-item" onclick="openLanguage()"><span class="nav-ic">🌐</span> Language</button>
+        <button class="nav-item" onclick="openClipboard()"><span class="nav-ic">📋</span> Clipboard</button>
+        <button class="nav-item" onclick="openSoundboard()"><span class="nav-ic">🎵</span> Soundboard</button>
+        <button class="nav-item" onclick="openWordOfDay()"><span class="nav-ic">📖</span> Word of Day</button>
+        <button class="nav-item" onclick="openMindvoraTV()"><span class="nav-ic">📺</span> Mindvora TV</button>
       </nav>
     </aside>
 
@@ -4172,6 +4178,81 @@ body.light .fi,body.light .m-input,body.light .chat-inp,body.light .dm-search{ba
 <!-- SECURITY ALERT BANNER -->
 <div class="sec-alert-banner" id="sec-alert-banner"></div>
 
+<!-- MOOD STATUS MODAL -->
+<div class="modal-overlay" id="modal-mood">
+  <div class="modal-box">
+    <div class="m-head"><div class="m-title">😊 Mood Status</div><button class="m-close" onclick="closeModal('modal-mood')">✕</button></div>
+    <div class="m-body">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px;text-align:center">How are you feeling today? Let your followers know.</div>
+      <div id="mood-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px"></div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Custom message (optional)</div>
+      <input id="mood-text" class="m-input" placeholder="e.g. Feeling blessed today!" maxlength="60" style="margin-bottom:12px">
+      <button class="btn-pay" onclick="saveMoodStatus()">Set My Mood</button>
+      <div id="current-mood" style="margin-top:12px;text-align:center;font-size:12px;color:var(--muted)"></div>
+    </div>
+  </div>
+</div>
+
+<!-- LANGUAGE MODAL -->
+<div class="modal-overlay" id="modal-language">
+  <div class="modal-box">
+    <div class="m-head"><div class="m-title">🌐 App Language</div><button class="m-close" onclick="closeModal('modal-language')">✕</button></div>
+    <div class="m-body">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px;text-align:center">Choose your preferred display language for the app interface.</div>
+      <div id="lang-list" style="display:flex;flex-direction:column;gap:8px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- CLIPBOARD MODAL -->
+<div class="modal-overlay" id="modal-clipboard">
+  <div class="modal-box">
+    <div class="m-head"><div class="m-title">📋 Clipboard History</div><button class="m-close" onclick="closeModal('modal-clipboard')">✕</button></div>
+    <div class="m-body">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Things you copied while using Mindvora — tap to copy again.</div>
+      <div id="clipboard-list" style="display:flex;flex-direction:column;gap:8px;max-height:320px;overflow-y:auto"></div>
+      <button class="btn-pay" style="margin-top:12px;background:rgba(239,68,68,.15);color:#fca5a5;border:1px solid rgba(239,68,68,.3)" onclick="clearClipboard()">🗑 Clear All</button>
+    </div>
+  </div>
+</div>
+
+<!-- SOUNDBOARD MODAL -->
+<div class="modal-overlay" id="modal-soundboard">
+  <div class="modal-box">
+    <div class="m-head"><div class="m-title">🎵 Soundboard</div><button class="m-close" onclick="closeModal('modal-soundboard')">✕</button></div>
+    <div class="m-body">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px;text-align:center">Fun sounds to use in voice chats and live streams. Tap to play!</div>
+      <div id="soundboard-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- WORD OF DAY MODAL -->
+<div class="modal-overlay" id="modal-word">
+  <div class="modal-box">
+    <div class="m-head"><div class="m-title">📖 Word of the Day</div><button class="m-close" onclick="closeModal('modal-word')">✕</button></div>
+    <div class="m-body" id="word-body">
+      <div style="text-align:center;padding:20px;color:var(--muted)">Loading…</div>
+    </div>
+  </div>
+</div>
+
+<!-- MINDVORA TV MODAL -->
+<div class="modal-overlay" id="modal-tv">
+  <div class="modal-box" style="max-width:520px">
+    <div class="m-head"><div class="m-title">📺 Mindvora TV</div><button class="m-close" onclick="closeModal('modal-tv')">✕</button></div>
+    <div class="m-body">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px;text-align:center">Watch trending content from your community — curated just for you.</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px" id="tv-tabs">
+        <button class="f-pill active" onclick="loadTV('trending',this)">🔥 Trending</button>
+        <button class="f-pill" onclick="loadTV('recent',this)">🆕 Recent</button>
+        <button class="f-pill" onclick="loadTV('top',this)">⭐ Top Liked</button>
+      </div>
+      <div id="tv-grid" style="display:flex;flex-direction:column;gap:10px;max-height:400px;overflow-y:auto"></div>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
@@ -5176,7 +5257,7 @@ function mountApp(){
   var p=state.profile,color=p.color||COLORS[0],init=(p.name||'Z').charAt(0).toUpperCase();
   var grad='linear-gradient(135deg,'+color+','+COLORS[1]+')';
   ['tb-av','sb-av','comp-av','cmt-av'].forEach(function(id){ var el=document.getElementById(id); if(el){ el.textContent=init; el.style.background=grad; } });
-  document.getElementById('sb-name').innerHTML=esc(p.name||'Mindvora user')+(p.isPremium?'<span class="sb-verified">✦ PRO</span>':'');
+  document.getElementById('sb-name').innerHTML=esc(p.name||'Mindvora user')+(p.mood?' <span style="font-size:16px" title="'+esc(p.mood.label)+'">'+p.mood.emoji+'</span>':'')+(p.isPremium?'<span class="sb-verified">✦ PRO</span>':'');
   document.getElementById('sb-handle').textContent='@'+(p.handle||'user');
   document.getElementById('ref-link').value='https://zync.vercel.app?ref='+state.user.uid;
   if(p.isPremium) document.getElementById('prem-widget').style.display='none';
@@ -10156,6 +10237,306 @@ function watchDMForScam(dmId, otherUid) {
       });
     }, function(){});
 }
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║              MINDVORA NEW FEATURES v1.0                     ║
+// ║  Mood Status · Language · Clipboard · Soundboard ·          ║
+// ║  Word of Day · Mindvora TV                                  ║
+// ╚══════════════════════════════════════════════════════════════╝
+
+// ── 1. MOOD STATUS ────────────────────────────────────────────────────────
+var MOODS = [
+  {emoji:'😊',label:'Happy'},    {emoji:'😎',label:'Cool'},
+  {emoji:'🥰',label:'In Love'},  {emoji:'😴',label:'Sleepy'},
+  {emoji:'🤩',label:'Excited'},  {emoji:'😤',label:'Focused'},
+  {emoji:'🥳',label:'Celebrating'},{emoji:'😢',label:'Sad'},
+  {emoji:'😡',label:'Angry'},    {emoji:'🤒',label:'Sick'},
+  {emoji:'🙏',label:'Grateful'}, {emoji:'🔥',label:'Motivated'},
+  {emoji:'😂',label:'Laughing'}, {emoji:'😇',label:'Blessed'},
+  {emoji:'💪',label:'Strong'},   {emoji:'🤔',label:'Thinking'}
+];
+var selectedMood = null;
+
+function openMoodStatus() {
+  if (!state.user) { showToast('Login first'); return; }
+  openModal('modal-mood');
+  var grid = document.getElementById('mood-grid');
+  grid.innerHTML = MOODS.map(function(m,i) {
+    return '<div onclick="selectMood('+i+')" id="mood-btn-'+i+'" style="text-align:center;padding:10px 6px;border-radius:12px;cursor:pointer;border:2px solid transparent;transition:all .2s;background:var(--deep)">' +
+      '<div style="font-size:26px">'+m.emoji+'</div>' +
+      '<div style="font-size:10px;color:var(--muted);margin-top:3px">'+m.label+'</div>' +
+    '</div>';
+  }).join('');
+  // Load current mood
+  db.collection('users').doc(state.user.uid).get().then(function(d) {
+    var mood = d.data() && d.data().mood;
+    if (mood) {
+      document.getElementById('current-mood').innerHTML =
+        'Current: ' + mood.emoji + ' <b>' + mood.label + '</b>' + (mood.text ? ' — "' + esc(mood.text) + '"' : '');
+    }
+  }).catch(function(){});
+}
+
+function selectMood(i) {
+  selectedMood = MOODS[i];
+  document.querySelectorAll('#mood-grid > div').forEach(function(el, j) {
+    el.style.borderColor = j === i ? 'var(--green3)' : 'transparent';
+    el.style.background = j === i ? 'rgba(34,197,94,.15)' : 'var(--deep)';
+  });
+}
+
+function saveMoodStatus() {
+  if (!selectedMood) { showToast('Pick a mood first!'); return; }
+  var text = document.getElementById('mood-text').value.trim().slice(0, 60);
+  var moodData = { emoji: selectedMood.emoji, label: selectedMood.label, text: text, setAt: new Date().toISOString() };
+  db.collection('users').doc(state.user.uid).update({ mood: moodData })
+    .then(function() {
+      showToast(selectedMood.emoji + ' Mood set to ' + selectedMood.label + '!');
+      // Post to feed as a mood spark
+      db.collection('sparks').add({
+        text: selectedMood.emoji + ' Feeling ' + selectedMood.label + (text ? ' — "' + text + '"' : ''),
+        authorId: state.user.uid,
+        authorName: state.profile.name,
+        authorHandle: state.profile.handle || 'user',
+        authorColor: state.profile.color || COLORS[0],
+        category: 'mood',
+        likes: [], saved: [], commentCount: 0,
+        isMoodPost: true,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      }).catch(function(){});
+      closeModal('modal-mood');
+    }).catch(function(){ showToast('Error saving mood'); });
+}
+
+// ── 2. LANGUAGE SELECTOR ─────────────────────────────────────────────────
+var APP_LANGUAGES = [
+  {code:'en', name:'English', flag:'🇬🇧'},
+  {code:'fr', name:'Français', flag:'🇫🇷'},
+  {code:'es', name:'Español', flag:'🇪🇸'},
+  {code:'pt', name:'Português', flag:'🇧🇷'},
+  {code:'ar', name:'العربية', flag:'🇸🇦'},
+  {code:'ha', name:'Hausa', flag:'🇳🇬'},
+  {code:'yo', name:'Yorùbá', flag:'🇳🇬'},
+  {code:'ig', name:'Igbo', flag:'🇳🇬'},
+  {code:'sw', name:'Kiswahili', flag:'🇰🇪'},
+  {code:'de', name:'Deutsch', flag:'🇩🇪'},
+  {code:'zh', name:'中文', flag:'🇨🇳'},
+  {code:'hi', name:'हिन्दी', flag:'🇮🇳'},
+];
+var currentLang = localStorage.getItem('mv_lang') || 'en';
+
+function openLanguage() {
+  openModal('modal-language');
+  var list = document.getElementById('lang-list');
+  list.innerHTML = APP_LANGUAGES.map(function(l) {
+    var active = l.code === currentLang;
+    return '<div onclick="setLanguage(\''+l.code+'\')" style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:12px;cursor:pointer;border:2px solid '+(active?'var(--green3)':'var(--border)')+';background:'+(active?'rgba(34,197,94,.1)':'var(--deep)')+';transition:all .2s">' +
+      '<span style="font-size:22px">'+l.flag+'</span>' +
+      '<span style="font-size:13px;font-weight:'+(active?'700':'400')+';color:var(--moon)">'+l.name+'</span>' +
+      (active ? '<span style="margin-left:auto;font-size:11px;color:var(--green3)">✓ Active</span>' : '') +
+    '</div>';
+  }).join('');
+}
+
+function setLanguage(code) {
+  currentLang = code;
+  localStorage.setItem('mv_lang', code);
+  var lang = APP_LANGUAGES.find(function(l){ return l.code === code; });
+  showToast(lang.flag + ' Language set to ' + lang.name);
+  if (state.user) db.collection('users').doc(state.user.uid).update({ preferredLang: code }).catch(function(){});
+  closeModal('modal-language');
+}
+
+// ── 3. CLIPBOARD HISTORY ─────────────────────────────────────────────────
+var clipboardHistory = JSON.parse(localStorage.getItem('mv_clipboard') || '[]');
+
+function addToClipboard(text) {
+  if (!text || text.length < 3) return;
+  clipboardHistory = clipboardHistory.filter(function(c){ return c !== text; });
+  clipboardHistory.unshift(text);
+  if (clipboardHistory.length > 20) clipboardHistory = clipboardHistory.slice(0, 20);
+  try { localStorage.setItem('mv_clipboard', JSON.stringify(clipboardHistory)); } catch(e){}
+}
+
+function openClipboard() {
+  openModal('modal-clipboard');
+  renderClipboard();
+}
+
+function renderClipboard() {
+  var list = document.getElementById('clipboard-list');
+  if (!clipboardHistory.length) {
+    list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:12px">Nothing copied yet.<br>Text you copy in Mindvora will appear here.</div>';
+    return;
+  }
+  list.innerHTML = clipboardHistory.map(function(text, i) {
+    return '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--deep);border-radius:10px;border:1px solid var(--border)">' +
+      '<div style="flex:1;font-size:12px;color:var(--moon);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(text)+'</div>' +
+      '<button onclick="reCopy('+i+')" style="background:var(--green2);border:none;border-radius:8px;padding:4px 10px;color:#fff;font-size:11px;cursor:pointer;flex-shrink:0">Copy</button>' +
+    '</div>';
+  }).join('');
+}
+
+function reCopy(i) {
+  var text = clipboardHistory[i];
+  navigator.clipboard.writeText(text).then(function(){ showToast('📋 Copied!'); }).catch(function(){
+    var ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    showToast('📋 Copied!');
+  });
+}
+
+function clearClipboard() {
+  clipboardHistory = [];
+  localStorage.removeItem('mv_clipboard');
+  renderClipboard();
+  showToast('🗑 Clipboard cleared');
+}
+
+// Hook clipboard — save text when user copies anything
+document.addEventListener('copy', function() {
+  setTimeout(function() {
+    var sel = window.getSelection ? window.getSelection().toString() : '';
+    if (sel && sel.trim().length > 2) addToClipboard(sel.trim());
+  }, 100);
+});
+
+// ── 4. SOUNDBOARD ─────────────────────────────────────────────────────────
+var SOUNDS = [
+  {label:'😂 Laugh',     src:'https://www.soundjay.com/human/sounds/laughing-1.mp3'},
+  {label:'👏 Applause',  src:'https://www.soundjay.com/human/sounds/applause-8.mp3'},
+  {label:'😮 Wow',       src:'https://www.soundjay.com/human/sounds/gasping-1.mp3'},
+  {label:'🥁 Drum Roll', src:'https://www.soundjay.com/misc/sounds/drum-roll-1.mp3'},
+  {label:'🎺 Fanfare',   src:'https://www.soundjay.com/misc/sounds/bugle-1.mp3'},
+  {label:'🔔 Bell',      src:'https://www.soundjay.com/misc/sounds/bell-ringing-01.mp3'},
+  {label:'💥 Boom',      src:'https://www.soundjay.com/misc/sounds/explosion-01.mp3'},
+  {label:'🎉 Party',     src:'https://www.soundjay.com/misc/sounds/party-blower-1.mp3'},
+  {label:'😢 Sad',       src:'https://www.soundjay.com/misc/sounds/sad-trombone-1.mp3'},
+  {label:'⚡ Zap',       src:'https://www.soundjay.com/misc/sounds/zap-1.mp3'},
+  {label:'🐱 Cat',       src:'https://www.soundjay.com/animal/sounds/cat-meow-1.mp3'},
+  {label:'🐶 Dog',       src:'https://www.soundjay.com/animal/sounds/dog-barking-1.mp3'},
+];
+var activeSoundAudio = null;
+
+function openSoundboard() {
+  openModal('modal-soundboard');
+  var grid = document.getElementById('soundboard-grid');
+  grid.innerHTML = SOUNDS.map(function(s, i) {
+    return '<button onclick="playSound('+i+')" id="snd-'+i+'" style="padding:14px 8px;border-radius:14px;border:1px solid var(--border);background:var(--deep);color:var(--moon);font-size:12px;cursor:pointer;transition:all .2s;text-align:center">'+s.label+'</button>';
+  }).join('');
+}
+
+function playSound(i) {
+  if (activeSoundAudio) { activeSoundAudio.pause(); activeSoundAudio.currentTime=0; }
+  var s = SOUNDS[i];
+  var btn = document.getElementById('snd-'+i);
+  if (btn) { btn.style.background='rgba(34,197,94,.2)'; btn.style.borderColor='var(--green3)'; }
+  activeSoundAudio = new Audio(s.src);
+  activeSoundAudio.play().catch(function(){ showToast('Could not play sound'); });
+  activeSoundAudio.onended = function() {
+    if (btn) { btn.style.background='var(--deep)'; btn.style.borderColor='var(--border)'; }
+  };
+}
+
+// ── 5. WORD OF THE DAY ────────────────────────────────────────────────────
+var WORDS_BANK = [
+  {word:'Resilience',pos:'noun',def:'The ability to recover quickly from difficulties and keep moving forward.',eg:'Her resilience in the face of hardship inspired everyone around her.'},
+  {word:'Ephemeral',pos:'adjective',def:'Lasting for a very short time; transitory.',eg:'Social media fame can be ephemeral if you don\'t stay consistent.'},
+  {word:'Serendipity',pos:'noun',def:'The occurrence of events by chance in a happy or beneficial way.',eg:'Meeting his business partner was pure serendipity.'},
+  {word:'Perspicacious',pos:'adjective',def:'Having a ready insight into things; shrewdly perceptive.',eg:'A perspicacious investor sees opportunities others miss.'},
+  {word:'Tenacity',pos:'noun',def:'The quality of being very determined and not giving up easily.',eg:'His tenacity helped him build a successful app despite all obstacles.'},
+  {word:'Luminous',pos:'adjective',def:'Full of or shedding light; bright and radiant.',eg:'Her luminous personality lit up every room she entered.'},
+  {word:'Catalyst',pos:'noun',def:'A person or thing that causes change or action.',eg:'Great mentors serve as a catalyst for personal growth.'},
+  {word:'Pragmatic',pos:'adjective',def:'Dealing with things sensibly and realistically, based on practical considerations.',eg:'A pragmatic approach to building the app saved them months of work.'},
+  {word:'Euphoria',pos:'noun',def:'A feeling or state of intense happiness and excitement.',eg:'The euphoria of launching your first app is unforgettable.'},
+  {word:'Equanimity',pos:'noun',def:'Mental calmness and composure, especially in difficult situations.',eg:'He handled the criticism with remarkable equanimity.'},
+  {word:'Fortitude',pos:'noun',def:'Courage in facing pain, danger, or adversity.',eg:'It takes fortitude to keep building when nobody believes in your vision.'},
+  {word:'Sagacious',pos:'adjective',def:'Having or showing keen mental discernment and good judgement.',eg:'A sagacious entrepreneur knows when to pivot and when to persist.'},
+  {word:'Benevolent',pos:'adjective',def:'Well meaning and kindly; generous and caring about others.',eg:'A benevolent leader always puts the team\'s wellbeing first.'},
+  {word:'Indomitable',pos:'adjective',def:'Impossible to subdue or defeat; unconquerable.',eg:'Her indomitable spirit carried her through every setback.'},
+  {word:'Eloquent',pos:'adjective',def:'Fluent or persuasive in speaking or writing.',eg:'An eloquent speech can change the direction of an entire movement.'},
+  {word:'Perseverance',pos:'noun',def:'Continued effort to do something despite difficulty or delay.',eg:'Perseverance separates those who succeed from those who give up.'},
+  {word:'Innovative',pos:'adjective',def:'Featuring new methods; introducing new ideas or products.',eg:'Mindvora was built by an innovative young developer with a big vision.'},
+  {word:'Audacious',pos:'adjective',def:'Showing a willingness to take surprisingly bold risks.',eg:'Starting a social media platform from scratch is an audacious move.'},
+  {word:'Prolific',pos:'adjective',def:'Producing much fruit or many works; highly creative and productive.',eg:'A prolific creator posts consistently and engages with their audience daily.'},
+  {word:'Visionary',pos:'noun/adjective',def:'A person with original ideas about the future; thinking about the future with imagination.',eg:'Every great company was started by a visionary who saw what others couldn\'t.'},
+];
+
+function openWordOfDay() {
+  openModal('modal-word');
+  var body = document.getElementById('word-body');
+  // Use date to pick a consistent word per day
+  var dayIndex = Math.floor(Date.now() / 86400000) % WORDS_BANK.length;
+  var w = WORDS_BANK[dayIndex];
+  body.innerHTML =
+    '<div style="text-align:center;padding:10px 0 20px">' +
+      '<div style="font-size:32px;font-weight:700;color:var(--green3);font-family:\'DM Serif Display\',serif;margin-bottom:4px">'+esc(w.word)+'</div>' +
+      '<div style="font-size:11px;color:var(--muted);font-style:italic;margin-bottom:16px">'+esc(w.pos)+'</div>' +
+      '<div style="font-size:13px;color:var(--moon);line-height:1.7;margin-bottom:14px;text-align:left;background:var(--deep);padding:12px;border-radius:10px;border:1px solid var(--border)">'+esc(w.def)+'</div>' +
+      '<div style="font-size:12px;color:var(--muted);font-style:italic;text-align:left;padding:0 4px">📌 "'+esc(w.eg)+'"</div>' +
+      '<button class="btn-pay" style="margin-top:16px" onclick="shareWordOfDay(\''+esc(w.word)+'\',\''+esc(w.def)+'\')">Share This Word ✨</button>' +
+    '</div>';
+}
+
+function shareWordOfDay(word, def) {
+  db.collection('sparks').add({
+    text: '📖 Word of the Day: \'' + word + '\'\n\n' + def + '\n\n#WordOfTheDay #Mindvora',
+    authorId: state.user.uid,
+    authorName: state.profile.name,
+    authorHandle: state.profile.handle || 'user',
+    authorColor: state.profile.color || COLORS[0],
+    category: 'general',
+    likes: [], saved: [], commentCount: 0,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function(){ showToast('📖 Word shared to your feed!'); closeModal('modal-word'); })
+    .catch(function(){ showToast('Error sharing'); });
+}
+
+// ── 6. MINDVORA TV ────────────────────────────────────────────────────────
+function openMindvoraTV() {
+  if (!state.user) { showToast('Login first'); return; }
+  openModal('modal-tv');
+  loadTV('trending', document.querySelector('#tv-tabs .f-pill'));
+}
+
+function loadTV(filter, btn) {
+  if (btn) {
+    document.querySelectorAll('#tv-tabs .f-pill').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+  }
+  var grid = document.getElementById('tv-grid');
+  grid.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Loading…</div>';
+
+  var query = db.collection('sparks').where('mediaType','==','video').limit(20);
+  query.get().then(function(snap) {
+    if (snap.empty) {
+      grid.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)"><div style="font-size:32px;margin-bottom:8px">📺</div><div>No videos yet. Be the first to post!</div></div>';
+      return;
+    }
+    var docs = snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); });
+    // Sort client-side
+    if (filter === 'trending') docs.sort(function(a,b){ return ((b.likes||[]).length+(b.commentCount||0)) - ((a.likes||[]).length+(a.commentCount||0)); });
+    else if (filter === 'recent') docs.sort(function(a,b){ var ta=a.createdAt&&a.createdAt.seconds?a.createdAt.seconds:0; var tb=b.createdAt&&b.createdAt.seconds?b.createdAt.seconds:0; return tb-ta; });
+    else if (filter === 'top') docs.sort(function(a,b){ return (b.likes||[]).length - (a.likes||[]).length; });
+
+    grid.innerHTML = docs.map(function(s) {
+      return '<div style="display:flex;gap:12px;align-items:center;padding:10px;background:var(--deep);border-radius:12px;border:1px solid var(--border);cursor:pointer" onclick="openReel(\''+s.id+'\',\''+esc(s.mediaUrl||'')+'\',\''+esc(s.authorName||'User')+'\',\''+esc((s.text||'').slice(0,50))+'\','+(s.likes||[]).length+')">' +
+        '<video src="'+esc(s.mediaUrl||'')+'" style="width:72px;height:72px;object-fit:cover;border-radius:8px;flex-shrink:0" muted preload="metadata"></video>' +
+        '<div style="flex:1;min-width:0">' +
+          '<div style="font-size:13px;font-weight:700;color:var(--moon);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(s.authorName||'User')+'</div>' +
+          '<div style="font-size:11px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc((s.text||'No caption').slice(0,60))+'</div>' +
+          '<div style="display:flex;gap:10px;margin-top:6px;font-size:11px;color:var(--muted)">' +
+            '<span>❤️ '+(s.likes||[]).length+'</span>' +
+            '<span>💬 '+(s.commentCount||0)+'</span>' +
+          '</div>' +
+        '</div>' +
+        '<div style="font-size:20px;color:var(--green3);flex-shrink:0">▶</div>' +
+      '</div>';
+    }).join('');
+  }).catch(function(){ grid.innerHTML='<div style="color:#fca5a5;padding:10px;text-align:center">Error loading</div>'; });
+}
+
 
 // ── ANIMATED FAVICON ──────────────────────────────────────────────────────
 (function(){
